@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ساره — صندوق الذكريات</title>
-    <!-- أنماط خطوط وأيقونات ناعمة -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
@@ -21,7 +20,6 @@
             width: 100%;
             position: relative;
             overflow-x: hidden;
-            transition: background-color 0.8s ease;
         }
 
         /* ========== شاشة الدخول الأولى (دارك ويب) ========== */
@@ -81,7 +79,7 @@
             padding-bottom: 15px;
         }
 
-        .date-label {
+        .secret-label {
             color: #ad6d6d;
             font-size: 1.1rem;
             margin-bottom: 20px;
@@ -120,10 +118,11 @@
             box-shadow: 0 0 30px red;
         }
 
-        .date-hint {
-            color: #946b6b;
-            font-size: 0.9rem;
-            margin: 10px 0 20px;
+        .secret-hint {
+            color: #5f4b4b;
+            font-size: 0.85rem;
+            margin: 5px 0 20px;
+            letter-spacing: 1px;
         }
 
         .glitch-btn {
@@ -150,7 +149,7 @@
             color: white;
         }
 
-        /* ========== الصفحة الرئيسية (بعد الدخول) ========== */
+        /* ========== الصفحة الرئيسية ========== */
         .main-party {
             min-height: 100vh;
             background: linear-gradient(145deg, #ffc0cb 0%, #ffb6c1 30%, #ff99aa 70%, #ff5977 100%);
@@ -169,7 +168,6 @@
             100% { box-shadow: inset 0 0 120px #ff3b6f; }
         }
 
-        /* فقاعات وورود خلفية */
         .bubble-bg, .flower-bg {
             position: absolute;
             top: 0;
@@ -209,7 +207,6 @@
             100% { transform: rotate(360deg) translateX(-30px); }
         }
 
-        /* الصندوق المركزي */
         .box-container {
             position: relative;
             z-index: 30;
@@ -256,7 +253,6 @@
             border: 2px dashed white;
         }
 
-        /* الزر المثقوب */
         .hole-button {
             background: #ffc2c9;
             border: 6px double #ff1a4c;
@@ -283,7 +279,6 @@
             box-shadow: 0 5px 0 #a12342, 0 15px 25px #3a0011;
         }
 
-        /* اسم سارة يظهر ويكبر */
         .sarah-name {
             font-size: 0;
             color: #ffecf0;
@@ -307,7 +302,6 @@
             .sarah-name.show { font-size: 5rem; }
         }
 
-        /* أشرطة ورقصات */
         .confetti-piece {
             position: absolute;
             width: 15px;
@@ -325,7 +319,6 @@
             100% { transform: translateY(110vh) rotate(540deg); opacity: 0.4; }
         }
 
-        /* رسالة صغيرة */
         .footer-love {
             margin-top: 30px;
             font-size: 1.4rem;
@@ -338,49 +331,39 @@
             border-radius: 100px;
             backdrop-filter: blur(4px);
         }
-
-        /* إخفاء */
-        .hidden {
-            display: none !important;
-        }
     </style>
 </head>
 <body>
 
-<!-- شاشة الدخول (دارك ويب) -->
+<!-- شاشة الدخول - التاريخ سري لا يظهر -->
 <div class="login-screen" id="loginScreen">
     <div class="login-card">
-        <h2>✦ مَنْ أنتَ ✦</h2>
-        <div class="date-label">التاريخ المنسي</div>
+        <h2>✦ المدخل السري ✦</h2>
+        <div class="secret-label">أدخل التاريخ المنسي</div>
         <div class="date-inputs">
-            <input type="text" id="year" maxlength="4" placeholder="2009" value="2009">
-            <input type="text" id="month" maxlength="2" placeholder="04" value="4">
-            <input type="text" id="day" maxlength="2" placeholder="15" value="15">
+            <input type="text" id="year" maxlength="4" placeholder="سنة">
+            <input type="text" id="month" maxlength="2" placeholder="شهر">
+            <input type="text" id="day" maxlength="2" placeholder="يوم">
         </div>
-        <div class="date-hint">يومٌ خاص .. 2009/4/15</div>
-        <button class="glitch-btn" id="enterBtn">افتح الباب</button>
+        <div class="secret-hint">••• سرٌّ لا يعرفه إلا من تحب •••</div>
+        <button class="glitch-btn" id="enterBtn">فتح البوابة</button>
         <div style="margin-top: 20px; color:#a55; font-size:0.9rem;">dark web ● 0x3F3A</div>
     </div>
 </div>
 
-<!-- صفحة الاحتفال (تبدأ مخفية) -->
+<!-- صفحة ساره الاحتفالية -->
 <div class="main-party" id="partyScreen">
-    <!-- فقاعات وورود خلفية (تُضاف بالجافاسكربت) -->
     <div class="bubble-bg" id="bubbleContainer"></div>
     <div class="flower-bg" id="flowerContainer"></div>
 
     <div class="box-container">
-        <!-- الصندوق المغلق -->
         <div class="gift-box" id="giftBox">
             <span>???</span>
         </div>
-        <!-- الزر المثقوب لفتح الصندوق -->
         <div class="hole-button" id="breakBtn">💥 اضغط لكسر الصندوق 💥</div>
     </div>
 
-    <!-- اسم ساره سيظهر ويتضخم هنا -->
     <div class="sarah-name" id="sarahText">ســـاره</div>
-
     <div class="footer-love" id="loveNote">لأغلى صديقة 💗</div>
 </div>
 
@@ -401,42 +384,43 @@
         const bubbleContainer = document.getElementById('bubbleContainer');
         const flowerContainer = document.getElementById('flowerContainer');
 
-        // متغير لمنع تكرار الكسر
         let isBroken = false;
 
-        // 1. التحقق من التاريخ عند الدخول
+        // 1. التحقق من التاريخ السري (2009/4/15)
         enterBtn.addEventListener('click', function() {
-            // الحصول على القيم وازالة الفراغات
             let y = yearInput.value.trim();
             let m = monthInput.value.trim();
             let d = dayInput.value.trim();
 
-            // تحويل إلى أرقام (المقارنة متساهلة: 2009 - 4 - 15)
-            // نسمح ب 2009, 4, 15 حتى لو كانت text
-            if (y == '2009' && m == '4' && d == '15') {
-                // دخول صحيح → نخفي شاشة الدخول بشكل انسيابي
+            // التاريخ السري: 2009 - 4 - 15
+            if (y === '2009' && m === '4' && d === '15') {
+                // دخول صحيح
                 loginScreen.style.opacity = '0';
                 setTimeout(() => {
                     loginScreen.style.display = 'none';
                     partyScreen.style.display = 'flex';
-                    // نبدأ توليد الفقاعات والورود
-                    generateBubbles(25);
-                    generateFlowers(20);
+                    generateBubbles(30);
+                    generateFlowers(25);
                 }, 800);
             } else {
-                alert('❌ خطأ في التاريخ... اليوم خاص: 2009/4/15');
-                // تأثير ارتجاج دارك ويب
+                alert('⛔ خطأ في التاريخ... البوابة مغلقة.');
+                // تأثير ارتجاج
                 loginScreen.style.transform = 'scale(1.02)';
                 setTimeout(() => loginScreen.style.transform = 'scale(1)', 200);
+                
+                // مسح الحقول خطأ (اختياري لإرباك المتطفلين)
+                yearInput.value = '';
+                monthInput.value = '';
+                dayInput.value = '';
             }
         });
 
-        // 2. توليد عناصر زخرفية (فقاعات وبالونات)
+        // 2. توليد الفقاعات والورود
         function generateBubbles(count) {
             for (let i = 0; i < count; i++) {
                 let bubble = document.createElement('div');
                 bubble.classList.add('bubble');
-                let size = Math.floor(Math.random() * 100 + 30); // 30-130px
+                let size = Math.floor(Math.random() * 100 + 30);
                 bubble.style.width = size + 'px';
                 bubble.style.height = size + 'px';
                 bubble.style.left = Math.random() * 100 + '%';
@@ -449,7 +433,7 @@
         }
 
         function generateFlowers(count) {
-            const flowers = ['🌸', '🌹', '🌺', '🌷', '🌸', '🌸', '🌼', '🌻', '💮', '🏵️', '🌸', '🌸', '🌸'];
+            const flowers = ['🌸', '🌹', '🌺', '🌷', '🌸', '🌸', '🌼', '🌻', '💮', '🏵️', '🌸'];
             for (let i = 0; i < count; i++) {
                 let flower = document.createElement('div');
                 flower.classList.add('flower');
@@ -463,25 +447,24 @@
             }
         }
 
-        // 3. كسر الصندوق وظهور الأشرطة وتكبير الاسم
+        // 3. كسر الصندوق
         function blowBox() {
-            if (isBroken) return; // نضمن مرة واحدة فقط
+            if (isBroken) return;
             isBroken = true;
 
-            // تغيير مظهر الصندوق بشكل فوري (يُظهر محتوى وهمي)
             giftBox.style.transition = 'all 0.5s';
             giftBox.style.transform = 'scale(1.2) rotate(3deg)';
             giftBox.style.background = 'radial-gradient(circle, #ff99aa, #ff3b6f)';
             giftBox.style.boxShadow = '0 0 0 10px #ffe5ec, 0 0 70px #ffb6c1, 0 30px 0 #8f1e3f';
-            giftBox.innerHTML = '<span style="font-size:5rem;">🎁 ✨</span>';  // صندوق مكسور
+            giftBox.innerHTML = '<span style="font-size:5rem;">🎁 ✨</span>';
 
-            // إضافة أشرطة ملونة (confetti) بشكل مكثف
-            for (let i = 0; i < 90; i++) {
+            // أشرطة ملونة
+            for (let i = 0; i < 100; i++) {
                 createConfetti();
             }
 
-            // إضافة فقاعات وبالونات اضافية فورية
-            for (let i = 0; i < 15; i++) {
+            // فقاعات اضافية
+            for (let i = 0; i < 25; i++) {
                 setTimeout(() => {
                     let extraBubble = document.createElement('div');
                     extraBubble.classList.add('bubble');
@@ -492,14 +475,14 @@
                     extraBubble.style.animation = 'floatUp 5s ease-out';
                     extraBubble.style.background = `rgba(255, 180, 200, 0.8)`;
                     bubbleContainer.appendChild(extraBubble);
-                }, i * 30);
+                }, i * 20);
             }
 
-            // جعل الاسم يظهر ويتضخم (نضيف class show)
+            // اسم ساره يظهر
             sarahText.classList.add('show');
 
-            // أيضا نضيف المزيد من الورود بالهبل
-            for (let f = 0; f < 25; f++) {
+            // ورد اضافي
+            for (let f = 0; f < 30; f++) {
                 let fl = document.createElement('div');
                 fl.classList.add('flower');
                 fl.innerHTML = '🌸';
@@ -510,14 +493,12 @@
                 flowerContainer.appendChild(fl);
             }
 
-            // نغير نص الزر إلى "انفتح!"
             breakBtn.innerText = '🎉 صندوق ساره 🎉';
             breakBtn.style.background = '#ffecf0';
-            breakBtn.style.pointerEvents = 'none'; // لا مزيد من الضغط
+            breakBtn.style.pointerEvents = 'none';
             breakBtn.style.opacity = '0.9';
         }
 
-        // دقيقة لصنع شريط ملون
         function createConfetti() {
             const confetti = document.createElement('div');
             confetti.classList.add('confetti-piece');
@@ -526,30 +507,22 @@
             confetti.style.width = Math.random() * 20 + 8 + 'px';
             confetti.style.height = Math.random() * 30 + 15 + 'px';
             confetti.style.animationDelay = Math.random() * 2 + 's';
-            document.body.appendChild(confetti); // نضيف على الجسم لتظهر فوق الكل
-            // نزيل العنصر بعد الانتهاء
+            document.body.appendChild(confetti);
             setTimeout(() => confetti.remove(), 6000);
         }
 
-        // 4. ربط حدث الزر المثقوب
+        // أحداث الكسر
         breakBtn.addEventListener('click', blowBox);
-
-        // 5. اختياري: الضغط على الصندوق نفسه يؤدي أيضاً للكسر (لطافة)
         giftBox.addEventListener('click', blowBox);
 
-        // 6. منع التحديث عند الإدخال بالإنتر (سهولة)
+        // ضغط إنتر في أي حقل
         yearInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') enterBtn.click(); });
         monthInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') enterBtn.click(); });
         dayInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') enterBtn.click(); });
-
-        // 7. تجربة: كتابة التاريخ بشكل افتراضي 2009 4 15 (موجودين اصلاً)
-        // إضافة تأثير نيون دارك ويب ثانوي
     })();
 </script>
 
-<!-- إضافة بعض الأنماط اليدوية للاستجابة -->
 <style>
-    /* تحسينات للهواتف */
     @media (max-width: 480px) {
         .login-card { width: 90%; padding: 1.5rem; }
         .date-inputs input { width: 60px; font-size: 1.3rem; }
@@ -557,7 +530,7 @@
         .gift-box span { font-size: 1.5rem; }
         .hole-button { font-size: 1.4rem; padding: 15px 20px; }
     }
-    /* نضمن ظهور الاسم بشكل كبير */
+    
     .sarah-name.show {
         font-size: 15vw;
         line-height: 1.2;
@@ -565,16 +538,14 @@
         filter: drop-shadow(0 0 40px #ff80a5);
         animation: heartbeat 1s infinite alternate;
     }
+    
     @keyframes heartbeat {
         from { transform: scale(0.98); text-shadow: 0 0 30px #ff80a0; }
         to { transform: scale(1.05); text-shadow: 0 0 80px #ff3b6f, 0 0 120px red; }
     }
-    /* إخفاء شاشة الدخول بشكل نهائي */
-    .login-screen.hidden { display: none; }
-    /* جعل الفقاعات خلف كل شيء */
+    
     .bubble-bg, .flower-bg { z-index: 0; }
     .box-container, .footer-love { z-index: 20; position: relative; }
-    /* جمال */
     body { background: #120b0b; }
 </style>
 </body>
