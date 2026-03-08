@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>السجون المظلمة - الدخول إلى نور ملاك</title>
+    <!-- خط عربي ناعم -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+            background: #000;
+        }
+
+        /* ===== شاشة الدخول السري (دارك ويب مخيف) ===== */
+        .screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 1.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 1.8s ease;
+        }
+
+        .dark-screen {
+            background: #000000;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(255, 0, 0, 0.2) 0%, transparent 40%),
+                radial-gradient(circle at 80% 70%, rgba(255, 0, 60, 0.15) 0%, transparent 45%),
+                repeating-linear-gradient(0deg, rgba(255, 0, 0, 0.05) 0px, rgba(0, 255, 255, 0.02) 1px, transparent 1px, transparent 3px),
+                repeating-linear-gradient(90deg, rgba(255, 0, 0, 0.03) 0px, rgba(0, 255, 255, 0.02) 2px, transparent 2px, transparent 5px);
+            color: #ff0000;
+            text-shadow: 0 0 5px #ff0000, 0 0 15px #ff3300, 0 0 30px #ff0066;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* طبقات رعب إضافية */
+        .dark-screen::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(0deg, 
+                transparent, 
+                transparent 3px, 
+                rgba(255, 0, 0, 0.03) 3px, 
+                rgba(255, 0, 0, 0.03) 6px);
+            pointer-events: none;
+            animation: scanLines 8s linear infinite;
+        }
+
+        .dark-screen::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 50%, transparent 0%, rgba(0, 0, 0, 0.7) 100%);
+            pointer-events: none;
+        }
+
+        @keyframes scanLines {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+
+        /* عناصر رعب متحركة */
+        .horror-elements {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .horror-element {
+            position: absolute;
+            color: rgba(255, 0, 0, 0.1);
+            font-size: 200px;
+            font-weight: 900;
+            user-select: none;
+            animation: horrorFloat 20s linear infinite;
+            white-space: nowrap;
+            text-shadow: 0 0 20px red;
+            transform: rotate(45deg);
+        }
+
+        @keyframes horrorFloat {
+            0% { transform: translateX(-100%) rotate(45deg); opacity: 0; }
+            10% { opacity: 0.3; }
+            90% { opacity: 0.3; }
+            100% { transform: translateX(1000%) rotate(45deg); opacity: 0; }
+        }
+
+        .horror-element:nth-child(1) { top: 20%; animation-duration: 15s; }
+        .horror-element:nth-child(2) { top: 50%; animation-duration: 25s; }
+        .horror-element:nth-child(3) { top: 80%; animation-duration: 20s; }
+        .horror-element:nth-child(4) { top: 10%; animation-duration: 30s; }
+
+        .glitch-text {
+            font-size: 2.8rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 10px;
+            animation: horrorGlitch 2s infinite;
+            margin-bottom: 30px;
+            color: #ff0000;
+            text-align: center;
+            position: relative;
+            opacity: 0.9;
+        }
+
+        @keyframes horrorGlitch {
+            0%, 100% { 
+                text-shadow: 3px 0 0 #00ffff, -3px 0 0 #ff00ff, 0 0 20px red;
+                transform: skew(0deg);
+            }
+            20% { 
+                text-shadow: -5px 2px 0 #00ffff, 5px -2px 0 #ff00ff, 0 0 30px #ff3300;
+                transform: skew(2deg);
+            }
+            40% { 
+                text-shadow: 5px -2px 0 #00ffff, -5px 2px 0 #ff00ff, 0 0 40px #ff0066;
+                transform: skew(-2deg);
+            }
+            60% { 
+                text-shadow: -8px 4px 0 #00ffff, 8px -4px 0 #ff00ff, 0 0 50px red;
+                transform: skew(3deg);
+            }
+            80% { 
+                text-shadow: 8px -4px 0 #00ffff, -8px 4px 0 #ff00ff, 0 0 30px #ff3300;
+                transform: skew(-3deg);
+            }
+        }
+
+        .login-box {
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(10px);
+            border: 2px solid #ff0000;
+            box-shadow: 0 0 50px rgba(255, 0, 0, 0.7), inset 0 0 30px rgba(255, 0, 0, 0.3), 0 0 100px rgba(255, 0, 0, 0.3);
+            padding: 50px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+            animation: boxFlicker 3s infinite;
+            border-top: 1px solid rgba(255, 0, 0, 0.5);
+            border-bottom: 1px solid rgba(255, 0, 0, 0.5);
+        }
+
+        @keyframes boxFlicker {
+            0%, 100% { opacity: 1; box-shadow: 0 0 50px rgba(255, 0, 0, 0.7), inset 0 0 30px rgba(255, 0, 0, 0.3); }
+            5% { opacity: 0.8; box-shadow: 0 0 30px rgba(255, 0, 0, 0.9), inset 0 0 50px rgba(255, 0, 0, 0.5); }
+            10% { opacity: 1; box-shadow: 0 0 60px rgba(255, 0, 0, 0.8), inset 0 0 40px rgba(255, 0, 0, 0.4); }
+            15% { opacity: 0.7; box-shadow: 0 0 40px rgba(255, 0, 0, 0.6), inset 0 0 60px rgba(255, 0, 0, 0.6); }
+            20% { opacity: 1; box-shadow: 0 0 70px rgba(255, 0, 0, 0.9), inset 0 0 30px rgba(255, 0, 0, 0.3); }
+        }
+
+        .login-box h2 {
+            color: #ff3333;
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            position: relative;
+            display: inline-block;
+        }
+
+        .login-box h2::before,
+        .login-box h2::after {
+            content: '⏤͟͟͞͞★';
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #ff0000;
+            font-size: 1rem;
+            opacity: 0.5;
+        }
+
+        .login-box h2::before {
+            left: -40px;
+        }
+
+        .login-box h2::after {
+            right: -40px;
+        }
+
+        .code-inputs {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin: 40px 0;
+            direction: ltr;
+        }
+
+        .code-inputs input {
+            width: 90px;
+            height: 90px;
+            background: rgba(20, 0, 0, 0.9);
+            border: 2px solid #ff3333;
+            color: #ff6666;
+            font-size: 2.8rem;
+            font-weight: bold;
+            text-align: center;
+            border-radius: 5px;
+            outline: none;
+            box-shadow: 0 0 20px #ff0000, inset 0 0 10px #ff0000;
+            transition: 0.2s;
+            caret-color: #ff0000;
+            text-transform: uppercase;
+        }
+
+        .code-inputs input:focus {
+            border-color: #ff0000;
+            box-shadow: 0 0 40px #ff3300, inset 0 0 20px #ff3300;
+            transform: scale(1.05);
+            background: rgba(40, 0, 0, 0.9);
+        }
+
+        .code-inputs input::placeholder {
+            color: rgba(255, 0, 0, 0.3);
+            font-size: 1rem;
+            text-align: center;
+        }
+
+        .error-message {
+            color: #ff0000;
+            margin: 20px 0;
+            font-size: 1.3rem;
+            min-height: 40px;
+            text-shadow: 0 0 10px red, 0 0 20px #ff0000;
+            font-weight: 700;
+            letter-spacing: 2px;
+        }
+
+        .warning-text {
+            color: #660000;
+            font-size: 0.9rem;
+            margin-top: 30px;
+            letter-spacing: 1px;
+            border-top: 1px solid #330000;
+            padding-top: 20px;
+        }
+
+        /* تأثير اهتزاز عنيف */
+        .shake {
+            animation: violentShake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+        }
+
+        @keyframes violentShake {
+            0%, 100% { transform: translateX(0) translateY(0); }
+            10% { transform: translateX(-15px) translateY(-5px); }
+            20% { transform: translateX(15px) translateY(5px); }
+            30% { transform: translateX(-20px) translateY(-8px); }
+            40% { transform: translateX(20px) translateY(8px); }
+            50% { transform: translateX(-15px) translateY(-5px); }
+            60% { transform: translateX(15px) translateY(5px); }
+            70% { transform: translateX(-10px) translateY(-3px); }
+            80% { transform: translateX(10px) translateY(3px); }
+            90% { transform: translateX(-5px) translateY(-2px); }
+        }
+
+        /* ===== الصفحة الرئيسية (عالم الفتاة) ===== */
+        .main-screen {
+            background: linear-gradient(145deg, #ffc0cb 0%, #ffb6c1 30%, #ff9eb5 70%, #ff8da1 100%);
+            position: relative;
+            z-index: 1;
+            opacity: 0;
+            visibility: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .main-screen.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* عناصر متحركة (بالونات, ورود, فقاعات) */
+        .floating-elements {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .float-item {
+            position: absolute;
+            opacity: 0.7;
+            animation: float 8s infinite ease-in-out;
+            filter: drop-shadow(0 0 10px rgba(255, 105, 180, 0.5));
+            user-select: none;
+            font-size: 2rem;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) rotate(0deg); }
+            50% { transform: translateY(-30px) rotate(10deg); }
+        }
+
+        /* الصندوق الرئيسي */
+        .gift-container {
+            text-align: center;
+            position: relative;
+            z-index: 20;
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+        }
+
+        .gift-box {
+            width: 280px;
+            height: 280px;
+            margin: 0 auto 30px;
+            background: linear-gradient(135deg, #ff3b6f, #ff69b4);
+            border-radius: 30px 30px 30px 30px;
+            box-shadow: 0 20px 40px rgba(255, 20, 100, 0.5), 0 0 50px #ff99cc, inset 0 -10px 20px rgba(0, 0, 0, 0.1);
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 5px solid #fff3f8;
+        }
+
+        .gift-box:hover {
+            transform: scale(1.05);
+        }
+
+        .gift-box::before {
+            content: '🎁';
+            font-size: 80px;
+            filter: drop-shadow(0 10px 10px rgba(0,0,0,0.2));
+        }
+
+        .gift-box.exploded {
+            animation: explode 0.8s forwards;
+            pointer-events: none;
+        }
+
+        @keyframes explode {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.3); opacity: 0.7; box-shadow: 0 0 150px #ff69b4; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+
+        .open-btn {
+            background: #ff3b6f;
+            color: white;
+            border: none;
+            padding: 18px 40px;
+            font-size: 1.8rem;
+            font-weight: 700;
+            border-radius: 60px;
+            cursor: pointer;
+            box-shadow: 0 10px 0 #b32d5a, 0 10px 30px #ff99cc;
+            transition: 0.1s linear;
+            margin-top: 20px;
+            border: 2px dashed #fff;
+            letter-spacing: 2px;
+        }
+
+        .open-btn:active {
+            transform: translateY(10px);
+            box-shadow: 0 5px 0 #b32d5a, 0 10px 30px #ff99cc;
+        }
+
+        /* اسم الفتاة الذي يظهر بعد التفجير */
+        .girl-name-container {
+            margin-top: 40px;
+            min-height: 200px;
+            position: relative;
+            opacity: 0;
+            transition: opacity 1s;
+        }
+
+        .girl-name-container.show {
+            opacity: 1;
+        }
+
+        .girl-name {
+            font-size: 5rem;
+            font-weight: 900;
+            color: #fff1f5;
+            text-shadow: 0 0 20px #ff3b6f, 0 0 40px #ff69b4, 0 0 80px #ff99cc;
+            animation: glowPulse 2s infinite, floatText 3s ease-in-out infinite;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        @keyframes glowPulse {
+            0%, 100% { text-shadow: 0 0 30px #ff3b6f, 0 0 60px #ff69b4; }
+            50% { text-shadow: 0 0 50px #ff69b4, 0 0 90px #ffb6c1, 0 0 120px #ff3b6f; }
+        }
+
+        @keyframes floatText {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .love-message {
+            font-size: 2rem;
+            color: #fff;
+            text-shadow: 0 0 15px #ff69b4;
+            background: rgba(255, 200, 220, 0.3);
+            backdrop-filter: blur(5px);
+            padding: 15px 30px;
+            border-radius: 50px;
+            display: inline-block;
+            margin-top: 20px;
+            border: 1px solid white;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* تجاوب مع الجوال */
+        @media (max-width: 600px) {
+            .glitch-text { font-size: 1.8rem; letter-spacing: 5px; }
+            .login-box { padding: 30px 20px; }
+            .code-inputs { gap: 8px; }
+            .code-inputs input { width: 65px; height: 65px; font-size: 2.2rem; }
+            .gift-box { width: 220px; height: 220px; }
+            .gift-box::before { font-size: 60px; }
+            .girl-name { font-size: 3.5rem; }
+            .love-message { font-size: 1.5rem; }
+            .open-btn { font-size: 1.5rem; padding: 15px 30px; }
+            .login-box h2::before,
+            .login-box h2::after { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- شاشة الدخول السري (دارك ويب مخيف) -->
+    <div class="screen dark-screen" id="darkScreen">
+        <!-- عناصر رعب متحركة -->
+        <div class="horror-elements">
+            <div class="horror-element">⚠️</div>
+            <div class="horror-element">⌯</div>
+            <div class="horror-element">ERROR</div>
+            <div class="horror-element">404</div>
+        </div>
+
+        <div class="login-box" id="loginBox">
+            <div class="glitch-text">ACCESS DENIED</div>
+            <h2>???</h2>
+            
+            <!-- حقول التاريخ بدون أي تلميحات -->
+            <div class="code-inputs">
+                <input type="text" id="year" maxlength="4" placeholder="****" inputmode="numeric" pattern="\d*">
+                <input type="text" id="month" maxlength="2" placeholder="**" inputmode="numeric" pattern="\d*">
+                <input type="text" id="day" maxlength="2" placeholder="**" inputmode="numeric" pattern="\d*">
+            </div>
+            
+            <div class="error-message" id="errorMsg"></div>
+            
+            <!-- رسالة تحذيرية غامضة -->
+            <div class="warning-text">
+                <span>❌</span> فَشَلُ الِاتِّصَالِ <span>❌</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- الصفحة الرئيسية (عالم الفتاة) -->
+    <div class="screen main-screen" id="mainScreen">
+        <!-- عناصر عائمة (بالونات، ورود، فقاعات) تتولد باستمرار بالجافاسكريبت -->
+        <div class="floating-elements" id="floatingContainer"></div>
+
+        <div class="gift-container">
+            <div class="gift-box" id="giftBox"></div>
+            <button class="open-btn" id="openBtn">اضغط لكسر الصندوق</button>
+
+            <!-- مكان ظهور اسم الفتاة بعد التفجير -->
+            <div class="girl-name-container" id="nameContainer">
+                <div class="girl-name" id="girlName">ملاك</div>
+                <div class="love-message" id="loveMessage">💖 شكراً لأنكِ موجودة 💖</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // إعدادات سرية تماماً - التاريخ مخفي ولا يوجد أي تلميح
+            const SECRET_YEAR = '2009';
+            const SECRET_MONTH = '11';
+            const SECRET_DAY = '20';
+            const GIRL_NAME = 'ملاك'; // يمكن تغييره بسهولة
+
+            // العناصر
+            const darkScreen = document.getElementById('darkScreen');
+            const mainScreen = document.getElementById('mainScreen');
+            const yearInput = document.getElementById('year');
+            const monthInput = document.getElementById('month');
+            const dayInput = document.getElementById('day');
+            const errorMsg = document.getElementById('errorMsg');
+            const loginBox = document.getElementById('loginBox');
+            const giftBox = document.getElementById('giftBox');
+            const openBtn = document.getElementById('openBtn');
+            const nameContainer = document.getElementById('nameContainer');
+            const girlNameSpan = document.getElementById('girlName');
+            const loveMsgSpan = document.getElementById('loveMessage');
+
+            // تعيين اسم الفتاة في العناصر
+            girlNameSpan.textContent = GIRL_NAME;
+            loveMsgSpan.innerHTML = `💖 شكراً ${GIRL_NAME} 💖`;
+
+            // توليد العناصر العائمة بشكل مستمر
+            const floatingContainer = document.getElementById('floatingContainer');
+            const symbols = ['🎈', '🎀', '🌸', '🌹', '💐', '✨', '💕', '💗', '💓', '🫧', '🎉', '🎊'];
+
+            function createFloatingItem() {
+                const item = document.createElement('div');
+                item.className = 'float-item';
+                const symbol = symbols[Math.floor(Math.random() * symbols.length)];
+                item.textContent = symbol;
+                const size = Math.random() * 30 + 20;
+                item.style.fontSize = size + 'px';
+                item.style.left = Math.random() * 100 + '%';
+                item.style.top = Math.random() * 100 + '%';
+                item.style.animationDuration = (Math.random() * 5 + 5) + 's';
+                item.style.animationDelay = (Math.random() * 5) + 's';
+                item.style.opacity = Math.random() * 0.5 + 0.4;
+                floatingContainer.appendChild(item);
+
+                setTimeout(() => {
+                    if (item.parentNode) item.remove();
+                }, 15000);
+            }
+
+            // توليد عناصر جديدة كل 300 مللي
+            setInterval(createFloatingItem, 300);
+
+            // التحقق من الدخول - بدون أي تلميحات للتاريخ
+            function checkCode() {
+                const year = yearInput.value.trim();
+                const month = monthInput.value.trim();
+                const day = dayInput.value.trim();
+
+                if (year === SECRET_YEAR && month === SECRET_MONTH && day === SECRET_DAY) {
+                    // تاريخ صحيح - انتقال سلس إلى العالم الوردي
+                    errorMsg.textContent = '';
+                    
+                    // إضافة تأثير نهاية مخيف قبل الانتقال
+                    loginBox.style.animation = 'boxFlicker 0.3s infinite';
+                    
+                    setTimeout(() => {
+                        darkScreen.style.opacity = '0';
+                        setTimeout(() => {
+                            darkScreen.style.visibility = 'hidden';
+                            mainScreen.classList.add('visible');
+                            
+                            // إضافة انفجار من البالونات فور الظهور
+                            for (let i = 0; i < 50; i++) {
+                                setTimeout(createFloatingItem, i * 30);
+                            }
+                        }, 800);
+                    }, 500);
+                    
+                } else {
+                    // تاريخ خطأ - رسالة رعب واهتزاز عنيف
+                    const errorMessages = [
+                        '❌ تَارِيخٌ غَيْرُ مُعْتَمَدٍ ❌',
+                        '⚠️ فَشَلُ الْمُصَادَقَةِ ⚠️',
+                        '⌯ الْوُصُولُ مَمْنُوعٌ ⌯',
+                        '💀 حَاوِلْ مَرَّةً أُخْرَى 💀'
+                    ];
+                    
+                    errorMsg.textContent = errorMessages[Math.floor(Math.random() * errorMessages.length)];
+                    loginBox.classList.add('shake');
+                    
+                    // تأثيرات إضافية للرعب
+                    document.body.style.backgroundColor = '#330000';
+                    setTimeout(() => {
+                        document.body.style.backgroundColor = '';
+                    }, 200);
+                    
+                    setTimeout(() => {
+                        loginBox.classList.remove('shake');
+                    }, 600);
+
+                    // إفراغ الحقول
+                    yearInput.value = '';
+                    monthInput.value = '';
+                    dayInput.value = '';
+                    yearInput.focus();
+                }
+            }
+
+            // إدخال عبر الضغط على Enter
+            function handleEnter(e) {
+                if (e.key === 'Enter') {
+                    checkCode();
+                }
+            }
+
+            yearInput.addEventListener('keypress', handleEnter);
+            monthInput.addEventListener('keypress', handleEnter);
+            dayInput.addEventListener('keypress', handleEnter);
+
+            // التنقل التلقائي بين الحقول
+            yearInput.addEventListener('input', function() {
+                if (this.value.length === 4) monthInput.focus();
+            });
+            monthInput.addEventListener('input', function() {
+                if (this.value.length === 2) dayInput.focus();
+            });
+            dayInput.addEventListener('input', function() {
+                if (this.value.length === 2) checkCode(); // فوري إذا اكتمل
+            });
+
+            // تفجير الصندوق وإظهار الاسم
+            function explodeGift() {
+                if (giftBox.classList.contains('exploded')) return;
+
+                giftBox.classList.add('exploded');
+                
+                openBtn.style.pointerEvents = 'none';
+                openBtn.style.opacity = '0.5';
+
+                setTimeout(() => {
+                    giftBox.style.display = 'none';
+                    openBtn.style.display = 'none';
+                    nameContainer.classList.add('show');
+
+                    // وابل من العناصر الاحتفالية
+                    for (let i = 0; i < 80; i++) {
+                        setTimeout(() => {
+                            createFloatingItem();
+                        }, i * 15);
+                    }
+                }, 600);
+            }
+
+            giftBox.addEventListener('click', explodeGift);
+            openBtn.addEventListener('click', explodeGift);
+
+            // بداية سريعة لبعض العناصر العائمة
+            for (let i = 0; i < 20; i++) {
+                setTimeout(createFloatingItem, i * 100);
+            }
+
+            // منع إدخال حروف في الحقول
+            [yearInput, monthInput, dayInput].forEach(input => {
+                input.addEventListener('keydown', (e) => {
+                    if (!/^\d$/.test(e.key) && e.key !== 'Backspace' && e.key !== 'Tab' && e.key !== 'Enter' && e.key !== 'Delete' && e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') {
+                        e.preventDefault();
+                    }
+                });
+            });
+
+            // إضافة تأثير الرعب عند تحميل الصفحة
+            setTimeout(() => {
+                const horrorElements = document.querySelectorAll('.horror-element');
+                horrorElements.forEach(el => {
+                    el.style.animation = 'none';
+                    el.offsetHeight;
+                    el.style.animation = null;
+                });
+            }, 100);
+        })();
+    </script>
+</body>
+</html>
