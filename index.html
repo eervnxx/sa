@@ -65,9 +65,6 @@
         
         .container { max-width: 800px; margin: 0 auto; }
         
-        /* ============================================================
-           رأس الصفحة
-           ============================================================ */
         .header {
             display: flex;
             justify-content: space-between;
@@ -128,9 +125,6 @@
             stroke-linejoin: round;
         }
         
-        /* ============================================================
-           زر الرجوع
-           ============================================================ */
         .back-btn {
             display: none;
             align-items: center;
@@ -160,9 +154,6 @@
             stroke-linejoin: round;
         }
         
-        /* ============================================================
-           الهيرو
-           ============================================================ */
         .hero {
             text-align: center;
             padding: 28px 10px 16px;
@@ -195,9 +186,6 @@
             letter-spacing: 0.5px;
         }
         
-        /* ============================================================
-           البحث
-           ============================================================ */
         .search-wrapper { margin: 10px 0 8px; position: relative; }
         .search {
             width: 100%; padding: 12px 16px 12px 44px;
@@ -215,9 +203,6 @@
             pointer-events: none;
         }
         
-        /* ============================================================
-           شريط التصنيفات الأفقي
-           ============================================================ */
         .cats-bar-wrapper {
             overflow-x: auto;
             -webkit-overflow-scrolling: touch;
@@ -256,9 +241,6 @@
             box-shadow: 0 2px 8px rgba(179,58,46,0.2);
         }
         
-        /* ============================================================
-           عنوان الصفحة
-           ============================================================ */
         .section-title {
             font-size: 18px;
             font-weight: 700;
@@ -284,9 +266,6 @@
             color: var(--text);
         }
         
-        /* ============================================================
-           بطاقات التصنيفات (الصفحة الرئيسية)
-           ============================================================ */
         .cats-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -338,9 +317,6 @@
             font-weight: 500;
         }
         
-        /* ============================================================
-           شبكة الأطباق (عند اختيار تصنيف)
-           ============================================================ */
         .grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -433,9 +409,6 @@
             background-clip: text;
         }
         
-        /* ============================================================
-           Skeleton Loading
-           ============================================================ */
         .skeleton-cat {
             background: var(--surface);
             border-radius: var(--radius-lg);
@@ -469,9 +442,6 @@
         }
         .empty-icon { font-size: 40px; margin-bottom: 8px; }
         
-        /* ============================================================
-           النوافذ المنبثقة
-           ============================================================ */
         .modal-overlay {
             display: none;
             position: fixed;
@@ -794,9 +764,6 @@
         }
         .toast.on { transform: translateX(-50%) translateY(0); }
         
-        /* ============================================================
-           شاشات صغيرة
-           ============================================================ */
         @media (max-width: 400px) {
             .grid { gap: 8px; }
             .card-img-wrap { height: 110px; }
@@ -823,9 +790,6 @@
 </head>
 <body>
     <div class="container">
-        <!-- ============================================================
-        رأس الصفحة
-        ============================================================ -->
         <header class="header">
             <div class="brand">
                 <span class="brand-text-en">MENU</span>
@@ -841,17 +805,11 @@
             </div>
         </header>
 
-        <!-- ============================================================
-        الهيرو
-        ============================================================ -->
         <div class="hero">
             <h1 data-i18n="restaurantName">منيو المطعم</h1>
             <p data-i18n="heroSub">أشهى المأكولات المحضرة بعناية فائقة</p>
         </div>
 
-        <!-- ============================================================
-        زر الرجوع + شريط البحث
-        ============================================================ -->
         <button class="back-btn" id="backBtn" onclick="goBackToCategories()">
             <svg viewBox="0 0 24 24"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
             <span data-i18n="backToCategories">قائمة الأصناف</span>
@@ -862,16 +820,10 @@
             <input type="text" class="search" id="searchInput" data-i18n-placeholder="search" placeholder="ابحث عن وجبتك المفضلة..." oninput="handleSearch()">
         </div>
 
-        <!-- ============================================================
-        شريط التصنيفات الأفقي
-        ============================================================ -->
         <div class="cats-bar-wrapper" id="catsBarWrapper">
             <div class="cats-bar" id="catsBar"></div>
         </div>
 
-        <!-- ============================================================
-        عنوان الصفحة
-        ============================================================ -->
         <div id="pageTitle">
             <div class="section-title">
                 <span data-i18n="categoriesTitle">📋 قائمة الأصناف</span>
@@ -882,9 +834,6 @@
             <div class="category-title" id="selectedCategoryName"></div>
         </div>
 
-        <!-- ============================================================
-        المحتوى الرئيسي (تصنيفات أو أطباق)
-        ============================================================ -->
         <div id="categoriesContainer">
             <div class="cats-grid" id="catsGrid"></div>
         </div>
@@ -893,9 +842,6 @@
         </div>
     </div>
 
-    <!-- ============================================================
-    باقي النوافذ (الإعدادات، تسجيل الدخول، لوحة التحكم)
-    ============================================================ -->
     <div class="modal-overlay" id="settingsModal">
         <div class="modal-box">
             <h3 data-i18n="settingsTitle">⚙️ الإعدادات</h3>
@@ -1010,7 +956,7 @@
 
     <script>
         // ============================================================
-        // إعدادات Firebase - تم التحديث
+        // إعدادات Firebase
         // ============================================================
         const firebaseConfig = {
             apiKey: "AIzaSyDoBZEiGeSKQ2NXYHD1NwkTikiadD4GPcc",
@@ -1022,16 +968,13 @@
             measurementId: "G-J678K57F3R"
         };
 
-        const ADMIN_EMAIL = "AA";
-        const ADMIN_PASS = "A";
+        const ADMIN_EMAIL = "aa";
+        const ADMIN_PASS = "a";
         const IMGBB_KEY = "da3f49b21529668b440b1a7ac820fecf";
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore().collection('menuItems');
 
-        // ============================================================
-        // الترجمة
-        // ============================================================
         const translations = {
             ar: {
                 restaurantName: 'منيو المطعم',
@@ -1194,9 +1137,6 @@
             }
         };
 
-        // ============================================================
-        // المتغيرات العامة
-        // ============================================================
         let items = [];
         let isLoading = true;
         let file = null;
@@ -1204,16 +1144,10 @@
         let isDark = localStorage.getItem('dark') !== 'false';
         let selectedCategory = null;
 
-        // ============================================================
-        // دالة الترجمة
-        // ============================================================
         function t(key) {
             return translations[currentLang]?.[key] || translations.ar[key] || key;
         }
 
-        // ============================================================
-        // تطبيق اللغة
-        // ============================================================
         function applyLanguage() {
             const isRTL = currentLang === 'ar' || currentLang === 'ku';
             document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
@@ -1243,9 +1177,6 @@
             }
         }
 
-        // ============================================================
-        // تحديث عنوان الصفحة
-        // ============================================================
         function updatePageTitle() {
             const titleDiv = document.getElementById('pageTitle');
             const catTitleDiv = document.getElementById('categoryTitle');
@@ -1266,9 +1197,6 @@
             }
         }
 
-        // ============================================================
-        // تحديث شريط التصنيفات الأفقي
-        // ============================================================
         function updateCatsBar() {
             const bar = document.getElementById('catsBar');
             if (!items || items.length === 0) {
@@ -1293,9 +1221,6 @@
             `).join('');
         }
 
-        // ============================================================
-        // اختيار تصنيف من الشريط الأفقي
-        // ============================================================
         function selectCategoryFromBar(category) {
             const allText = t('all') || 'الكل';
             
@@ -1328,9 +1253,6 @@
             }
         }
 
-        // ============================================================
-        // عرض شاشة التحميل للتصنيفات
-        // ============================================================
         function renderCategorySkeletons() {
             const grid = document.getElementById('catsGrid');
             grid.innerHTML = '';
@@ -1348,9 +1270,6 @@
             }
         }
 
-        // ============================================================
-        // عرض التصنيفات
-        // ============================================================
         function renderCategories() {
             const grid = document.getElementById('catsGrid');
             const container = document.getElementById('categoriesContainer');
@@ -1425,18 +1344,12 @@
             document.getElementById('totalCount').textContent = `${items.length} ${t('itemsCount')}`;
         }
 
-        // ============================================================
-        // اختيار تصنيف (من البطاقات)
-        // ============================================================
         function selectCategory(category) {
             selectedCategory = category;
             renderItemsForCategory(category);
             updateCatsBar();
         }
 
-        // ============================================================
-        // عرض أطباق تصنيف معين
-        // ============================================================
         function renderItemsForCategory(category) {
             const container = document.getElementById('categoriesContainer');
             const itemsContainer = document.getElementById('itemsContainer');
@@ -1486,17 +1399,11 @@
             });
         }
 
-        // ============================================================
-        // العودة إلى التصنيفات
-        // ============================================================
         function goBackToCategories() {
             document.getElementById('searchInput').value = '';
             renderCategories();
         }
 
-        // ============================================================
-        // معالج البحث
-        // ============================================================
         function handleSearch() {
             if (selectedCategory === null) {
                 const searchVal = document.getElementById('searchInput').value.toLowerCase().trim();
@@ -1571,9 +1478,6 @@
             }
         }
 
-        // ============================================================
-        // تحميل البيانات من Firebase
-        // ============================================================
         async function loadData() {
             renderCategorySkeletons();
             isLoading = true;
@@ -1646,9 +1550,6 @@
             } catch (e) { }
         }
 
-        // ============================================================
-        // دالات الإعدادات
-        // ============================================================
         function openSettings() {
             document.getElementById('settingsModal').classList.add('show');
             document.getElementById('langSelect').value = currentLang;
@@ -1670,9 +1571,6 @@
             applyLanguage();
         }
 
-        // ============================================================
-        // دالات تسجيل الدخول
-        // ============================================================
         function openAdminLogin() {
             closeSettings();
             document.getElementById('loginModal').classList.add('show');
@@ -1706,9 +1604,6 @@
             if (e.key === 'Enter') document.getElementById('passInput').focus();
         });
 
-        // ============================================================
-        // دالات لوحة التحكم
-        // ============================================================
         function closeAdmin() {
             document.getElementById('adminPanel').classList.remove('show');
             document.body.style.overflow = '';
@@ -1738,9 +1633,6 @@
             `).join('');
         }
 
-        // ============================================================
-        // رفع الصور
-        // ============================================================
         async function uploadImg(f) {
             const pb = document.getElementById('progBar'), pf = document.getElementById('progFill');
             pb.style.display = 'block';
@@ -1786,9 +1678,6 @@
             reader.readAsDataURL(f);
         }
 
-        // ============================================================
-        // إضافة وتعديل وحذف
-        // ============================================================
         async function addItem() {
             const name = document.getElementById('itemName').value.trim();
             const price = parseFloat(document.getElementById('itemPrice').value);
@@ -1937,9 +1826,6 @@
             resetUpdateBtn();
         }
 
-        // ============================================================
-        // Toast
-        // ============================================================
         function toast(msg) {
             const el = document.getElementById('toast');
             el.textContent = msg;
@@ -1948,9 +1834,6 @@
             el._timer = setTimeout(() => el.classList.remove('on'), 2500);
         }
 
-        // ============================================================
-        // بدء التطبيق
-        // ============================================================
         document.body.classList.toggle('light-mode', !isDark);
         document.getElementById('darkToggle').classList.toggle('on', isDark);
 
