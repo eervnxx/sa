@@ -7,7 +7,7 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&family=Playfair+Display:wght@400;600;700;800;900&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
     
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
@@ -16,38 +16,30 @@
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         :root {
-            --bg: #121212;
-            --surface: rgba(255,255,255,0.04);
-            --surface2: rgba(255,255,255,0.02);
-            --border: rgba(255,255,255,0.06);
-            --text: #e8e4df;
-            --text2: #9e968c;
-            --primary: #b33a2e;
-            --primary-light: #c8473a;
-            --accent: #b33a2e;
-            --beige: #c4b5a5;
-            --beige-dark: #7a6b5c;
+            --bg: #f5f6fa;
+            --surface: rgba(0,0,0,0.03);
+            --surface2: rgba(0,0,0,0.01);
+            --border: rgba(0,0,0,0.06);
+            --text: #1a1a2e;
+            --text2: #6b6b80;
+            --primary: #3b7dd8;
+            --accent: #00b894;
             --radius: 12px;
             --radius-lg: 16px;
-            --gradient1: linear-gradient(135deg, #b33a2e, #c8473a);
-            --gradient-red: linear-gradient(135deg, #b33a2e, #c8473a);
+            --gradient1: linear-gradient(135deg, #4a90d9, #7ab8f5);
             --font-ar: 'Cairo', sans-serif;
             --font-en: 'Poppins', sans-serif;
-            --font-display: 'Playfair Display', serif;
         }
         
         .light-mode {
-            --bg: #fafaf7;
+            --bg: #f5f6fa;
             --surface: rgba(0,0,0,0.03);
-            --surface2: rgba(0,0,0,0.015);
+            --surface2: rgba(0,0,0,0.01);
             --border: rgba(0,0,0,0.06);
-            --text: #2a2a28;
-            --text2: #7a7268;
-            --primary: #a33a2e;
-            --primary-light: #b84437;
-            --accent: #a33a2e;
-            --beige: #c4b5a5;
-            --beige-dark: #7a6b5c;
+            --text: #1a1a2e;
+            --text2: #6b6b80;
+            --primary: #3b7dd8;
+            --accent: #00b894;
         }
         
         body {
@@ -79,15 +71,14 @@
             gap: 6px;
         }
         .brand-text-en {
-            font-size: 28px;
+            font-size: 26px;
             font-weight: 900;
             font-family: var(--font-en);
-            background: var(--gradient-red);
+            background: var(--gradient1);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            letter-spacing: 1px;
-            text-transform: uppercase;
+            letter-spacing: -0.5px;
         }
         .brand-sub {
             font-size: 10px;
@@ -156,34 +147,45 @@
         
         .hero {
             text-align: center;
-            padding: 28px 10px 16px;
+            padding: 16px 10px 10px;
             position: relative;
         }
-        .hero h1 {
-            font-size: clamp(38px, 10vw, 56px);
-            font-weight: 800;
-            line-height: 1.2;
-            font-family: var(--font-display);
+        .hero-badge {
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 50px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 8px;
             letter-spacing: 1px;
-            margin-bottom: 6px;
-            color: var(--text);
-            -webkit-text-stroke: 1.5px rgba(0,0,0,0.15);
-            text-stroke: 1.5px rgba(0,0,0,0.15);
-            text-shadow: none;
+            text-transform: uppercase;
+            backdrop-filter: blur(20px);
         }
-        .light-mode .hero h1 {
-            -webkit-text-stroke: 1.5px rgba(0,0,0,0.2);
-            text-stroke: 1.5px rgba(0,0,0,0.2);
+        .hero h1 {
+            font-size: clamp(48px, 14vw, 80px);
+            font-weight: 900;
+            line-height: 1;
+            font-family: var(--font-ar);
+            letter-spacing: -1px;
+            margin-bottom: 4px;
+        }
+        .hero h1 .wavz-text {
+            background: linear-gradient(180deg, #b8d9ff 0%, #7ab8f5 30%, #3b7dd8 60%, #1a3d7a 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 4px 20px rgba(26,61,122,0.4);
+            display: inline-block;
         }
         .hero p {
-            font-size: clamp(15px, 2.5vw, 18px);
+            font-size: clamp(13px, 2.5vw, 16px);
             color: var(--text2);
-            font-weight: 400;
+            font-weight: 300;
             max-width: 400px;
             margin: 0 auto;
-            font-family: var(--font-display);
-            font-style: italic;
-            letter-spacing: 0.5px;
         }
         
         .search-wrapper { margin: 10px 0 8px; position: relative; }
@@ -218,7 +220,7 @@
             flex-wrap: nowrap;
         }
         .cat-bar-btn {
-            padding: 7px 18px;
+            padding: 6px 16px;
             border-radius: 50px;
             background: var(--surface);
             border: 1px solid var(--border);
@@ -235,10 +237,9 @@
         }
         .cat-bar-btn:active { transform: scale(0.95); }
         .cat-bar-btn.active {
-            background: var(--gradient-red);
+            background: var(--primary);
             color: white;
-            border-color: transparent;
-            box-shadow: 0 2px 8px rgba(179,58,46,0.2);
+            border-color: var(--primary);
         }
         
         .section-title {
@@ -253,7 +254,7 @@
         .section-title .count-badge {
             font-size: 12px;
             font-weight: 600;
-            color: var(--beige-dark);
+            color: var(--text2);
             background: var(--surface);
             padding: 2px 12px;
             border-radius: 50px;
@@ -309,7 +310,6 @@
             font-size: 16px;
             font-weight: 700;
             margin-bottom: 2px;
-            color: var(--text);
         }
         .cat-card .cat-count {
             font-size: 12px;
@@ -352,16 +352,16 @@
             position: absolute;
             top: 8px;
             right: 8px;
-            padding: 3px 12px;
+            padding: 2px 10px;
             border-radius: 50px;
             font-size: 9px;
             font-weight: 700;
-            background: rgba(0,0,0,0.55);
+            background: rgba(0,0,0,0.5);
             backdrop-filter: blur(8px);
             color: #fff;
         }
-        .badge-on { background: rgba(179,58,46,0.35); color: #f0e8e4; }
-        .badge-off { background: rgba(122,107,92,0.4); color: #c4b5a5; }
+        .badge-on { background: rgba(0,206,201,0.3); color: #00cec9; }
+        .badge-off { background: rgba(253,121,168,0.3); color: #fd79a8; }
         .card-cat {
             position: absolute;
             top: 8px;
@@ -369,9 +369,9 @@
             padding: 2px 10px;
             border-radius: 50px;
             font-size: 9px;
-            background: rgba(0,0,0,0.55);
+            background: rgba(0,0,0,0.5);
             backdrop-filter: blur(8px);
-            color: rgba(255,255,255,0.85);
+            color: rgba(255,255,255,0.8);
         }
         .card-body { padding: 10px; }
         .card h3 {
@@ -382,7 +382,6 @@
             -webkit-line-clamp: 1;
             -webkit-box-orient: vertical;
             overflow: hidden;
-            color: var(--text);
         }
         .card p {
             font-size: 11px;
@@ -397,16 +396,7 @@
         .price {
             font-size: 18px;
             font-weight: 800;
-            background: linear-gradient(135deg, #b33a2e, #c8816e);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-        .light-mode .price {
-            background: linear-gradient(135deg, #a33a2e, #b87060);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: var(--accent);
         }
         
         .skeleton-cat {
@@ -446,7 +436,7 @@
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.65);
+            background: rgba(0,0,0,0.6);
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
             z-index: 1000;
@@ -533,7 +523,8 @@
             touch-action: manipulation;
         }
         .btn-full:active { transform: scale(0.97); }
-        .btn-primary { background: var(--gradient-red); color: white; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-success { background: var(--accent); color: #000; }
         .btn-close-modal {
             margin-top: 8px;
             background: var(--surface);
@@ -555,7 +546,20 @@
             min-height: 44px;
         }
         .pass-box input:focus { border-color: var(--primary); }
-        .err { color: #c8473a; font-size: 13px; display: none; text-align: center; margin-top: 8px; }
+        .err { color: #fd79a8; font-size: 13px; display: none; text-align: center; margin-top: 8px; }
+        
+        .remember-buttons {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+        .remember-buttons .btn-full {
+            flex: 1;
+            min-width: 80px;
+            font-size: 12px;
+            padding: 10px 8px;
+        }
         
         .admin-panel {
             display: none;
@@ -582,18 +586,33 @@
             gap: 8px;
         }
         .admin-bar h3 { font-size: 15px; }
-        .admin-bar button {
+        .admin-bar .admin-actions {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .admin-bar .admin-actions button {
             padding: 6px 16px;
             border-radius: 8px;
             border: none;
-            background: rgba(200,71,58,0.15);
-            color: #c8473a;
             font-weight: 600;
             cursor: pointer;
             font-family: inherit;
             min-height: 36px;
+            transition: 0.2s;
         }
-        .admin-bar button:active { transform: scale(0.95); }
+        .admin-bar .admin-actions button:active { transform: scale(0.95); }
+        .btn-logout {
+            background: rgba(231, 76, 60, 0.2);
+            color: #e74c3c;
+        }
+        .btn-logout:hover { background: rgba(231, 76, 60, 0.35); }
+        .btn-close-admin {
+            background: rgba(253,121,168,0.2);
+            color: #fd79a8;
+        }
+        .btn-close-admin:hover { background: rgba(253,121,168,0.35); }
         
         .form-box {
             background: var(--surface);
@@ -642,7 +661,7 @@
             min-height: 60px;
         }
         .file-box:active { transform: scale(0.98); }
-        .file-box.ok { border-color: var(--primary); border-style: solid; background: rgba(179,58,46,0.04); }
+        .file-box.ok { border-color: var(--accent); border-style: solid; background: rgba(0,206,201,0.04); }
         .file-box .fico { font-size: 24px; }
         .file-box .ftxt { font-size: 12px; color: var(--text2); }
         .file-inp { display: none; }
@@ -691,8 +710,8 @@
             transition: 0.2s;
         }
         .btn:active { transform: scale(0.95); }
-        .btn-add { background: var(--gradient-red); color: #fff; }
-        .btn-save { background: #b84437; color: white; }
+        .btn-add { background: var(--accent); color: #000; }
+        .btn-save { background: #fd79a8; color: white; }
         .btn-clr { background: var(--surface); color: var(--text2); border: 1px solid var(--border); }
         
         .list-head {
@@ -724,7 +743,7 @@
         }
         .list-row .linfo h4 { font-size: 12px; font-weight: 600; }
         .list-row .linfo span { font-size: 9px; color: var(--text2); }
-        .list-row .lprice { font-size: 12px; font-weight: 700; color: #c8816e; }
+        .list-row .lprice { font-size: 12px; font-weight: 700; color: var(--accent); }
         .lacts { display: flex; gap: 4px; }
         .btn-xs {
             width: 28px;
@@ -740,8 +759,8 @@
             transition: 0.2s;
         }
         .btn-xs:active { transform: scale(0.9); }
-        .btn-xs.ed { color: #c8473a; border-color: rgba(200,71,58,0.15); background: rgba(200,71,58,0.05); }
-        .btn-xs.dl { color: #c8473a; border-color: rgba(200,71,58,0.15); background: rgba(200,71,58,0.05); }
+        .btn-xs.ed { color: #fd79a8; border-color: rgba(253,121,168,0.2); background: rgba(253,121,168,0.05); }
+        .btn-xs.dl { color: #fd79a8; border-color: rgba(253,121,168,0.2); background: rgba(253,121,168,0.05); }
         
         .toast {
             position: fixed;
@@ -764,6 +783,15 @@
         }
         .toast.on { transform: translateX(-50%) translateY(0); }
         
+        .session-info {
+            font-size: 11px;
+            color: var(--text2);
+            text-align: center;
+            padding: 4px 0;
+            margin-top: 4px;
+            border-top: 1px solid var(--border);
+        }
+        
         @media (max-width: 400px) {
             .grid { gap: 8px; }
             .card-img-wrap { height: 110px; }
@@ -773,13 +801,14 @@
             .f-row { grid-template-columns: 1fr; }
             .list-head, .list-row { grid-template-columns: 24px 1fr 40px 50px; font-size: 8px; }
             .list-row img { width: 22px; height: 22px; }
-            .brand-text-en { font-size: 22px; }
+            .brand-text-en { font-size: 20px; }
             .btn-settings { width: 38px; height: 38px; }
             .btn-settings svg { width: 18px; height: 18px; }
             .cat-card .cat-img { height: 90px; }
             .skeleton-cat .skeleton-img { height: 90px; }
             .cats-grid { gap: 8px; }
             .cat-card .cat-name { font-size: 14px; }
+            .remember-buttons .btn-full { font-size: 10px; padding: 8px 4px; min-width: 60px; }
         }
         
         @media (min-width: 600px) {
@@ -806,7 +835,8 @@
         </header>
 
         <div class="hero">
-            <h1 data-i18n="restaurantName">منيو المطعم</h1>
+            <div class="hero-badge" data-i18n="badge">✦ Premium Quality</div>
+            <h1><span class="wavz-text">منيو المطعم</span></h1>
             <p data-i18n="heroSub">أشهى المأكولات المحضرة بعناية فائقة</p>
         </div>
 
@@ -842,12 +872,15 @@
         </div>
     </div>
 
+    <!-- ============================================================
+    نافذة الإعدادات
+    ============================================================ -->
     <div class="modal-overlay" id="settingsModal">
         <div class="modal-box">
             <h3 data-i18n="settingsTitle">⚙️ الإعدادات</h3>
             <div class="setting-row">
                 <span data-i18n="darkMode">🌙 الوضع الليلي</span>
-                <div class="toggle-sw on" id="darkToggle" onclick="toggleDarkMode()"></div>
+                <div class="toggle-sw" id="darkToggle" onclick="toggleDarkMode()"></div>
             </div>
             <div class="setting-row">
                 <span data-i18n="language">🌐 اللغة</span>
@@ -862,23 +895,39 @@
         </div>
     </div>
 
+    <!-- ============================================================
+    نافذة تسجيل الدخول
+    ============================================================ -->
     <div class="modal-overlay" id="loginModal">
         <div class="modal-box pass-box">
             <div style="font-size:40px;text-align:center;margin-bottom:8px;">🔐</div>
             <h3 data-i18n="loginTitle">دخول المشرف</h3>
             <input type="email" id="emailInput" data-i18n-placeholder="email" placeholder="البريد الإلكتروني" autocomplete="email">
             <input type="password" id="passInput" data-i18n-placeholder="password" placeholder="كلمة المرور" autocomplete="current-password">
-            <button class="btn-full btn-primary" onclick="checkLogin()" data-i18n="loginBtn">🚀 دخول</button>
+            
+            <div class="remember-buttons">
+                <button class="btn-full btn-primary" onclick="checkLogin(86400)">🔒 24 ساعة</button>
+                <button class="btn-full btn-success" onclick="checkLogin(2592000)">🔒 30 يوم</button>
+            </div>
+            
             <button class="btn-full btn-close-modal" onclick="closeLogin()" data-i18n="cancel">إلغاء</button>
             <p class="err" id="errMsg" data-i18n="wrongPass">❌ البريد الإلكتروني أو كلمة المرور غير صحيحة</p>
+            
+            <div class="session-info" id="sessionInfo"></div>
         </div>
     </div>
 
+    <!-- ============================================================
+    لوحة التحكم
+    ============================================================ -->
     <div class="admin-panel" id="adminPanel">
         <div class="admin-wrap" style="max-width:750px;margin:0 auto;">
             <div class="admin-bar">
                 <h3 data-i18n="adminPanelTitle">⚙️ لوحة التحكم</h3>
-                <button onclick="closeAdmin()" data-i18n="close">✖ إغلاق</button>
+                <div class="admin-actions">
+                    <button class="btn-logout" onclick="logout()">🚪 تسجيل الخروج</button>
+                    <button class="btn-close-admin" onclick="closeAdmin()">✖ إغلاق</button>
+                </div>
             </div>
             
             <div class="form-box">
@@ -934,9 +983,9 @@
                 </div>
                 
                 <div class="btn-row">
-                    <button class="btn btn-add" id="btnAdd" onclick="addItem()" data-i18n="addBtn">✅ إضافة</button>
-                    <button class="btn btn-save" id="btnUpdate" style="display:none;" onclick="updateItem()" data-i18n="saveBtn">💾 حفظ</button>
-                    <button class="btn btn-clr" onclick="resetForm()" data-i18n="resetBtn">🔄 جديد</button>
+                    <button class="btn btn-add" id="btnAdd" onclick="addItem()">✅ إضافة</button>
+                    <button class="btn btn-save" id="btnUpdate" style="display:none;" onclick="updateItem()">💾 حفظ</button>
+                    <button class="btn btn-clr" onclick="resetForm()">🔄 جديد</button>
                 </div>
             </div>
             
@@ -961,6 +1010,7 @@
         const firebaseConfig = {
             apiKey: "AIzaSyDoBZEiGeSKQ2NXYHD1NwkTikiadD4GPcc",
             authDomain: "joker-fa639.firebaseapp.com",
+            databaseURL: "https://joker-fa639-default-rtdb.firebaseio.com",
             projectId: "joker-fa639",
             storageBucket: "joker-fa639.firebasestorage.app",
             messagingSenderId: "136608933992",
@@ -968,16 +1018,19 @@
             measurementId: "G-J678K57F3R"
         };
 
-        const ADMIN_EMAIL = "aa";
-        const ADMIN_PASS = "a";
+        const ADMIN_EMAIL = "WAVEZ.ahmEd@gmail.com";
+        const ADMIN_PASS = "Wavez5";
         const IMGBB_KEY = "da3f49b21529668b440b1a7ac820fecf";
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore().collection('menuItems');
 
+        // ============================================================
+        // الترجمة
+        // ============================================================
         const translations = {
             ar: {
-                restaurantName: 'منيو المطعم',
+                badge: '✦ Premium Quality',
                 heroSub: 'أشهى المأكولات المحضرة بعناية فائقة',
                 search: 'ابحث عن وجبتك المفضلة...',
                 searchIn: 'ابحث في',
@@ -995,7 +1048,6 @@
                 loginTitle: 'دخول المشرف',
                 email: 'البريد الإلكتروني',
                 password: 'كلمة المرور',
-                loginBtn: '🚀 دخول',
                 cancel: 'إلغاء',
                 wrongPass: '❌ البريد الإلكتروني أو كلمة المرور غير صحيحة',
                 adminPanelTitle: '⚙️ لوحة التحكم',
@@ -1027,10 +1079,14 @@
                 confirmDel: '⚠️ متأكد من الحذف؟',
                 noItems: 'فارغ',
                 itemsCount: 'صنف',
-                all: 'الكل'
+                updateError: '❌ فشل التعديل: ',
+                sessionExpired: '⏰ انتهت صلاحية الجلسة، يرجى تسجيل الدخول مجدداً',
+                loginSuccess: '✅ تم تسجيل الدخول بنجاح!',
+                logoutSuccess: '👋 تم تسجيل الخروج بنجاح',
+                alreadyLoggedIn: '🔐 أنت مسجل الدخول بالفعل'
             },
             en: {
-                restaurantName: 'Restaurant Menu',
+                badge: '✦ Premium Quality',
                 heroSub: 'Finest cuisine crafted with care',
                 search: 'Search for your favorite meal...',
                 searchIn: 'Search in',
@@ -1048,7 +1104,6 @@
                 loginTitle: 'Admin Login',
                 email: 'Email',
                 password: 'Password',
-                loginBtn: '🚀 Login',
                 cancel: 'Cancel',
                 wrongPass: '❌ Wrong email or password',
                 adminPanelTitle: '⚙️ Admin Panel',
@@ -1080,10 +1135,14 @@
                 confirmDel: '⚠️ Sure to delete?',
                 noItems: 'Empty',
                 itemsCount: 'items',
-                all: 'All'
+                updateError: '❌ Update failed: ',
+                sessionExpired: '⏰ Session expired, please login again',
+                loginSuccess: '✅ Login successful!',
+                logoutSuccess: '👋 Logged out successfully',
+                alreadyLoggedIn: '🔐 You are already logged in'
             },
             ku: {
-                restaurantName: 'منیوی رێستۆرانت',
+                badge: '✦ Premium Quality',
                 heroSub: 'خۆشترین خواردنەکان بە وردی ئامادەکراون',
                 search: 'بگەڕێ بۆ خواردنی دڵخوازت...',
                 searchIn: 'بگەڕێ لە',
@@ -1101,7 +1160,6 @@
                 loginTitle: 'چوونەژوورەوە',
                 email: 'ئیمەیڵ',
                 password: 'وشەی نهێنی',
-                loginBtn: '🚀 چوونەژوور',
                 cancel: 'پاشگەزبوونەوە',
                 wrongPass: '❌ ئیمەیڵ یان وشەی نهێنی هەڵەیە',
                 adminPanelTitle: '⚙️ پانێڵی بەڕێوەبردن',
@@ -1133,21 +1191,111 @@
                 confirmDel: '⚠️ دڵنیایت دەتەوێت بیسڕیتەوە؟',
                 noItems: 'بەتاڵ',
                 itemsCount: 'خواردن',
-                all: 'هەموو'
+                updateError: '❌ نوێکردنەوە شکستی هێنا: ',
+                sessionExpired: '⏰ ماوەی جلسە تەواو بوو، تکایە دووبارە بچۆ ژوورەوە',
+                loginSuccess: '✅ چوونەژوورەوە سەرکەوتوو بوو!',
+                logoutSuccess: '👋 دەرچوون سەرکەوتوو بوو',
+                alreadyLoggedIn: '🔐 تۆ پێشتر چوویتە ژوورەوە'
             }
         };
 
+        // ============================================================
+        // المتغيرات العامة
+        // ============================================================
         let items = [];
         let isLoading = true;
         let file = null;
         let currentLang = localStorage.getItem('lang') || 'ar';
-        let isDark = localStorage.getItem('dark') !== 'false';
+        let isDark = localStorage.getItem('dark') === 'true';
         let selectedCategory = null;
+        let isLoggedIn = false;
+        let loginExpiry = null;
 
+        // ============================================================
+        // دالة الترجمة
+        // ============================================================
         function t(key) {
             return translations[currentLang]?.[key] || translations.ar[key] || key;
         }
 
+        // ============================================================
+        // إدارة الجلسة
+        // ============================================================
+        function checkSession() {
+            const saved = localStorage.getItem('adminSession');
+            if (!saved) {
+                console.log('❌ لا توجد جلسة محفوظة');
+                return false;
+            }
+            
+            try {
+                const session = JSON.parse(saved);
+                const now = Date.now();
+                
+                if (now > session.expiry) {
+                    console.log('⏰ الجلسة منتهية');
+                    localStorage.removeItem('adminSession');
+                    isLoggedIn = false;
+                    loginExpiry = null;
+                    return false;
+                }
+                
+                console.log('✅ الجلسة سارية حتى:', new Date(session.expiry).toLocaleString());
+                isLoggedIn = true;
+                loginExpiry = session.expiry;
+                return true;
+            } catch (e) {
+                console.error('❌ خطأ في قراءة الجلسة:', e);
+                return false;
+            }
+        }
+
+        function saveSession(durationSeconds) {
+            const session = {
+                email: ADMIN_EMAIL,
+                loginTime: Date.now(),
+                expiry: Date.now() + (durationSeconds * 1000)
+            };
+            localStorage.setItem('adminSession', JSON.stringify(session));
+            isLoggedIn = true;
+            loginExpiry = session.expiry;
+            updateSessionInfo();
+            console.log('✅ تم حفظ الجلسة حتى:', new Date(session.expiry).toLocaleString());
+        }
+
+        function logout() {
+            localStorage.removeItem('adminSession');
+            isLoggedIn = false;
+            loginExpiry = null;
+            closeAdmin();
+            toast(t('logoutSuccess'));
+            updateSessionInfo();
+            console.log('👋 تم تسجيل الخروج');
+        }
+
+        function updateSessionInfo() {
+            const info = document.getElementById('sessionInfo');
+            if (isLoggedIn && loginExpiry) {
+                const remaining = Math.floor((loginExpiry - Date.now()) / 1000);
+                if (remaining > 0) {
+                    const hours = Math.floor(remaining / 3600);
+                    const minutes = Math.floor((remaining % 3600) / 60);
+                    const seconds = remaining % 60;
+                    info.textContent = `🔐 جلسة نشطة - متبقية: ${hours}h ${minutes}m ${seconds}s`;
+                    info.style.color = 'var(--accent)';
+                } else {
+                    info.textContent = '⏰ الجلسة منتهية';
+                    info.style.color = 'var(--text2)';
+                }
+            } else {
+                info.textContent = '🔓 غير مسجل الدخول';
+                info.style.color = 'var(--text2)';
+            }
+        }
+
+        // ============================================================
+        // تطبيق اللغة
+        // ============================================================
         function applyLanguage() {
             const isRTL = currentLang === 'ar' || currentLang === 'ku';
             document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
@@ -1166,6 +1314,7 @@
             
             document.getElementById('langSelect').value = currentLang;
             updatePageTitle();
+            updateSessionInfo();
             
             if (!isLoading) {
                 if (selectedCategory === null) {
@@ -1177,6 +1326,9 @@
             }
         }
 
+        // ============================================================
+        // تحديث عنوان الصفحة
+        // ============================================================
         function updatePageTitle() {
             const titleDiv = document.getElementById('pageTitle');
             const catTitleDiv = document.getElementById('categoryTitle');
@@ -1197,6 +1349,9 @@
             }
         }
 
+        // ============================================================
+        // تحديث شريط التصنيفات الأفقي
+        // ============================================================
         function updateCatsBar() {
             const bar = document.getElementById('catsBar');
             if (!items || items.length === 0) {
@@ -1204,23 +1359,24 @@
                 return;
             }
             
-            const categories = ['الكل', ...new Set(items.map(i => i.category || 'بدون'))];
-            
             const allText = t('all') || 'الكل';
-            const translatedCategories = categories.map(c => c === 'الكل' ? allText : c);
+            const categories = [allText, ...new Set(items.map(i => i.category || 'بدون'))];
             
             let activeCat = selectedCategory || allText;
             if (selectedCategory === null) {
                 activeCat = allText;
             }
             
-            bar.innerHTML = translatedCategories.map(c => `
+            bar.innerHTML = categories.map(c => `
                 <button class="cat-bar-btn ${c === activeCat ? 'active' : ''}" onclick="selectCategoryFromBar('${c}')">
                     ${c}
                 </button>
             `).join('');
         }
 
+        // ============================================================
+        // اختيار تصنيف من الشريط الأفقي
+        // ============================================================
         function selectCategoryFromBar(category) {
             const allText = t('all') || 'الكل';
             
@@ -1235,15 +1391,11 @@
                         categoryMap[cat] = cat;
                     }
                 });
-                const found = Object.keys(categoryMap).find(key => key === category);
-                if (found) {
-                    originalCat = found;
-                } else {
-                    for (const key of Object.keys(categoryMap)) {
-                        if (category === key) {
-                            originalCat = key;
-                            break;
-                        }
+                
+                for (const key of Object.keys(categoryMap)) {
+                    if (category === key) {
+                        originalCat = key;
+                        break;
                     }
                 }
                 
@@ -1253,6 +1405,9 @@
             }
         }
 
+        // ============================================================
+        // عرض شاشة التحميل للتصنيفات
+        // ============================================================
         function renderCategorySkeletons() {
             const grid = document.getElementById('catsGrid');
             grid.innerHTML = '';
@@ -1270,6 +1425,9 @@
             }
         }
 
+        // ============================================================
+        // عرض التصنيفات
+        // ============================================================
         function renderCategories() {
             const grid = document.getElementById('catsGrid');
             const container = document.getElementById('categoriesContainer');
@@ -1344,12 +1502,18 @@
             document.getElementById('totalCount').textContent = `${items.length} ${t('itemsCount')}`;
         }
 
+        // ============================================================
+        // اختيار تصنيف (من البطاقات)
+        // ============================================================
         function selectCategory(category) {
             selectedCategory = category;
             renderItemsForCategory(category);
             updateCatsBar();
         }
 
+        // ============================================================
+        // عرض أطباق تصنيف معين
+        // ============================================================
         function renderItemsForCategory(category) {
             const container = document.getElementById('categoriesContainer');
             const itemsContainer = document.getElementById('itemsContainer');
@@ -1383,8 +1547,8 @@
                 card.style.animationDelay = `${Math.min(idx * 0.03, 0.3)}s`;
                 card.innerHTML = `
                     <div class="card-img-wrap">
-                        <img src="${item.image || 'https://placehold.co/400x250/1a1a1a/7a6b5c'}" 
-                             onerror="this.src='https://placehold.co/400x250/1a1a1a/7a6b5c'" 
+                        <img src="${item.image || 'https://placehold.co/400x250/1a1a35/666'}" 
+                             onerror="this.src='https://placehold.co/400x250/1a1a35/666'" 
                              loading="lazy" decoding="async">
                         <div class="card-cat">${item.category || ''}</div>
                         <div class="card-badge ${item.available !== false ? 'badge-on' : 'badge-off'}">${item.available !== false ? t('available') : t('unavailable')}</div>
@@ -1399,11 +1563,17 @@
             });
         }
 
+        // ============================================================
+        // العودة إلى التصنيفات
+        // ============================================================
         function goBackToCategories() {
             document.getElementById('searchInput').value = '';
             renderCategories();
         }
 
+        // ============================================================
+        // معالج البحث
+        // ============================================================
         function handleSearch() {
             if (selectedCategory === null) {
                 const searchVal = document.getElementById('searchInput').value.toLowerCase().trim();
@@ -1478,6 +1648,9 @@
             }
         }
 
+        // ============================================================
+        // تحميل البيانات من Firebase
+        // ============================================================
         async function loadData() {
             renderCategorySkeletons();
             isLoading = true;
@@ -1495,7 +1668,7 @@
                         return;
                     }
                 }
-            } catch (e) { }
+            } catch (e) { /* تجاهل */ }
 
             try {
                 const snapshot = await db.orderBy('createdAt', 'desc').get();
@@ -1518,7 +1691,7 @@
                         toast('📡 ' + (currentLang === 'en' ? 'Cached data' : currentLang === 'ku' ? 'داتای پاشەکەوتکراو' : 'بيانات مخزنة مؤقتاً'));
                         return;
                     }
-                } catch (e) { }
+                } catch (e) { /* تجاهل */ }
                 
                 isLoading = false;
                 document.getElementById('catsGrid').innerHTML = `
@@ -1547,12 +1720,16 @@
                     }
                     updateCatsBar();
                 }
-            } catch (e) { }
+            } catch (e) { /* تجاهل */ }
         }
 
+        // ============================================================
+        // دالات الإعدادات
+        // ============================================================
         function openSettings() {
             document.getElementById('settingsModal').classList.add('show');
             document.getElementById('langSelect').value = currentLang;
+            updateSessionInfo();
         }
         function closeSettings() {
             document.getElementById('settingsModal').classList.remove('show');
@@ -1571,44 +1748,69 @@
             applyLanguage();
         }
 
+        // ============================================================
+        // ✅ دالات تسجيل الدخول - بدون فتح تلقائي
+        // ============================================================
         function openAdminLogin() {
+            // التحقق من الجلسة أولاً
+            if (checkSession()) {
+                // إذا كانت الجلسة سارية، نفتح لوحة التحكم مباشرة
+                closeSettings();
+                document.getElementById('adminPanel').classList.add('show');
+                document.body.style.overflow = 'hidden';
+                if (items.length > 0) {
+                    showAdminList();
+                }
+                applyLanguage();
+                toast(t('alreadyLoggedIn'));
+                return;
+            }
+            
+            // إذا لم تكن هناك جلسة، نفتح نافذة تسجيل الدخول
             closeSettings();
             document.getElementById('loginModal').classList.add('show');
             document.getElementById('errMsg').style.display = 'none';
             document.getElementById('emailInput').value = '';
             document.getElementById('passInput').value = '';
+            updateSessionInfo();
             applyLanguage();
         }
+        
         function closeLogin() {
             document.getElementById('loginModal').classList.remove('show');
         }
 
-        function checkLogin() {
+        function checkLogin(durationSeconds) {
             const email = document.getElementById('emailInput').value.trim();
             const pass = document.getElementById('passInput').value;
+            
             if (email === ADMIN_EMAIL && pass === ADMIN_PASS) {
+                saveSession(durationSeconds);
                 closeLogin();
                 document.getElementById('adminPanel').classList.add('show');
                 document.body.style.overflow = 'hidden';
                 showAdminList();
                 applyLanguage();
+                toast(t('loginSuccess'));
             } else {
                 document.getElementById('errMsg').style.display = 'block';
             }
         }
 
         document.getElementById('passInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') checkLogin();
+            if (e.key === 'Enter') checkLogin(86400);
         });
         document.getElementById('emailInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') document.getElementById('passInput').focus();
         });
 
+        // ============================================================
+        // دالات لوحة التحكم
+        // ============================================================
         function closeAdmin() {
             document.getElementById('adminPanel').classList.remove('show');
             document.body.style.overflow = '';
             resetForm();
-            loadData();
         }
 
         function showAdminList() {
@@ -1619,7 +1821,7 @@
             }
             container.innerHTML = items.map(i => `
                 <div class="list-row">
-                    <img src="${i.image || 'https://placehold.co/40/1a1a1a/7a6b5c'}" onerror="this.src='https://placehold.co/40/1a1a1a/7a6b5c'" loading="lazy">
+                    <img src="${i.image || 'https://placehold.co/40/333/666'}" onerror="this.src='https://placehold.co/40/333/666'" loading="lazy">
                     <div class="linfo">
                         <h4>${i.name}</h4>
                         <span>${i.category || ''} · ${i.available !== false ? t('available') : t('unavailable')}</span>
@@ -1633,6 +1835,9 @@
             `).join('');
         }
 
+        // ============================================================
+        // رفع الصور
+        // ============================================================
         async function uploadImg(f) {
             const pb = document.getElementById('progBar'), pf = document.getElementById('progFill');
             pb.style.display = 'block';
@@ -1678,6 +1883,9 @@
             reader.readAsDataURL(f);
         }
 
+        // ============================================================
+        // إضافة وتعديل وحذف
+        // ============================================================
         async function addItem() {
             const name = document.getElementById('itemName').value.trim();
             const price = parseFloat(document.getElementById('itemPrice').value);
@@ -1706,15 +1914,16 @@
                     category: document.getElementById('itemCat').value,
                     description: document.getElementById('itemDesc').value.trim() || '',
                     price: price,
-                    image: img || 'https://placehold.co/400x250/1a1a1a/7a6b5c',
+                    image: img || 'https://placehold.co/400x250/1a1a35/666',
                     available: true,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 resetForm();
                 await loadData();
                 toast(t('toastAdded'));
-            } catch {
-                toast(t('toastError'));
+            } catch (error) {
+                console.error('خطأ في الإضافة:', error);
+                toast(t('toastError') + ': ' + error.message);
             }
             resetBtn();
         }
@@ -1726,16 +1935,21 @@
 
         function editItem(fid) {
             const item = items.find(i => i.fid === fid);
-            if (!item) return;
+            if (!item) {
+                toast('❌ العنصر غير موجود');
+                return;
+            }
             
             document.getElementById('editId').value = fid;
             document.getElementById('itemName').value = item.name || '';
             document.getElementById('itemCat').value = item.category || 'وجبات سريعة';
             document.getElementById('itemDesc').value = item.description || '';
             document.getElementById('itemPrice').value = item.price || '';
-            if (item.image?.startsWith('http')) {
+            if (item.image && item.image.startsWith('http')) {
                 document.getElementById('previewImg').src = item.image;
                 document.getElementById('previewImg').style.display = 'block';
+            } else {
+                document.getElementById('previewImg').style.display = 'none';
             }
             file = null;
             document.getElementById('formTitle').textContent = t('editTitle') + ': ' + item.name;
@@ -1746,7 +1960,10 @@
 
         async function updateItem() {
             const fid = document.getElementById('editId').value;
-            if (!fid) return;
+            if (!fid) {
+                toast('⚠️ لا يوجد معرف للتعديل');
+                return;
+            }
             
             const name = document.getElementById('itemName').value.trim();
             const price = parseFloat(document.getElementById('itemPrice').value);
@@ -1756,33 +1973,54 @@
             }
             
             let img = document.getElementById('previewImg').src;
+            if (img && img.includes('placehold.co')) {
+                const oldItem = items.find(i => i.fid === fid);
+                if (oldItem && oldItem.image && oldItem.image.startsWith('http')) {
+                    img = oldItem.image;
+                }
+            }
+            
             if (file) {
                 try {
-                    document.getElementById('btnUpdate').textContent = '⏳...';
+                    document.getElementById('btnUpdate').textContent = '⏳ رفع الصورة...';
                     document.getElementById('btnUpdate').disabled = true;
                     img = await uploadImg(file);
-                } catch {
-                    toast(t('toastImgFail'));
+                } catch (error) {
+                    toast(t('toastImgFail') + ': ' + error.message);
                     resetUpdateBtn();
                     return;
                 }
             }
             
             try {
-                document.getElementById('btnUpdate').textContent = '⏳...';
-                await db.doc(fid).update({
+                document.getElementById('btnUpdate').textContent = '⏳ جاري الحفظ...';
+                document.getElementById('btnUpdate').disabled = true;
+                
+                const docRef = db.doc(fid);
+                const docSnap = await docRef.get();
+                
+                if (!docSnap.exists) {
+                    toast('❌ المستند غير موجود في قاعدة البيانات');
+                    resetUpdateBtn();
+                    return;
+                }
+                
+                await docRef.update({
                     name: name,
                     category: document.getElementById('itemCat').value,
                     description: document.getElementById('itemDesc').value.trim() || '',
                     price: price,
-                    image: img || 'https://placehold.co/400x250/1a1a1a/7a6b5c',
+                    image: img || 'https://placehold.co/400x250/1a1a35/666',
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
+                
                 resetForm();
                 await loadData();
                 toast(t('toastUpdated'));
-            } catch {
-                toast(t('toastError'));
+                
+            } catch (error) {
+                console.error('❌ خطأ في التعديل:', error);
+                toast(t('updateError') + error.message);
             }
             resetUpdateBtn();
         }
@@ -1798,8 +2036,9 @@
                 await db.doc(fid).delete();
                 await loadData();
                 toast(t('toastDeleted'));
-            } catch {
-                toast(t('toastError'));
+            } catch (error) {
+                console.error('❌ خطأ في الحذف:', error);
+                toast(t('toastError') + ': ' + error.message);
             }
         }
 
@@ -1826,19 +2065,35 @@
             resetUpdateBtn();
         }
 
+        // ============================================================
+        // Toast
+        // ============================================================
         function toast(msg) {
             const el = document.getElementById('toast');
             el.textContent = msg;
             el.classList.add('on');
             clearTimeout(el._timer);
-            el._timer = setTimeout(() => el.classList.remove('on'), 2500);
+            el._timer = setTimeout(() => el.classList.remove('on'), 3000);
         }
 
+        // ============================================================
+        // ✅ بدء التطبيق - الوضع النهاري افتراضي
+        // ============================================================
         document.body.classList.toggle('light-mode', !isDark);
         document.getElementById('darkToggle').classList.toggle('on', isDark);
 
         applyLanguage();
         loadData();
+
+        // ✅ فقط نتحقق من الجلسة ونحدث المعلومات، لكن لا نفتح لوحة التحكم تلقائياً
+        setTimeout(() => {
+            checkSession();
+            updateSessionInfo();
+            console.log('✅ الجلسة: ' + (isLoggedIn ? 'نشطة' : 'غير نشطة'));
+        }, 1000);
+
+        // تحديث معلومات الجلسة كل 10 ثواني
+        setInterval(updateSessionInfo, 10000);
 
         document.getElementById('settingsModal').addEventListener('click', function(e) {
             if (e.target === this) closeSettings();
