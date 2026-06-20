@@ -1010,7 +1010,7 @@
 
     <script>
         // ============================================================
-        // إعدادات Firebase الجديدة
+        // إعدادات Firebase
         // ============================================================
         const firebaseConfig = {
             apiKey: "AIzaSyDoBZEiGeSKQ2NXYHD1NwkTikiadD4GPcc",
@@ -1088,8 +1088,6 @@
                 loginSuccess: '✅ تم تسجيل الدخول بنجاح!',
                 logoutSuccess: '👋 تم تسجيل الخروج بنجاح',
                 alreadyLoggedIn: '🔐 أنت مسجل الدخول بالفعل',
-                dataLoaded: '📦 تم تحميل البيانات من الخادم',
-                dataCached: '💾 تم تحميل البيانات من المتصفح',
                 all: 'الكل'
             },
             en: {
@@ -1147,8 +1145,6 @@
                 loginSuccess: '✅ Login successful!',
                 logoutSuccess: '👋 Logged out successfully',
                 alreadyLoggedIn: '🔐 You are already logged in',
-                dataLoaded: '📦 Data loaded from server',
-                dataCached: '💾 Data loaded from browser cache',
                 all: 'All'
             },
             ku: {
@@ -1206,8 +1202,6 @@
                 loginSuccess: '✅ چوونەژوورەوە سەرکەوتوو بوو!',
                 logoutSuccess: '👋 دەرچوون سەرکەوتوو بوو',
                 alreadyLoggedIn: '🔐 تۆ پێشتر چوویتە ژوورەوە',
-                dataLoaded: '📦 داتا لە ڕاژە بارکرا',
-                dataCached: '💾 داتا لە پاشەکەوتی وێبگەڕ بارکرا',
                 all: 'هەموو'
             }
         };
@@ -1224,112 +1218,92 @@
         let isLoggedIn = false;
         let loginExpiry = null;
         let isDataLoaded = false;
+        const CACHE_KEY = 'menuCache_v3';
+        const FIRST_LOAD_KEY = 'firstLoad_v3';
 
-        // ============================================================
-        // دالة الترجمة
-        // ============================================================
         function t(key) {
             return translations[currentLang]?.[key] || translations.ar[key] || key;
         }
 
-        // ============================================================
-        // ✅ إدارة التخزين المؤقت (بدون صلاحية زمنية)
-        // ============================================================
+        function isFirstLoad() {
+            return !localStorage.getItem(FIRST_LOAD_KEY);
+        }
+
+        function markFirstLoadDone() {
+            localStorage.setItem(FIRST_LOAD_KEY, 'true');
+        }
+
         function saveItemsToCache(data) {
             try {
-                localStorage.setItem('menuCache', JSON.stringify(data));
-                console.log('💾 تم حفظ البيانات في التخزين المؤقت');
-            } catch (e) {
-                console.warn('⚠️ فشل حفظ البيانات في التخزين المؤقت:', e);
-            }
+                localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+            } catch (e) {}
         }
 
         function getItemsFromCache() {
             try {
-                const cached = localStorage.getItem('menuCache');
+                const cached = localStorage.getItem(CACHE_KEY);
                 if (!cached) return null;
                 const data = JSON.parse(cached);
-                if (data && data.length > 0) {
-                    console.log('💾 تم تحميل البيانات من التخزين المؤقت');
-                    return data;
-                }
+                if (data && data.length > 0) return data;
                 return null;
             } catch (e) {
-                console.warn('⚠️ فشل قراءة التخزين المؤقت:', e);
                 return null;
             }
         }
 
         // ============================================================
-        // ✅ تحميل البيانات (مرة واحدة فقط عند فتح الصفحة - بدون onSnapshot)
+        // تحميل البيانات
         // ============================================================
         async function loadData() {
             renderCategorySkeletons();
             isLoading = true;
 
-            const cachedItems = getItemsFromCache();
-            if (cachedItems && cachedItems.length > 0) {
-                items = cachedItems;
-                isLoading = false;
-                isDataLoaded = true;
-                renderCategories();
-                toast(t('dataCached'));
+            if (isFirstLoad()) {
+                await fetchFromFirebase();
+                markFirstLoadDone();
                 return;
             }
 
-            try {
-                console.log('📡 جلب البيانات من Firebase...');
-                const snapshot = await db.orderBy('createdAt', 'desc').get();
-                items = [];
-                snapshot.forEach(doc => items.push({ fid: doc.id, ...doc.data() }));
-                
-                saveItemsToCache(items);
-                
+            const cached = getItemsFromCache();
+            if (cached && cached.length > 0) {
+                items = cached;
                 isLoading = false;
                 isDataLoaded = true;
                 renderCategories();
-                toast(t('dataLoaded'));
-                
+                return;
+            }
+
+            await fetchFromFirebase();
+        }
+
+        async function fetchFromFirebase() {
+            try {
+                const snapshot = await db.orderBy('createdAt', 'desc').get();
+                items = [];
+                snapshot.forEach(doc => items.push({ fid: doc.id, ...doc.data() }));
+                saveItemsToCache(items);
+                isLoading = false;
+                isDataLoaded = true;
+                renderCategories();
             } catch (error) {
-                console.error('❌ خطأ في جلب البيانات:', error);
+                console.error('❌ خطأ:', error);
                 isLoading = false;
                 document.getElementById('catsGrid').innerHTML = `
                     <div class="empty" style="grid-column:1/-1;">
                         <div class="empty-icon">📡</div>
-                        <p>${currentLang === 'en' ? 'Failed to load data' : currentLang === 'ku' ? 'بارکردنی داتا شکستی هێنا' : 'تعذر تحميل البيانات'}</p>
-                        <button onclick="loadData()" style="margin-top:12px;padding:10px 28px;border-radius:50px;background:var(--primary);color:white;border:none;font-family:inherit;font-size:14px;cursor:pointer;">🔄 ${currentLang === 'en' ? 'Retry' : currentLang === 'ku' ? 'هەوڵبدەرەوە' : 'إعادة المحاولة'}</button>
+                        <p>${currentLang === 'en' ? 'Failed to load' : 'تعذر تحميل البيانات'}</p>
+                        <button onclick="location.reload()" style="margin-top:12px;padding:10px 28px;border-radius:50px;background:var(--primary);color:white;border:none;font-family:inherit;font-size:14px;cursor:pointer;">🔄 إعادة المحاولة</button>
                     </div>
                 `;
             }
         }
 
-        async function refreshCacheAfterChange() {
-            try {
-                console.log('🔄 تحديث التخزين المؤقت بعد تغيير البيانات...');
-                const snapshot = await db.orderBy('createdAt', 'desc').get();
-                const newItems = [];
-                snapshot.forEach(doc => newItems.push({ fid: doc.id, ...doc.data() }));
-                
-                if (newItems.length > 0) {
-                    items = newItems;
-                    saveItemsToCache(items);
-                    if (selectedCategory === null) {
-                        renderCategories();
-                    } else {
-                        renderItemsForCategory(selectedCategory);
-                    }
-                    updateCatsBar();
-                    console.log('✅ تم تحديث التخزين المؤقت بنجاح');
-                }
-            } catch (e) {
-                console.warn('⚠️ فشل تحديث التخزين المؤقت:', e);
-            }
-        }
-
+        // ============================================================
+        // إدارة الجلسة
+        // ============================================================
         function checkSession() {
             const saved = localStorage.getItem('adminSession');
             if (!saved) return false;
-            
             try {
                 const session = JSON.parse(saved);
                 if (Date.now() > session.expiry) {
@@ -1369,6 +1343,7 @@
 
         function updateSessionInfo() {
             const info = document.getElementById('sessionInfo');
+            if (!info) return;
             if (isLoggedIn && loginExpiry) {
                 const remaining = Math.floor((loginExpiry - Date.now()) / 1000);
                 if (remaining > 0) {
@@ -1387,6 +1362,9 @@
             }
         }
 
+        // ============================================================
+        // تطبيق اللغة
+        // ============================================================
         function applyLanguage() {
             const isRTL = currentLang === 'ar' || currentLang === 'ku';
             document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
@@ -1448,20 +1426,15 @@
             const categories = [allText, ...new Set(items.map(i => i.category || 'بدون'))];
             
             let activeCat = selectedCategory || allText;
-            if (selectedCategory === null) {
-                activeCat = allText;
-            }
+            if (selectedCategory === null) activeCat = allText;
             
             bar.innerHTML = categories.map(c => `
-                <button class="cat-bar-btn ${c === activeCat ? 'active' : ''}" onclick="selectCategoryFromBar('${c}')">
-                    ${c}
-                </button>
+                <button class="cat-bar-btn ${c === activeCat ? 'active' : ''}" onclick="selectCategoryFromBar('${c}')">${c}</button>
             `).join('');
         }
 
         function selectCategoryFromBar(category) {
             const allText = t('all');
-            
             if (category === allText) {
                 goBackToCategories();
             } else {
@@ -1512,15 +1485,11 @@
             const categoriesMap = {};
             items.forEach(item => {
                 const cat = item.category || 'بدون';
-                if (!categoriesMap[cat]) {
-                    categoriesMap[cat] = [];
-                }
+                if (!categoriesMap[cat]) categoriesMap[cat] = [];
                 categoriesMap[cat].push(item);
             });
             
-            const sortedCategories = Object.keys(categoriesMap).sort((a, b) => {
-                return categoriesMap[b].length - categoriesMap[a].length;
-            });
+            const sortedCategories = Object.keys(categoriesMap).sort((a, b) => categoriesMap[b].length - categoriesMap[a].length);
             
             grid.innerHTML = '';
             sortedCategories.forEach((cat, idx) => {
@@ -1579,7 +1548,6 @@
             updateCatsBar();
             
             const filtered = items.filter(item => (item.category || 'بدون') === category);
-            
             const searchVal = document.getElementById('searchInput').value.toLowerCase().trim();
             let finalItems = filtered;
             if (searchVal) {
@@ -1601,9 +1569,7 @@
                 card.style.animationDelay = `${Math.min(idx * 0.03, 0.3)}s`;
                 card.innerHTML = `
                     <div class="card-img-wrap">
-                        <img src="${item.image || 'https://placehold.co/400x250/1a1a35/666'}" 
-                             onerror="this.src='https://placehold.co/400x250/1a1a35/666'" 
-                             loading="lazy" decoding="async">
+                        <img src="${item.image || 'https://placehold.co/400x250/1a1a35/666'}" onerror="this.src='https://placehold.co/400x250/1a1a35/666'" loading="lazy" decoding="async">
                         <div class="card-cat">${item.category || ''}</div>
                         <div class="card-badge ${item.available !== false ? 'badge-on' : 'badge-off'}">${item.available !== false ? t('available') : t('unavailable')}</div>
                     </div>
@@ -1640,15 +1606,11 @@
                 const categoriesMap = {};
                 filteredItems.forEach(item => {
                     const cat = item.category || 'بدون';
-                    if (!categoriesMap[cat]) {
-                        categoriesMap[cat] = [];
-                    }
+                    if (!categoriesMap[cat]) categoriesMap[cat] = [];
                     categoriesMap[cat].push(item);
                 });
                 
-                const sortedCategories = Object.keys(categoriesMap).sort((a, b) => {
-                    return categoriesMap[b].length - categoriesMap[a].length;
-                });
+                const sortedCategories = Object.keys(categoriesMap).sort((a, b) => categoriesMap[b].length - categoriesMap[a].length);
                 
                 if (!sortedCategories.length) {
                     grid.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div>${t('empty')}</div>`;
@@ -1723,9 +1685,7 @@
                 closeSettings();
                 document.getElementById('adminPanel').classList.add('show');
                 document.body.style.overflow = 'hidden';
-                if (items.length > 0) {
-                    showAdminList();
-                }
+                if (items.length > 0) showAdminList();
                 applyLanguage();
                 toast(t('alreadyLoggedIn'));
                 return;
@@ -1841,6 +1801,9 @@
             reader.readAsDataURL(f);
         }
 
+        // ============================================================
+        // إضافة عنصر - كتابة فقط على Firebase + تحديث محلي
+        // ============================================================
         async function addItem() {
             const name = document.getElementById('itemName').value.trim();
             const price = parseFloat(document.getElementById('itemPrice').value);
@@ -1864,7 +1827,7 @@
             
             try {
                 document.getElementById('btnAdd').textContent = '⏳...';
-                await db.add({
+                const docRef = await db.add({
                     name: name,
                     category: document.getElementById('itemCat').value,
                     description: document.getElementById('itemDesc').value.trim() || '',
@@ -1873,8 +1836,28 @@
                     available: true,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
+                
+                // تحديث محلي مباشر
+                const newItem = {
+                    fid: docRef.id,
+                    name: name,
+                    category: document.getElementById('itemCat').value,
+                    description: document.getElementById('itemDesc').value.trim() || '',
+                    price: price,
+                    image: img || 'https://placehold.co/400x250/1a1a35/666',
+                    available: true
+                };
+                items.unshift(newItem);
+                saveItemsToCache(items);
+                
                 resetForm();
-                await refreshCacheAfterChange();
+                if (selectedCategory === null) {
+                    renderCategories();
+                } else {
+                    renderItemsForCategory(selectedCategory);
+                }
+                updateCatsBar();
+                showAdminList();
                 toast(t('toastAdded'));
             } catch (error) {
                 console.error('خطأ في الإضافة:', error);
@@ -1913,6 +1896,9 @@
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
+        // ============================================================
+        // تعديل عنصر - كتابة فقط على Firebase + تحديث محلي
+        // ============================================================
         async function updateItem() {
             const fid = document.getElementById('editId').value;
             if (!fid) {
@@ -1951,16 +1937,7 @@
                 document.getElementById('btnUpdate').textContent = '⏳ جاري الحفظ...';
                 document.getElementById('btnUpdate').disabled = true;
                 
-                const docRef = db.doc(fid);
-                const docSnap = await docRef.get();
-                
-                if (!docSnap.exists) {
-                    toast('❌ المستند غير موجود في قاعدة البيانات');
-                    resetUpdateBtn();
-                    return;
-                }
-                
-                await docRef.update({
+                await db.doc(fid).update({
                     name: name,
                     category: document.getElementById('itemCat').value,
                     description: document.getElementById('itemDesc').value.trim() || '',
@@ -1969,8 +1946,28 @@
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
                 
+                // تحديث محلي مباشر
+                const index = items.findIndex(i => i.fid === fid);
+                if (index !== -1) {
+                    items[index] = {
+                        ...items[index],
+                        name: name,
+                        category: document.getElementById('itemCat').value,
+                        description: document.getElementById('itemDesc').value.trim() || '',
+                        price: price,
+                        image: img || items[index].image
+                    };
+                }
+                saveItemsToCache(items);
+                
                 resetForm();
-                await refreshCacheAfterChange();
+                if (selectedCategory === null) {
+                    renderCategories();
+                } else {
+                    renderItemsForCategory(selectedCategory);
+                }
+                updateCatsBar();
+                showAdminList();
                 toast(t('toastUpdated'));
                 
             } catch (error) {
@@ -1985,11 +1982,25 @@
             document.getElementById('btnUpdate').disabled = false;
         }
 
+        // ============================================================
+        // حذف عنصر - كتابة فقط على Firebase + تحديث محلي
+        // ============================================================
         async function delItem(fid) {
             if (!confirm(t('confirmDel'))) return;
             try {
                 await db.doc(fid).delete();
-                await refreshCacheAfterChange();
+                
+                // تحديث محلي مباشر
+                items = items.filter(i => i.fid !== fid);
+                saveItemsToCache(items);
+                
+                if (selectedCategory === null) {
+                    renderCategories();
+                } else {
+                    renderItemsForCategory(selectedCategory);
+                }
+                updateCatsBar();
+                showAdminList();
                 toast(t('toastDeleted'));
             } catch (error) {
                 console.error('❌ خطأ في الحذف:', error);
@@ -2028,6 +2039,9 @@
             el._timer = setTimeout(() => el.classList.remove('on'), 3000);
         }
 
+        // ============================================================
+        // بدء التطبيق
+        // ============================================================
         document.body.classList.toggle('light-mode', !isDark);
         document.getElementById('darkToggle').classList.toggle('on', isDark);
 
