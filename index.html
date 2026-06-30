@@ -230,18 +230,25 @@
     <p>عذراً، هذا المطعم موقف مؤقتاً.<br>يرجى التواصل مع الإدارة للحصول على مزيد من المعلومات.</p>
 </div>
 
+<!-- LOGIN MODAL -->
 <div class="modal-overlay" id="loginModal"><div class="modal-box"><h3>🔐 دخول المشرف</h3><div class="form-group"><label>البريد أو المعرف</label><input type="text" class="form-input" id="loginEmail" autocomplete="off"></div><div class="form-group"><label>كلمة المرور</label><input type="password" class="form-input" id="loginPassword"></div><p class="err" id="loginError" style="display:none;">❌ بيانات الدخول غير صحيحة</p><button class="btn btn-full btn-primary" onclick="handleLogin()">🔒 دخول</button><button class="btn btn-full btn-outline" onclick="closeLoginModal()" style="margin-top:6px;">إلغاء</button></div></div>
 
+<!-- DEVELOPER PANEL -->
 <div class="admin-panel" id="devPanel"><div class="admin-wrap"><div class="admin-bar"><h3>👑 لوحة المطور الرئيسي</h3><div class="admin-actions"><button class="btn btn-primary" onclick="openRestaurantModal()">➕ مطعم جديد</button><button class="btn btn-danger" onclick="forceLogout()">🚪 تسجيل خروج</button><button class="btn btn-outline" onclick="closeAdmin()">✖ إغلاق</button></div></div><div class="admin-card"><h4>🏪 جميع المطاعم</h4><div id="restaurantsList"></div></div></div></div>
 
+<!-- RESTAURANT MODAL -->
 <div class="modal-overlay" id="restaurantModal"><div class="modal-box"><h3 id="restaurantModalTitle">🏪 إضافة مطعم جديد</h3><input type="hidden" id="restaurantId"><div class="form-group"><label>اسم المطعم *</label><input type="text" class="form-input" id="restName"></div><div class="form-group"><label>نوع اللوجو</label><select class="form-input" id="restLogoType" onchange="toggleLogoFields()"><option value="text">نص فقط</option><option value="auto">لوجو تلقائي (حروف)</option><option value="image">صورة</option></select></div><div id="logoTextField"><div class="form-group"><label>نص اللوجو</label><input type="text" class="form-input" id="restLogoText" placeholder="مثال: MENU"></div></div><div id="logoAutoField" style="display:none;"><div class="form-group"><label>حروف اللوجو (1-4)</label><input type="text" class="form-input" id="restAutoLogoText" maxlength="4" oninput="this.value=this.value.replace(/[^a-zA-Z0-9\u0600-\u06FF]/g,'').slice(0,4);document.getElementById('autoLogoPreview').textContent=this.value||'?'"></div><div style="text-align:center;margin:8px 0;"><div style="display:inline-block;width:50px;height:50px;border-radius:14px;background:var(--gradient-fire);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#fff;" id="autoLogoPreview">?</div></div></div><div id="logoImageField" style="display:none;"><div class="form-group"><label>صورة اللوجو</label><input type="file" class="form-input" id="restLogoFile" accept="image/*"></div></div><div class="form-group"><label>إظهار اسم المطعم في الهيدر</label><select class="form-input" id="restShowNameInHeader"><option value="true">✅ نعم</option><option value="false">❌ لا</option></select></div><div class="form-group"><label>الوصف</label><textarea class="form-input" id="restDesc"></textarea></div><div class="form-group"><label>إيميل الأدمن</label><input type="text" class="form-input" id="restAdminEmail"></div><div class="form-group"><label>كلمة مرور الأدمن</label><input type="password" class="form-input" id="restAdminPassword"></div><div id="restaurantMsg"></div><div class="btn-row"><button class="btn btn-primary btn-full" onclick="saveRestaurant()">💾 حفظ</button><button class="btn btn-outline btn-full" onclick="closeRestaurantModal()">إلغاء</button></div></div></div>
 
+<!-- QR MODAL -->
 <div class="modal-overlay" id="qrModal"><div class="modal-box" style="text-align:center;"><h3>📱 QR Code</h3><div id="qrCodeDisplay" style="display:inline-block;background:white;padding:15px;border-radius:12px;"></div><p style="margin-top:10px;color:var(--text2);font-size:12px;direction:ltr;" id="qrUrlDisplay"></p><button class="btn btn-primary btn-full" onclick="downloadQrFromModal()" style="margin-top:10px;">📥 تحميل</button><button class="btn btn-outline btn-full" onclick="closeQrModal()" style="margin-top:6px;">إغلاق</button></div></div>
 
+<!-- ADMIN PANEL -->
 <div class="admin-panel" id="adminPanel"><div class="admin-wrap"><div class="admin-bar"><h3>⚙️ لوحة تحكم <span id="adminRestaurantName"></span></h3><div class="admin-actions"><button class="btn btn-primary" onclick="openDishModal()">➕ طبق جديد</button><button class="btn btn-success" onclick="openCatModal()">📂 تصنيف جديد</button><button class="btn btn-danger" onclick="forceLogout()">🚪 تسجيل خروج</button><button class="btn btn-outline" onclick="closeAdmin()">✖ إغلاق</button></div></div><div class="cats-bar-wrapper"><div class="cats-bar" id="adminCatsBar"></div></div><div class="admin-card"><h4>🍽️ جميع الأطباق</h4><div id="adminDishesList"></div></div></div></div>
 
+<!-- DISH MODAL -->
 <div class="modal-overlay" id="dishModal"><div class="modal-box"><h3>🍽️ إضافة طبق</h3><input type="hidden" id="dishId"><div class="form-group"><label>اسم الطبق *</label><input type="text" class="form-input" id="dishName"></div><div class="form-group"><label>السعر *</label><input type="number" class="form-input" id="dishPrice"></div><div class="form-group"><label>التصنيف</label><select class="form-input" id="dishCategory"></select></div><div class="form-group"><label>الوصف</label><textarea class="form-input" id="dishDesc"></textarea></div><div class="form-group"><label>الصورة</label><input type="file" class="form-input" id="dishImage" accept="image/*"></div><div class="form-group"><label>الحالة</label><select class="form-input" id="dishAvailable"><option value="true">✅ متوفر</option><option value="false">❌ غير متوفر</option></select></div><div id="dishMsg"></div><div class="btn-row"><button class="btn btn-primary btn-full" onclick="saveDish()">💾 حفظ</button><button class="btn btn-outline btn-full" onclick="closeDishModal()">إلغاء</button></div></div></div>
 
+<!-- CATEGORY MODAL -->
 <div class="modal-overlay" id="catModal"><div class="modal-box"><h3>📂 إضافة تصنيف</h3><div class="form-group"><label>اسم التصنيف *</label><input type="text" class="form-input" id="catName"></div><div id="catMsg"></div><div class="btn-row"><button class="btn btn-primary btn-full" onclick="saveCategory()">💾 حفظ</button><button class="btn btn-outline btn-full" onclick="closeCatModal()">إلغاء</button></div></div></div>
 
 <div class="toast" id="toast"></div>
@@ -283,7 +290,7 @@ function openRestaurantModal(restId = null) {
 function closeRestaurantModal() { document.getElementById('restaurantModal').classList.remove('show'); }
 function toggleLogoFields() { const t = document.getElementById('restLogoType').value; document.getElementById('logoTextField').style.display = t === 'text' ? 'block' : 'none'; document.getElementById('logoAutoField').style.display = t === 'auto' ? 'block' : 'none'; document.getElementById('logoImageField').style.display = t === 'image' ? 'block' : 'none'; }
 
-function openQrModal(restId, restName) { const url = `${BASE_URL}/?id=${restId}`; document.getElementById('qrModalTitle').textContent = '📱 QR - ' + restName; document.getElementById('qrUrlDisplay').textContent = url; document.getElementById('qrCodeDisplay').innerHTML = ''; new QRCode(document.getElementById('qrCodeDisplay'), { text: url, width: 180, height: 180, colorDark: '#000', colorLight: '#fff' }); document.getElementById('qrModal').classList.add('show'); }
+function openQrModal(restId, restName) { const url = `${BASE_URL}/?id=${restId}`; document.getElementById('qrUrlDisplay').textContent = url; document.getElementById('qrCodeDisplay').innerHTML = ''; new QRCode(document.getElementById('qrCodeDisplay'), { text: url, width: 180, height: 180, colorDark: '#000', colorLight: '#fff' }); document.getElementById('qrModal').classList.add('show'); }
 function closeQrModal() { document.getElementById('qrModal').classList.remove('show'); }
 function downloadQrFromModal() { const canvas = document.querySelector('#qrCodeDisplay canvas'); if (canvas) { const a = document.createElement('a'); a.download = 'qr-restaurant.png'; a.href = canvas.toDataURL(); a.click(); } }
 
@@ -304,22 +311,11 @@ function updatePublicUI(rest) {
     document.getElementById('brandAutoLogo').style.display = 'none';
     document.getElementById('brandLogoImg').style.display = 'none';
     document.getElementById('brandTextWrapper').style.display = 'block';
-    
-    // اللوجو في الهيدر فقط
-    if (rest.logo_type === 'auto' && rest.auto_logo_text) {
-        document.getElementById('brandAutoLogo').textContent = rest.auto_logo_text.slice(0,4);
-        document.getElementById('brandAutoLogo').style.display = 'flex';
-    } else if (rest.logo_type === 'image' && rest.logo_image) {
-        document.getElementById('brandLogoImg').src = rest.logo_image;
-        document.getElementById('brandLogoImg').style.display = 'block';
-    }
-    
-    const brandSub = document.getElementById('brandSub');
-    brandSub.style.display = rest.show_name_in_header === false ? 'none' : 'block';
+    if (rest.logo_type === 'auto' && rest.auto_logo_text) { document.getElementById('brandAutoLogo').textContent = rest.auto_logo_text.slice(0,4); document.getElementById('brandAutoLogo').style.display = 'flex'; }
+    else if (rest.logo_type === 'image' && rest.logo_image) { document.getElementById('brandLogoImg').src = rest.logo_image; document.getElementById('brandLogoImg').style.display = 'block'; }
+    const brandSub = document.getElementById('brandSub'); brandSub.style.display = rest.show_name_in_header === false ? 'none' : 'block';
     if (rest.show_name_in_header !== false) brandSub.textContent = rest.name ? ('✦ ' + rest.name) : '';
-    
-    document.getElementById('heroTitle').textContent = rest.name || '';
-    document.getElementById('heroDesc').textContent = rest.description || '';
+    document.getElementById('heroTitle').textContent = rest.name || ''; document.getElementById('heroDesc').textContent = rest.description || '';
 }
 
 async function loadPublicData(restId) { const { data: cats } = await db.from('categories').select('*').eq('restaurant_id', restId).order('sort_order'); categories = cats || []; const { data: dd } = await db.from('dishes').select('*').eq('restaurant_id', restId).order('sort_order'); dishes = dd || []; renderCategories(); updateCatsBar(); }
