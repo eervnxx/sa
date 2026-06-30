@@ -217,11 +217,20 @@
             margin: 0 auto;
             animation: fadeUp 0.5s ease;
         }
-        .disabled-page .disabled-icon {
-            font-size: 100px;
-            margin-bottom: 20px;
-            animation: softGlow 2s ease-in-out infinite;
+        .disabled-icon svg {
+            width: 100px;
+            height: 100px;
+            animation: lockPulse 2s ease-in-out infinite;
         }
+        .disabled-icon svg .lock-body { fill: none; stroke: #e66767; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+        .disabled-icon svg .lock-shackle { fill: none; stroke: #e66767; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+        .disabled-icon svg .exclaim { fill: #e66767; }
+        
+        @keyframes lockPulse {
+            0%, 100% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.08); opacity: 1; }
+        }
+        
         .disabled-page h2 {
             font-size: 24px;
             font-weight: 800;
@@ -232,7 +241,18 @@
             color: var(--text2);
             font-size: 14px;
             line-height: 1.6;
+            margin-bottom: 30px;
         }
+        
+        .dev-access-link {
+            color: var(--text2);
+            font-size: 12px;
+            cursor: pointer;
+            text-decoration: underline;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+        }
+        .dev-access-link:hover { opacity: 1; color: var(--accent-soft); }
 
         .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--surface); border: 1px solid rgba(207, 106, 135, 0.2); backdrop-filter: blur(20px); padding: 10px 20px; border-radius: 50px; z-index: 2000; font-size: 13px; font-weight: 600; color: var(--text); transition: transform 0.4s ease; box-shadow: 0 8px 24px rgba(0,0,0,0.15); pointer-events: none; max-width: 90%; text-align: center; }
         .toast.on { transform: translateX(-50%) translateY(0); }
@@ -325,9 +345,19 @@
 
 <!-- صفحة المطعم المعطل -->
 <div class="disabled-page" id="disabledPage">
-    <div class="disabled-icon">🔒</div>
+    <div class="disabled-icon">
+        <svg viewBox="0 0 100 100" width="100" height="100">
+            <!-- قفل -->
+            <rect class="lock-body" x="25" y="45" width="50" height="40" rx="6" fill="none" stroke="#e66767" stroke-width="3"/>
+            <path class="lock-shackle" d="M35 45V30a15 15 0 0 1 30 0v15" fill="none" stroke="#e66767" stroke-width="3" stroke-linecap="round"/>
+            <!-- علامة تعجب -->
+            <circle class="exclaim" cx="50" cy="75" r="3.5" fill="#e66767"/>
+            <line x1="50" y1="58" x2="50" y2="69" stroke="#e66767" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+    </div>
     <h2>المطعم غير متاح حالياً</h2>
     <p>عذراً، هذا المطعم موقف مؤقتاً.<br>يرجى التواصل مع الإدارة للحصول على مزيد من المعلومات.</p>
+    <span class="dev-access-link" onclick="openLoginModal()">دخول المطور</span>
 </div>
 
 <!-- LOGIN MODAL -->
@@ -480,22 +510,22 @@ function saveSession(type, restaurantId) {
 function logout() {
     localStorage.removeItem('menuSession');
     isLoggedIn = false; loginType = null; currentRestaurantId = null; currentRestaurantData = null;
-    closeAdmin(); toast('👋 تم تسجيل الخروج'); loadRestaurant();
+    closeAdmin(); toast('👋 تم تسجيل الخروج');
+    // إعادة تحميل الصفحة فارغة
+    document.getElementById('mainContainer').style.display = 'none';
+    document.getElementById('disabledPage').style.display = 'none';
+    document.getElementById('heroTitle').textContent = '';
+    document.getElementById('heroDesc').textContent = '';
+    document.getElementById('brandSub').textContent = '';
 }
 
 function closeAdmin() {
     document.getElementById('devPanel').classList.remove('show');
     document.getElementById('adminPanel').classList.remove('show');
     document.body.style.overflow = '';
-    document.getElementById('mainContainer').style.display = 'block';
 }
 
 function openLoginModal() {
-    if (checkSession()) {
-        if (loginType === 'dev') { document.getElementById('devPanel').classList.add('show'); document.body.style.overflow = 'hidden'; loadAllRestaurants(); }
-        else if (loginType === 'admin') { document.getElementById('adminPanel').classList.add('show'); document.body.style.overflow = 'hidden'; loadAdminData(currentRestaurantId); }
-        return;
-    }
     document.getElementById('loginModal').classList.add('show');
     document.getElementById('loginError').style.display = 'none';
     document.getElementById('loginEmail').value = ''; document.getElementById('loginPassword').value = '';
@@ -581,7 +611,6 @@ async function handleLogin() {
     try {
         const { data, error } = await db.from('restaurants').select('*').eq('admin_email', email).eq('admin_password', password).single();
         if (error || !data) { document.getElementById('loginError').style.display = 'block'; return; }
-        if (data.is_active === false) { document.getElementById('loginError').textContent = '⏸️ هذا المطعم موقف حالياً'; document.getElementById('loginError').style.display = 'block'; return; }
         saveSession('admin', data.id); currentRestaurantId = data.id; currentRestaurantData = data;
         closeLoginModal();
         document.getElementById('adminPanel').classList.add('show'); document.body.style.overflow = 'hidden';
@@ -593,22 +622,20 @@ async function handleLogin() {
 // ==================== PUBLIC ====================
 async function loadRestaurant() {
     let restId = urlRestaurantId ? parseInt(urlRestaurantId) : null;
+    
+    // إذا ماكو ID في الرابط → الصفحة تبقى فارغة
     if (!restId) {
-        const { data } = await db.from('restaurants').select('*').eq('is_active', true).limit(1).single();
-        if (data) restId = data.id;
-    }
-    if (!restId) {
-        document.getElementById('mainContainer').style.display = 'none';
-        document.getElementById('disabledPage').style.display = 'block';
-        document.title = 'غير متاح';
+        document.getElementById('mainContainer').style.display = 'block';
+        document.getElementById('disabledPage').style.display = 'none';
         return;
     }
+    
     currentRestaurantId = restId;
     const { data } = await db.from('restaurants').select('*').eq('id', restId).single();
     
     if (data) {
-        // ✅ التحقق من حالة المطعم
         if (data.is_active === false) {
+            // المطعم معطل
             document.getElementById('mainContainer').style.display = 'none';
             document.getElementById('disabledPage').style.display = 'block';
             document.title = 'غير متاح - ' + (data.name || '');
@@ -734,7 +761,6 @@ async function loadAllRestaurants() {
     `).join('');
 }
 
-// ✅ دالة التعطيل والتفعيل
 async function toggleRestaurant(id, currentStatus) {
     const newStatus = !currentStatus;
     const action = newStatus ? 'تفعيل' : 'تعطيل';
