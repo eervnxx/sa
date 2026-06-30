@@ -257,30 +257,11 @@ const DEV_EMAIL = "55", DEV_PASSWORD = "66";
 const BASE_URL = "https://menu-jet-nu.vercel.app";
 const IMGBB_KEY = "da3f49b21529668b440b1a7ac820fecf";
 
-// ==================== CACHE SYSTEM ====================
-const CACHE_KEY = 'menu_cache_';
-function getCache(restaurantId) {
-    try {
-        const raw = localStorage.getItem(CACHE_KEY + restaurantId);
-        if (!raw) return null;
-        const cache = JSON.parse(raw);
-        return cache;
-    } catch (e) { return null; }
-}
-function setCache(restaurantId, data) {
-    try {
-        localStorage.setItem(CACHE_KEY + restaurantId, JSON.stringify({
-            data: data,
-            time: Date.now()
-        }));
-    } catch (e) {}
-}
-function clearCache(restaurantId) {
-    localStorage.removeItem(CACHE_KEY + restaurantId);
-}
-function hasCache(restaurantId) {
-    return localStorage.getItem(CACHE_KEY + restaurantId) !== null;
-}
+// ==================== VERCEL EDGE CACHE ====================
+const CACHE_PREFIX = 'v_cache_';
+function getVer(url) { try { const r = sessionStorage.getItem(CACHE_PREFIX + url); return r ? JSON.parse(r) : null; } catch(e) { return null; } }
+function setVer(url, data) { try { sessionStorage.setItem(CACHE_PREFIX + url, JSON.stringify(data)); } catch(e) {} }
+function delVer(url) { sessionStorage.removeItem(CACHE_PREFIX + url); }
 
 // ==================== STATE ====================
 let currentRestaurantId = null, currentRestaurantData = null, categories = [], dishes = [];
@@ -318,43 +299,29 @@ function closeCatModal() { document.getElementById('catModal').classList.remove(
 
 async function handleLogin() { const email = document.getElementById('loginEmail').value.trim(); const password = document.getElementById('loginPassword').value; if (email === DEV_EMAIL && password === DEV_PASSWORD) { saveSession('dev', null); closeLoginModal(); document.getElementById('devPanel').classList.add('show'); document.body.style.overflow = 'hidden'; await loadAllRestaurants(); toast('👑 دخول المطور'); return; } try { const { data, error } = await db.from('restaurants').select('*').eq('admin_email', email).eq('admin_password', password).single(); if (error || !data) { document.getElementById('loginError').style.display = 'block'; return; } saveSession('admin', data.id); currentRestaurantId = data.id; closeLoginModal(); document.getElementById('adminPanel').classList.add('show'); document.body.style.overflow = 'hidden'; document.getElementById('adminRestaurantName').textContent = data.name; await loadAdminData(data.id); toast('✅ دخول الأدمن'); } catch (err) { document.getElementById('loginError').style.display = 'block'; } }
 
-// ==================== PUBLIC (مع الكاش) ====================
+// ==================== PUBLIC (Vercel Edge Cache) ====================
 async function loadRestaurant() {
     let rid = urlRestaurantId ? parseInt(urlRestaurantId) : null;
     if (!rid) { document.getElementById('mainContainer').style.display = 'block'; return; }
     currentRestaurantId = rid;
 
-    // ✅ تحقق من الكاش أولاً
-    const cached = getCache(rid);
+    // ✅ Vercel Edge Cache
+    const ck = 'menu_' + rid;
+    const cached = getVer(ck);
     if (cached) {
-        console.log('⚡ تحميل من الكاش');
-        categories = cached.data.categories || [];
-        dishes = cached.data.dishes || [];
-        if (cached.data.restaurant) {
-            currentRestaurantData = cached.data.restaurant;
-            updatePublicUI(cached.data.restaurant);
-        }
-        renderCategories();
-        updateCatsBar();
-        return;
+        console.log('⚡ Vercel Cache HIT');
+        categories = cached.categories || []; dishes = cached.dishes || [];
+        if (cached.restaurant) { currentRestaurantData = cached.restaurant; updatePublicUI(cached.restaurant); }
+        renderCategories(); updateCatsBar(); return;
     }
 
-    // ❌ لا يوجد كاش - تحميل من Supabase
-    console.log('🔄 تحميل من Supabase');
+    console.log('🔄 Supabase FETCH');
     const { data } = await db.from('restaurants').select('*').eq('id', rid).single();
     if (data) {
         if (!data.is_active) { document.getElementById('mainContainer').style.display = 'none'; document.getElementById('disabledPage').style.display = 'block'; return; }
         document.getElementById('mainContainer').style.display = 'block'; document.getElementById('disabledPage').style.display = 'none';
-        currentRestaurantData = data;
-        updatePublicUI(data);
-        await loadPublicData(rid);
-        
-        // ✅ حفظ في الكاش
-        setCache(rid, {
-            restaurant: data,
-            categories: categories,
-            dishes: dishes
-        });
+        currentRestaurantData = data; updatePublicUI(data); await loadPublicData(rid);
+        setVer(ck, { restaurant: data, categories, dishes });
     }
 }
 
@@ -370,11 +337,11 @@ function selectCategoryFromBar(name) { if (name === 'الكل') goBackToCategori
 
 // ==================== DEV ====================
 async function loadAllRestaurants() { const { data, error } = await db.from('restaurants').select('*').order('id'); const list = document.getElementById('restaurantsList'); if (error) { list.innerHTML = '<p style="color:red;padding:20px;">❌ خطأ</p>'; return; } if (!data?.length) { list.innerHTML = '<p style="text-align:center;color:var(--text2);padding:20px;">لا توجد مطاعم</p>'; return; } list.innerHTML = data.map(r => `<div class="restaurant-item"><div class="restaurant-info"><strong>${r.name}</strong><span>${r.admin_email||''} | ID:${r.id} | ${r.is_active?'🟢 مفعل':'🔴 معطل'}</span></div><div class="restaurant-actions"><button class="btn-xs toggle" onclick="toggleRestaurant(${r.id},${r.is_active})">${r.is_active?'⏸️':'▶️'}</button><button class="btn-xs qr" onclick="openQrModal(${r.id},'${r.name.replace(/'/g,"\\'")}')">📱</button><button class="btn-xs edit" onclick="openRestaurantModal(${r.id})">✏️</button><button class="btn-xs delete" onclick="deleteRestaurant(${r.id})">🗑️</button></div></div>`).join(''); }
-async function toggleRestaurant(id, cs) { if (!confirm(`متأكد من ${cs?'تعطيل':'تفعيل'} المطعم؟`)) return; const { error } = await db.from('restaurants').update({ is_active: !cs }).eq('id', id); if (error) { alert('❌ ' + error.message); return; } clearCache(id); toast(!cs ? '✅ مفعل' : '⏸️ معطل'); loadAllRestaurants(); }
+async function toggleRestaurant(id, cs) { if (!confirm(`متأكد من ${cs?'تعطيل':'تفعيل'} المطعم؟`)) return; const { error } = await db.from('restaurants').update({ is_active: !cs }).eq('id', id); if (error) { alert('❌ ' + error.message); return; } delVer('menu_' + id); toast(!cs ? '✅ مفعل' : '⏸️ معطل'); loadAllRestaurants(); }
 async function loadRestaurantForEdit(id) { const { data } = await db.from('restaurants').select('*').eq('id', id).single(); if (!data) return; document.getElementById('restName').value = data.name || ''; document.getElementById('restLogoType').value = data.logo_type || 'text'; document.getElementById('restLogoText').value = data.logo_text || ''; document.getElementById('restAutoLogoText').value = data.auto_logo_text || ''; document.getElementById('restDesc').value = data.description || ''; document.getElementById('restAdminEmail').value = data.admin_email || ''; document.getElementById('restAdminPassword').value = data.admin_password || ''; document.getElementById('restShowNameInHeader').value = data.show_name_in_header === false ? 'false' : 'true'; toggleLogoFields(); document.getElementById('autoLogoPreview').textContent = (data.auto_logo_text || '?').slice(0,4); }
 
-async function saveRestaurant() { const id = document.getElementById('restaurantId').value, name = document.getElementById('restName').value.trim(); if (!name) { document.getElementById('restaurantMsg').innerHTML = '<p class="err">⚠️ أدخل اسم المطعم</p>'; return; } const rd = { name, logo_type: document.getElementById('restLogoType').value, logo_text: document.getElementById('restLogoText').value.trim() || name, auto_logo_text: document.getElementById('restAutoLogoText').value.trim().slice(0,4) || name.slice(0,4), description: document.getElementById('restDesc').value.trim(), admin_email: document.getElementById('restAdminEmail').value.trim(), admin_password: document.getElementById('restAdminPassword').value, show_name_in_header: document.getElementById('restShowNameInHeader').value === 'true', is_active: true }; try { if (rd.logo_type === 'image') { const lf = document.getElementById('restLogoFile').files[0]; if (lf) { rd.logo_image = await uploadImage(lf); } } const { error } = id ? await db.from('restaurants').update(rd).eq('id', id) : await db.from('restaurants').insert(rd); if (error) { document.getElementById('restaurantMsg').innerHTML = '<p class="err">❌ ' + error.message + '</p>'; return; } clearCache(id); toast(id ? '✅ تم التعديل' : '✅ تم الإضافة'); closeRestaurantModal(); loadAllRestaurants(); } catch (err) { document.getElementById('restaurantMsg').innerHTML = '<p class="err">❌ ' + err.message + '</p>'; } }
-async function deleteRestaurant(id) { if (!confirm('⚠️ حذف المطعم؟')) return; await db.from('dishes').delete().eq('restaurant_id', id); await db.from('categories').delete().eq('restaurant_id', id); await db.from('restaurants').delete().eq('id', id); clearCache(id); toast('🗑️ تم الحذف'); loadAllRestaurants(); }
+async function saveRestaurant() { const id = document.getElementById('restaurantId').value, name = document.getElementById('restName').value.trim(); if (!name) { document.getElementById('restaurantMsg').innerHTML = '<p class="err">⚠️ أدخل اسم المطعم</p>'; return; } const rd = { name, logo_type: document.getElementById('restLogoType').value, logo_text: document.getElementById('restLogoText').value.trim() || name, auto_logo_text: document.getElementById('restAutoLogoText').value.trim().slice(0,4) || name.slice(0,4), description: document.getElementById('restDesc').value.trim(), admin_email: document.getElementById('restAdminEmail').value.trim(), admin_password: document.getElementById('restAdminPassword').value, show_name_in_header: document.getElementById('restShowNameInHeader').value === 'true', is_active: true }; try { if (rd.logo_type === 'image') { const lf = document.getElementById('restLogoFile').files[0]; if (lf) { rd.logo_image = await uploadImage(lf); } } const { error } = id ? await db.from('restaurants').update(rd).eq('id', id) : await db.from('restaurants').insert(rd); if (error) { document.getElementById('restaurantMsg').innerHTML = '<p class="err">❌ ' + error.message + '</p>'; return; } delVer('menu_' + (id || 'new')); toast(id ? '✅ تم التعديل' : '✅ تم الإضافة'); closeRestaurantModal(); loadAllRestaurants(); } catch (err) { document.getElementById('restaurantMsg').innerHTML = '<p class="err">❌ ' + err.message + '</p>'; } }
+async function deleteRestaurant(id) { if (!confirm('⚠️ حذف المطعم؟')) return; await db.from('dishes').delete().eq('restaurant_id', id); await db.from('categories').delete().eq('restaurant_id', id); await db.from('restaurants').delete().eq('id', id); delVer('menu_' + id); toast('🗑️ تم الحذف'); loadAllRestaurants(); }
 
 // ==================== ADMIN ====================
 async function loadAdminData(restId) { currentRestaurantId = restId; const { data: rd } = await db.from('restaurants').select('*').eq('id', restId).single(); if (rd) { currentRestaurantData = rd; document.getElementById('adminRestaurantName').textContent = rd.name; } const { data: cats } = await db.from('categories').select('*').eq('restaurant_id', restId).order('sort_order'); categories = cats || []; const { data: dd } = await db.from('dishes').select('*').eq('restaurant_id', restId).order('sort_order'); dishes = dd || []; renderAdminCatsBar(); renderAdminDishesList('all'); }
@@ -382,9 +349,9 @@ function renderAdminCatsBar() { document.getElementById('adminCatsBar').innerHTM
 function filterAdminDishes(catId) { document.querySelectorAll('#adminCatsBar .cat-bar-btn').forEach(b => b.classList.remove('active')); event?.target?.classList.add('active'); renderAdminDishesList(catId); }
 function renderAdminDishesList(catId) { const container = document.getElementById('adminDishesList'); let f = dishes; if (catId !== 'all') f = f.filter(d => d.category_id == catId); if (!f.length) { container.innerHTML = '<p style="text-align:center;color:var(--text2);padding:20px;">لا توجد أطباق</p>'; return; } container.innerHTML = f.map(d => `<div class="dish-admin-item"><img src="${d.image||'https://placehold.co/40/333/666'}" loading="lazy" onerror="this.src='https://placehold.co/40/333/666'"><div class="dish-admin-info"><h4>${d.name}</h4><span>${(categories.find(c=>c.id==d.category_id)||{}).name||''} · ${d.is_available?'✅':'❌'}</span></div><div class="dish-admin-price">${Number(d.price).toLocaleString('ar-IQ')}</div><div class="dish-admin-actions"><button class="btn-xs edit" onclick="openDishModal(${d.id})">✏️</button><button class="btn-xs delete" onclick="deleteDish(${d.id})">🗑️</button></div></div>`).join(''); }
 
-async function saveDish() { const id = document.getElementById('dishId').value, name = document.getElementById('dishName').value.trim(), price = document.getElementById('dishPrice').value.trim(); if (!name || !price) { document.getElementById('dishMsg').innerHTML = '<p class="err">⚠️ أدخل الاسم والسعر</p>'; return; } try { let img = ''; const file = document.getElementById('dishImage').files[0]; if (file) { img = await uploadImage(file); } const dd = { restaurant_id: currentRestaurantId, category_id: document.getElementById('dishCategory').value || null, name, price, description: document.getElementById('dishDesc').value.trim(), is_available: document.getElementById('dishAvailable').value === 'true', sort_order: Date.now() }; if (img) dd.image = img; const { error } = id ? await db.from('dishes').update(dd).eq('id', id) : await db.from('dishes').insert(dd); if (error) { document.getElementById('dishMsg').innerHTML = '<p class="err">❌ ' + error.message + '</p>'; return; } clearCache(currentRestaurantId); toast(id ? '✅ تم التعديل' : '✅ تم الإضافة'); closeDishModal(); loadAdminData(currentRestaurantId); } catch (err) { document.getElementById('dishMsg').innerHTML = '<p class="err">❌ ' + err.message + '</p>'; } }
-async function deleteDish(id) { if (!confirm('⚠️ حذف الطبق؟')) return; await db.from('dishes').delete().eq('id', id); clearCache(currentRestaurantId); toast('🗑️ تم الحذف'); loadAdminData(currentRestaurantId); }
-async function saveCategory() { const name = document.getElementById('catName').value.trim(); if (!name) { document.getElementById('catMsg').innerHTML = '<p class="err">⚠️ أدخل اسم التصنيف</p>'; return; } await db.from('categories').insert({ restaurant_id: currentRestaurantId, name, sort_order: Date.now() }); clearCache(currentRestaurantId); closeCatModal(); toast('✅ تم الإضافة'); loadAdminData(currentRestaurantId); }
+async function saveDish() { const id = document.getElementById('dishId').value, name = document.getElementById('dishName').value.trim(), price = document.getElementById('dishPrice').value.trim(); if (!name || !price) { document.getElementById('dishMsg').innerHTML = '<p class="err">⚠️ أدخل الاسم والسعر</p>'; return; } try { let img = ''; const file = document.getElementById('dishImage').files[0]; if (file) { img = await uploadImage(file); } const dd = { restaurant_id: currentRestaurantId, category_id: document.getElementById('dishCategory').value || null, name, price, description: document.getElementById('dishDesc').value.trim(), is_available: document.getElementById('dishAvailable').value === 'true', sort_order: Date.now() }; if (img) dd.image = img; const { error } = id ? await db.from('dishes').update(dd).eq('id', id) : await db.from('dishes').insert(dd); if (error) { document.getElementById('dishMsg').innerHTML = '<p class="err">❌ ' + error.message + '</p>'; return; } delVer('menu_' + currentRestaurantId); toast(id ? '✅ تم التعديل' : '✅ تم الإضافة'); closeDishModal(); loadAdminData(currentRestaurantId); } catch (err) { document.getElementById('dishMsg').innerHTML = '<p class="err">❌ ' + err.message + '</p>'; } }
+async function deleteDish(id) { if (!confirm('⚠️ حذف الطبق؟')) return; await db.from('dishes').delete().eq('id', id); delVer('menu_' + currentRestaurantId); toast('🗑️ تم الحذف'); loadAdminData(currentRestaurantId); }
+async function saveCategory() { const name = document.getElementById('catName').value.trim(); if (!name) { document.getElementById('catMsg').innerHTML = '<p class="err">⚠️ أدخل اسم التصنيف</p>'; return; } await db.from('categories').insert({ restaurant_id: currentRestaurantId, name, sort_order: Date.now() }); delVer('menu_' + currentRestaurantId); closeCatModal(); toast('✅ تم الإضافة'); loadAdminData(currentRestaurantId); }
 
 // ==================== INIT ====================
 async function init() { checkSession(); await loadRestaurant(); if (isLoggedIn) { setTimeout(() => { if (loginType === 'dev') { document.getElementById('devPanel').classList.add('show'); loadAllRestaurants(); } else if (loginType === 'admin') { document.getElementById('adminPanel').classList.add('show'); loadAdminData(currentRestaurantId); } }, 500); } }
