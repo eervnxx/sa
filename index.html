@@ -62,65 +62,20 @@
 
         .header { display: flex; justify-content: space-between; align-items: center; padding: 8px 0 12px; border-bottom: 1px solid var(--border); }
         .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
-        
-        /* لوجو تلقائي */
-        .brand-auto-logo {
-            width: 44px; height: 44px;
-            border-radius: 12px;
-            background: var(--gradient-fire);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            font-size: 18px;
-            font-weight: 900;
-            color: #fff;
-            font-family: var(--font-en);
-            letter-spacing: -0.5px;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.4);
-            box-shadow: 0 4px 15px rgba(196, 69, 105, 0.3);
-            flex-shrink: 0;
-        }
-        
+        .brand-auto-logo { width: 44px; height: 44px; border-radius: 12px; background: var(--gradient-fire); display: none; align-items: center; justify-content: center; font-size: 18px; font-weight: 900; color: #fff; font-family: var(--font-en); letter-spacing: -0.5px; text-shadow: 0 1px 3px rgba(0,0,0,0.4); box-shadow: 0 4px 15px rgba(196, 69, 105, 0.3); flex-shrink: 0; }
         .brand-logo-img { width: 44px; height: 44px; border-radius: 12px; object-fit: cover; display: none; }
         .brand-text-en { font-size: 26px; font-weight: 900; font-family: var(--font-en); background: var(--gradient1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; letter-spacing: -0.5px; filter: drop-shadow(0 0 8px rgba(207, 106, 135, 0.15)); }
         .brand-sub { font-size: 10px; color: var(--accent-soft); font-weight: 600; letter-spacing: 2px; text-transform: uppercase; font-family: var(--font-en); display: block; }
         .header-actions { display: flex; gap: 8px; }
-        
-        .btn-icon {
-            width: 44px; height: 44px;
-            border-radius: 14px;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            color: var(--text2);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: 0.3s;
-            touch-action: manipulation;
-        }
+        .btn-icon { width: 44px; height: 44px; border-radius: 14px; background: var(--surface); border: 1px solid var(--border); color: var(--text2); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.3s; touch-action: manipulation; }
         .btn-icon svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
         .btn-icon:hover { border-color: var(--accent-soft); color: var(--accent); }
         .btn-icon:active { transform: scale(0.92); }
 
         .hero { text-align: center; padding: 20px 10px 8px; position: relative; }
+        .hero-auto-logo { width: 80px; height: 80px; border-radius: 20px; background: var(--gradient-fire); display: none; align-items: center; justify-content: center; font-size: 32px; font-weight: 900; color: #fff; font-family: var(--font-en); margin: 0 auto 12px; text-shadow: 0 2px 5px rgba(0,0,0,0.4); box-shadow: 0 8px 30px rgba(196, 69, 105, 0.3); }
         .hero-logo-center { margin-bottom: 10px; }
         .hero-logo-img { width: 80px; height: 80px; border-radius: 20px; object-fit: cover; display: none; margin: 0 auto; box-shadow: 0 8px 30px rgba(196, 69, 105, 0.2); }
-        .hero-auto-logo {
-            width: 80px; height: 80px;
-            border-radius: 20px;
-            background: var(--gradient-fire);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            font-size: 32px;
-            font-weight: 900;
-            color: #fff;
-            font-family: var(--font-en);
-            margin: 0 auto 12px;
-            text-shadow: 0 2px 5px rgba(0,0,0,0.4);
-            box-shadow: 0 8px 30px rgba(196, 69, 105, 0.3);
-        }
         .hero-badge { display: inline-block; padding: 4px 14px; border-radius: 50px; background: var(--surface); border: 1px solid var(--border); font-size: 10px; font-weight: 600; color: var(--accent-soft); margin-bottom: 8px; letter-spacing: 1px; text-transform: uppercase; backdrop-filter: blur(20px); }
         .hero h1 { font-size: clamp(32px, 8vw, 52px); font-weight: 900; line-height: 1.3; font-family: var(--font-ar); letter-spacing: -0.5px; margin-bottom: 10px; position: relative; word-break: break-word; padding: 6px 8px 12px 8px; overflow: visible; }
         .hero h1 .menu-text { background: var(--gradient-fire); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; display: inline-block; position: relative; filter: drop-shadow(0 0 12px rgba(207, 106, 135, 0.15)); animation: softGlow 3s ease-in-out infinite; }
@@ -176,7 +131,7 @@
         .card p { font-size: 11px; color: var(--text2); margin-bottom: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; line-height: 1.4; }
         .price { font-size: 18px; font-weight: 800; color: var(--accent-soft); }
 
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 1000; justify-content: center; align-items: center; padding: 16px; }
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); z-index: 1000; justify-content: center; align-items: center; padding: 16px; }
         .modal-overlay.show { display: flex; }
         .modal-box { background: var(--bg); border: 1px solid var(--border); border-radius: 16px; padding: 24px 20px; width: 100%; max-width: 450px; max-height: 90vh; overflow-y: auto; animation: popIn 0.3s ease; }
         @keyframes popIn { from { transform: scale(0.9) translateY(10px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
@@ -199,7 +154,7 @@
         .btn-row { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
         .btn-row .btn { flex: 1; min-width: 80px; }
 
-        .admin-panel { display: none; position: fixed; inset: 0; background: var(--bg); z-index: 999; overflow-y: auto; padding: 12px; -webkit-overflow-scrolling: touch; }
+        .admin-panel { display: none; position: fixed; inset: 0; background: var(--bg); z-index: 999; overflow-y: auto; padding: 12px; }
         .admin-panel.show { display: block; }
         .admin-wrap { max-width: 800px; margin: 0 auto; }
         .admin-bar { display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: var(--surface); border-radius: 10px; margin-bottom: 12px; border: 1px solid var(--border); flex-wrap: wrap; gap: 8px; }
@@ -229,9 +184,6 @@
         .dish-admin-info span { font-size: 9px; color: var(--text2); }
         .dish-admin-price { font-size: 12px; font-weight: 700; color: var(--accent-soft); }
         .dish-admin-actions { display: flex; gap: 3px; }
-
-        .qr-inline { background: white; display: inline-block; padding: 8px; border-radius: 8px; margin: 4px 0; }
-        .qr-inline canvas { display: block; }
 
         .disabled-page { display: none; text-align: center; padding: 80px 20px; max-width: 500px; margin: 0 auto; animation: fadeUp 0.5s ease; }
         .disabled-icon svg { width: 100px; height: 100px; animation: lockPulse 2s ease-in-out infinite; }
@@ -276,9 +228,7 @@
 <div class="container" id="mainContainer">
     <header class="header">
         <div class="brand">
-            <!-- لوجو تلقائي -->
             <div class="brand-auto-logo" id="brandAutoLogo"></div>
-            <!-- لوجو صورة -->
             <img class="brand-logo-img" id="brandLogoImg" src="" alt="Logo">
             <div id="brandTextWrapper">
                 <span class="brand-text-en" id="brandText">MENU</span>
@@ -351,20 +301,11 @@
         <h3 id="restaurantModalTitle">🏪 إضافة مطعم جديد</h3>
         <input type="hidden" id="restaurantId">
         <div class="form-group"><label>اسم المطعم *</label><input type="text" class="form-input" id="restName" placeholder="اسم المطعم..."></div>
-        <div class="form-group"><label>نوع اللوجو</label><select class="form-input" id="restLogoType" onchange="toggleLogoFields()">
-            <option value="text">نص فقط</option>
-            <option value="auto">لوجو تلقائي (حروف)</option>
-            <option value="image">صورة</option>
-        </select></div>
-        <div id="logoTextField">
-            <div class="form-group"><label>نص اللوجو (يظهر في الهيدر)</label><input type="text" class="form-input" id="restLogoText" placeholder="مثال: MENU"></div>
-        </div>
+        <div class="form-group"><label>نوع اللوجو</label><select class="form-input" id="restLogoType" onchange="toggleLogoFields()"><option value="text">نص فقط</option><option value="auto">لوجو تلقائي (حروف)</option><option value="image">صورة</option></select></div>
+        <div id="logoTextField"><div class="form-group"><label>نص اللوجو (يظهر في الهيدر)</label><input type="text" class="form-input" id="restLogoText" placeholder="مثال: MENU"></div></div>
         <div id="logoAutoField" style="display:none;">
-            <div class="form-group"><label>حروف اللوجو التلقائي (1-4 أحرف/أرقام)</label><input type="text" class="form-input" id="restAutoLogoText" placeholder="مثال: KSA" maxlength="4" oninput="this.value = this.value.replace(/[^a-zA-Z0-9\u0600-\u06FF]/g,'').slice(0,4)"></div>
-            <p style="font-size:10px;color:var(--text2);text-align:center;">ستظهر الحروف داخل دائرة متدرجة بألوان الموقع</p>
-            <div style="text-align:center;margin:8px 0;">
-                <div style="display:inline-block;width:50px;height:50px;border-radius:14px;background:var(--gradient-fire);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#fff;font-family:var(--font-en);text-shadow:0 2px 4px rgba(0,0,0,0.3);" id="autoLogoPreview">?</div>
-            </div>
+            <div class="form-group"><label>حروف اللوجو التلقائي (1-4 أحرف/أرقام)</label><input type="text" class="form-input" id="restAutoLogoText" placeholder="مثال: KSA" maxlength="4" oninput="this.value=this.value.replace(/[^a-zA-Z0-9\u0600-\u06FF]/g,'').slice(0,4);document.getElementById('autoLogoPreview').textContent=this.value||'?'"></div>
+            <div style="text-align:center;margin:8px 0;"><div style="display:inline-block;width:50px;height:50px;border-radius:14px;background:var(--gradient-fire);display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:#fff;font-family:var(--font-en);text-shadow:0 2px 4px rgba(0,0,0,0.3);" id="autoLogoPreview">?</div></div>
         </div>
         <div id="logoImageField" style="display:none;"><div class="form-group"><label>صورة اللوجو</label><input type="file" class="form-input" id="restLogoFile" accept="image/*"></div></div>
         <div class="form-group"><label>مكان اللوجو</label><select class="form-input" id="restLogoPosition"><option value="center">في الوسط</option><option value="side">في الجانب (الهيدر)</option></select></div>
@@ -380,7 +321,7 @@
 <!-- QR MODAL -->
 <div class="modal-overlay" id="qrModal">
     <div class="modal-box" style="text-align:center;">
-        <h3>📱 QR Code</h3>
+        <h3 id="qrModalTitle">📱 QR Code</h3>
         <div id="qrCodeDisplay" style="display:inline-block;background:white;padding:15px;border-radius:12px;"></div>
         <p style="margin-top:10px;color:var(--text2);font-size:12px;direction:ltr;word-break:break-all;" id="qrUrlDisplay"></p>
         <button class="btn btn-primary btn-full" onclick="downloadQrFromModal()" style="margin-top:10px;">📥 تحميل</button>
@@ -408,7 +349,7 @@
 <!-- DISH MODAL -->
 <div class="modal-overlay" id="dishModal">
     <div class="modal-box">
-        <h3>🍽️ إضافة طبق</h3>
+        <h3 id="dishModalTitle">🍽️ إضافة طبق</h3>
         <input type="hidden" id="dishId">
         <div class="form-group"><label>اسم الطبق *</label><input type="text" class="form-input" id="dishName" placeholder="اسم الطبق..."></div>
         <div class="form-group"><label>السعر *</label><input type="number" class="form-input" id="dishPrice" placeholder="مثال: 5000" step="1"></div>
@@ -448,133 +389,106 @@ function toast(msg) { const el = document.getElementById('toast'); el.textConten
 function toggleDarkMode() { isDarkMode = !isDarkMode; document.body.classList.toggle('light-mode', !isDarkMode); localStorage.setItem('darkMode', isDarkMode ? '1' : '0'); }
 if (localStorage.getItem('darkMode') === '0') { isDarkMode = false; document.body.classList.add('light-mode'); }
 
-function checkSession() {
-    const saved = localStorage.getItem('menuSession');
-    if (!saved) return false;
-    try { const session = JSON.parse(saved); if (Date.now() > session.expiry) { localStorage.removeItem('menuSession'); return false; } isLoggedIn = true; loginType = session.type; currentRestaurantId = session.restaurantId ? parseInt(session.restaurantId) : null; return true; } catch (e) { return false; }
-}
+function checkSession() { const saved = localStorage.getItem('menuSession'); if (!saved) return false; try { const s = JSON.parse(saved); if (Date.now() > s.expiry) { localStorage.removeItem('menuSession'); return false; } isLoggedIn = true; loginType = s.type; currentRestaurantId = s.restaurantId ? parseInt(s.restaurantId) : null; return true; } catch (e) { return false; } }
 function saveSession(type, restaurantId) { localStorage.setItem('menuSession', JSON.stringify({ type, restaurantId, expiry: Date.now() + (24 * 3600 * 1000) })); isLoggedIn = true; loginType = type; currentRestaurantId = restaurantId ? parseInt(restaurantId) : null; }
 function forceLogout() { localStorage.removeItem('menuSession'); isLoggedIn = false; loginType = null; currentRestaurantId = null; closeAdmin(); toast('👋 تم تسجيل الخروج'); document.getElementById('mainContainer').style.display = 'none'; document.getElementById('disabledPage').style.display = 'none'; }
 function closeAdmin() { document.getElementById('devPanel').classList.remove('show'); document.getElementById('adminPanel').classList.remove('show'); document.body.style.overflow = ''; }
 
-function openLoginModal() {
-    if (checkSession()) { if (loginType === 'dev') { document.getElementById('devPanel').classList.add('show'); document.body.style.overflow = 'hidden'; loadAllRestaurants(); } else if (loginType === 'admin') { document.getElementById('adminPanel').classList.add('show'); document.body.style.overflow = 'hidden'; loadAdminData(currentRestaurantId); } return; }
-    document.getElementById('loginModal').classList.add('show'); document.getElementById('loginError').style.display = 'none';
-}
+function openLoginModal() { if (checkSession()) { if (loginType === 'dev') { document.getElementById('devPanel').classList.add('show'); document.body.style.overflow = 'hidden'; loadAllRestaurants(); } else if (loginType === 'admin') { document.getElementById('adminPanel').classList.add('show'); document.body.style.overflow = 'hidden'; loadAdminData(currentRestaurantId); } return; } document.getElementById('loginModal').classList.add('show'); document.getElementById('loginError').style.display = 'none'; document.getElementById('loginEmail').value = ''; document.getElementById('loginPassword').value = ''; }
 function closeLoginModal() { document.getElementById('loginModal').classList.remove('show'); }
-function openRestaurantModal(restId = null) { /* same */ document.getElementById('restaurantModal').classList.add('show'); }
+
+function openRestaurantModal(restId = null) {
+    document.getElementById('restaurantId').value = restId || ''; document.getElementById('restName').value = ''; document.getElementById('restLogoText').value = ''; document.getElementById('restAutoLogoText').value = '';
+    document.getElementById('restLogoFile').value = ''; document.getElementById('restLogoPosition').value = 'center'; document.getElementById('restDesc').value = '';
+    document.getElementById('restAdminEmail').value = ''; document.getElementById('restAdminPassword').value = ''; document.getElementById('restLogoType').value = 'text';
+    document.getElementById('restShowNameInHeader').value = 'true'; document.getElementById('logoTextField').style.display = 'block';
+    document.getElementById('logoAutoField').style.display = 'none'; document.getElementById('logoImageField').style.display = 'none';
+    document.getElementById('restaurantMsg').innerHTML = ''; document.getElementById('restaurantModalTitle').textContent = restId ? '✏️ تعديل مطعم' : '🏪 إضافة مطعم جديد';
+    document.getElementById('autoLogoPreview').textContent = '?';
+    if (restId) loadRestaurantForEdit(restId);
+    document.getElementById('restaurantModal').classList.add('show');
+}
 function closeRestaurantModal() { document.getElementById('restaurantModal').classList.remove('show'); }
-function openQrModal(restId, restName) { const url = `${BASE_URL}/?id=${restId}`; document.getElementById('qrCodeDisplay').innerHTML = ''; new QRCode(document.getElementById('qrCodeDisplay'), { text: url, width: 180, height: 180, colorDark: '#000', colorLight: '#fff' }); document.getElementById('qrUrlDisplay').textContent = url; document.getElementById('qrModal').classList.add('show'); }
+
+function openQrModal(restId, restName) { const url = `${BASE_URL}/?id=${restId}`; document.getElementById('qrModalTitle').textContent = '📱 QR - ' + restName; document.getElementById('qrUrlDisplay').textContent = url; document.getElementById('qrCodeDisplay').innerHTML = ''; new QRCode(document.getElementById('qrCodeDisplay'), { text: url, width: 180, height: 180, colorDark: '#000', colorLight: '#fff' }); document.getElementById('qrModal').classList.add('show'); }
 function closeQrModal() { document.getElementById('qrModal').classList.remove('show'); }
 function downloadQrFromModal() { const canvas = document.querySelector('#qrCodeDisplay canvas'); if (canvas) { const a = document.createElement('a'); a.download = 'qr-restaurant.png'; a.href = canvas.toDataURL(); a.click(); } }
-function openDishModal() { document.getElementById('dishModal').classList.add('show'); }
-function closeDishModal() { document.getElementById('dishModal').classList.remove('show'); }
-function openCatModal() { document.getElementById('catModal').classList.add('show'); }
-function closeCatModal() { document.getElementById('catModal').classList.remove('show'); }
 
-// preview للوجو التلقائي
-document.addEventListener('input', function(e) { if (e.target.id === 'restAutoLogoText') { const val = e.target.value || '?'; document.getElementById('autoLogoPreview').textContent = val.slice(0,4); } });
-
-function toggleLogoFields() {
-    const type = document.getElementById('restLogoType').value;
-    document.getElementById('logoTextField').style.display = type === 'text' ? 'block' : 'none';
-    document.getElementById('logoAutoField').style.display = type === 'auto' ? 'block' : 'none';
-    document.getElementById('logoImageField').style.display = type === 'image' ? 'block' : 'none';
+function openDishModal(dishId = null) {
+    document.getElementById('dishId').value = dishId || ''; document.getElementById('dishName').value = ''; document.getElementById('dishPrice').value = '';
+    document.getElementById('dishDesc').value = ''; document.getElementById('dishImage').value = ''; document.getElementById('dishAvailable').value = 'true';
+    document.getElementById('dishMsg').innerHTML = ''; document.getElementById('dishModalTitle').textContent = dishId ? '✏️ تعديل طبق' : '🍽️ إضافة طبق';
+    document.getElementById('dishCategory').innerHTML = '<option value="">بدون تصنيف</option>' + categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+    if (dishId) { const dish = dishes.find(d => d.id == dishId); if (dish) { document.getElementById('dishName').value = dish.name; document.getElementById('dishPrice').value = dish.price; document.getElementById('dishDesc').value = dish.description || ''; document.getElementById('dishCategory').value = dish.category_id || ''; document.getElementById('dishAvailable').value = dish.is_available ? 'true' : 'false'; } }
+    document.getElementById('dishModal').classList.add('show');
 }
+function closeDishModal() { document.getElementById('dishModal').classList.remove('show'); }
+function openCatModal() { document.getElementById('catId').value = ''; document.getElementById('catName').value = ''; document.getElementById('catMsg').innerHTML = ''; document.getElementById('catModal').classList.add('show'); }
+function closeCatModal() { document.getElementById('catModal').classList.remove('show'); }
+function toggleLogoFields() { const t = document.getElementById('restLogoType').value; document.getElementById('logoTextField').style.display = t === 'text' ? 'block' : 'none'; document.getElementById('logoAutoField').style.display = t === 'auto' ? 'block' : 'none'; document.getElementById('logoImageField').style.display = t === 'image' ? 'block' : 'none'; }
+
+['loginModal','restaurantModal','qrModal','dishModal','catModal'].forEach(id => { document.getElementById(id).addEventListener('click', function(e) { if (e.target === this) { if (id === 'loginModal') closeLoginModal(); else if (id === 'restaurantModal') closeRestaurantModal(); else if (id === 'qrModal') closeQrModal(); else if (id === 'dishModal') closeDishModal(); else if (id === 'catModal') closeCatModal(); }}); });
 
 async function handleLogin() {
-    const email = document.getElementById('loginEmail').value.trim();
-    const password = document.getElementById('loginPassword').value;
-    if (email === DEV_EMAIL && password === DEV_PASSWORD) { saveSession('dev', null); closeLoginModal(); document.getElementById('devPanel').classList.add('show'); document.body.style.overflow = 'hidden'; await loadAllRestaurants(); return; }
-    try {
-        const { data, error } = await db.from('restaurants').select('*').eq('admin_email', email).eq('admin_password', password).single();
-        if (error || !data) { document.getElementById('loginError').style.display = 'block'; return; }
-        saveSession('admin', data.id); currentRestaurantId = data.id; currentRestaurantData = data; closeLoginModal();
-        document.getElementById('adminPanel').classList.add('show'); document.body.style.overflow = 'hidden';
-        document.getElementById('adminRestaurantName').textContent = data.name; await loadAdminData(data.id);
-    } catch (err) { document.getElementById('loginError').style.display = 'block'; }
+    const email = document.getElementById('loginEmail').value.trim(); const password = document.getElementById('loginPassword').value;
+    if (email === DEV_EMAIL && password === DEV_PASSWORD) { saveSession('dev', null); closeLoginModal(); document.getElementById('devPanel').classList.add('show'); document.body.style.overflow = 'hidden'; await loadAllRestaurants(); toast('👑 دخول المطور'); return; }
+    try { const { data, error } = await db.from('restaurants').select('*').eq('admin_email', email).eq('admin_password', password).single(); if (error || !data) { document.getElementById('loginError').style.display = 'block'; return; } saveSession('admin', data.id); currentRestaurantId = data.id; currentRestaurantData = data; closeLoginModal(); document.getElementById('adminPanel').classList.add('show'); document.body.style.overflow = 'hidden'; document.getElementById('adminRestaurantName').textContent = data.name; await loadAdminData(data.id); toast('✅ دخول الأدمن'); } catch (err) { document.getElementById('loginError').style.display = 'block'; }
 }
 
-async function loadRestaurant() {
-    let restId = urlRestaurantId ? parseInt(urlRestaurantId) : null;
-    if (!restId) { document.getElementById('mainContainer').style.display = 'block'; document.getElementById('disabledPage').style.display = 'none'; return; }
-    currentRestaurantId = restId;
-    const { data } = await db.from('restaurants').select('*').eq('id', restId).single();
-    if (data) {
-        if (data.is_active === false) { document.getElementById('mainContainer').style.display = 'none'; document.getElementById('disabledPage').style.display = 'block'; return; }
-        document.getElementById('mainContainer').style.display = 'block'; document.getElementById('disabledPage').style.display = 'none'; currentRestaurantData = data; updatePublicUI(data); await loadPublicData(restId);
-    }
-}
+async function loadRestaurant() { let rid = urlRestaurantId ? parseInt(urlRestaurantId) : null; if (!rid) { document.getElementById('mainContainer').style.display = 'block'; return; } currentRestaurantId = rid; const { data } = await db.from('restaurants').select('*').eq('id', rid).single(); if (data) { if (!data.is_active) { document.getElementById('mainContainer').style.display = 'none'; document.getElementById('disabledPage').style.display = 'block'; return; } document.getElementById('mainContainer').style.display = 'block'; document.getElementById('disabledPage').style.display = 'none'; currentRestaurantData = data; updatePublicUI(data); await loadPublicData(rid); } }
 
 function updatePublicUI(rest) {
-    document.title = rest.name || '';
-    document.getElementById('brandText').textContent = 'MENU';
-    
-    const brandAutoLogo = document.getElementById('brandAutoLogo');
-    const brandLogoImg = document.getElementById('brandLogoImg');
-    const brandTextWrapper = document.getElementById('brandTextWrapper');
-    const brandSub = document.getElementById('brandSub');
-    const heroAutoLogo = document.getElementById('heroAutoLogo');
-    const heroLogoImg = document.getElementById('heroLogoImg');
-    const heroLogoCenter = document.getElementById('heroLogoCenter');
-    
-    // إخفاء الكل أولاً
-    brandAutoLogo.style.display = 'none';
-    brandLogoImg.style.display = 'none';
-    heroAutoLogo.style.display = 'none';
-    heroLogoImg.style.display = 'none';
-    heroLogoCenter.style.display = 'none';
-    brandTextWrapper.style.display = 'block';
-    
-    if (rest.logo_type === 'auto' && rest.auto_logo_text) {
-        // لوجو تلقائي
-        brandAutoLogo.textContent = rest.auto_logo_text.slice(0,4);
-        brandAutoLogo.style.display = 'flex';
-        heroAutoLogo.textContent = rest.auto_logo_text.slice(0,4);
-        heroAutoLogo.style.display = 'flex';
-    } else if (rest.logo_type === 'image' && rest.logo_image) {
-        brandLogoImg.src = rest.logo_image;
-        brandLogoImg.style.display = 'block';
-        brandTextWrapper.style.display = 'none';
-        if (rest.logo_position === 'center') {
-            heroLogoImg.src = rest.logo_image;
-            heroLogoImg.style.display = 'block';
-            heroLogoCenter.style.display = 'block';
-        }
-    } else {
-        // نص فقط
-        brandTextWrapper.style.display = 'block';
-    }
-    
-    if (rest.show_name_in_header === false) { brandSub.style.display = 'none'; }
-    else { brandSub.style.display = 'block'; brandSub.textContent = rest.name ? ('✦ ' + rest.name) : ''; }
-    
-    document.getElementById('heroTitle').textContent = rest.name || '';
-    document.getElementById('heroDesc').textContent = rest.description || '';
+    document.title = rest.name || ''; document.getElementById('brandText').textContent = 'MENU';
+    const brandAutoLogo = document.getElementById('brandAutoLogo'), brandLogoImg = document.getElementById('brandLogoImg'), brandTextWrapper = document.getElementById('brandTextWrapper'), brandSub = document.getElementById('brandSub');
+    const heroAutoLogo = document.getElementById('heroAutoLogo'), heroLogoImg = document.getElementById('heroLogoImg'), heroLogoCenter = document.getElementById('heroLogoCenter');
+    brandAutoLogo.style.display = 'none'; brandLogoImg.style.display = 'none'; heroAutoLogo.style.display = 'none'; heroLogoImg.style.display = 'none'; heroLogoCenter.style.display = 'none'; brandTextWrapper.style.display = 'block';
+    if (rest.logo_type === 'auto' && rest.auto_logo_text) { brandAutoLogo.textContent = rest.auto_logo_text.slice(0,4); brandAutoLogo.style.display = 'flex'; heroAutoLogo.textContent = rest.auto_logo_text.slice(0,4); heroAutoLogo.style.display = 'flex'; }
+    else if (rest.logo_type === 'image' && rest.logo_image) { brandLogoImg.src = rest.logo_image; brandLogoImg.style.display = 'block'; brandTextWrapper.style.display = 'none'; if (rest.logo_position === 'center') { heroLogoImg.src = rest.logo_image; heroLogoImg.style.display = 'block'; heroLogoCenter.style.display = 'block'; } }
+    brandSub.style.display = rest.show_name_in_header === false ? 'none' : 'block';
+    if (rest.show_name_in_header !== false) brandSub.textContent = rest.name ? ('✦ ' + rest.name) : '';
+    document.getElementById('heroTitle').textContent = rest.name || ''; document.getElementById('heroDesc').textContent = rest.description || '';
 }
 
-async function loadPublicData(restId) { const { data: cats } = await db.from('categories').select('*').eq('restaurant_id', restId).order('sort_order'); categories = cats || []; const { data: d } = await db.from('dishes').select('*').eq('restaurant_id', restId).order('sort_order'); dishes = d || []; renderCategories(); updateCatsBar(); }
-function renderCategories() { const grid = document.getElementById('catsGrid'); document.getElementById('categoriesContainer').style.display = 'block'; document.getElementById('itemsContainer').style.display = 'none'; if (categories.length === 0) { grid.innerHTML = '<div class="empty">لا توجد تصنيفات</div>'; return; } grid.innerHTML = categories.map((cat, idx) => { const cd = dishes.filter(d => d.category_id == cat.id); let is = ''; for (let d of cd) { if (d.image?.startsWith('http')) { is = d.image; break; } } return `<div class="cat-card" style="animation-delay:${idx*0.04}s" onclick="selectCategory(${cat.id},'${cat.name}')">${is ? `<img class="cat-img" src="${is}" loading="lazy">` : '<div class="cat-img-placeholder">📋</div>'}<div class="cat-info"><div class="cat-name">${cat.name}</div><div class="cat-count">${cd.length} صنف</div></div></div>`; }).join(''); document.getElementById('totalCount').textContent = `${dishes.length} صنف`; }
-function selectCategory(cat) { selectedCategory = cat; document.getElementById('categoriesContainer').style.display = 'none'; document.getElementById('itemsContainer').style.display = 'block'; document.getElementById('selectedCategoryName').textContent = cat.name; updateCatsBar(); renderDishesForCategory(cat.id); }
-function renderDishesForCategory(catId) { const grid = document.getElementById('menuGrid'); let f = dishes.filter(d => d.category_id == catId); if (f.length === 0) { grid.innerHTML = '<div class="empty">لا توجد أطباق</div>'; return; } grid.innerHTML = f.map((dish, idx) => `<div class="card ${!dish.is_available?'off':''}" style="animation-delay:${idx*0.03}s"><div class="card-img-wrap"><img src="${dish.image||'https://placehold.co/400x250/1a1a35/666'}" loading="lazy"><div class="card-badge ${dish.is_available?'badge-on':'badge-off'}">${dish.is_available?'متوفر':'غير متوفر'}</div></div><div class="card-body"><h3>${dish.name}</h3><p>${dish.description||''}</p><span class="price">${Number(dish.price).toLocaleString('ar-IQ')} د.ع</span></div></div>`).join(''); }
-function goBackToCategories() { renderCategories(); updateCatsBar(); }
-function updateCatsBar() { const bar = document.getElementById('catsBar'); bar.innerHTML = ['الكل', ...categories.map(c => c.name)].map(c => `<button class="cat-bar-btn ${c===(selectedCategory?selectedCategory.name:'الكل')?'active':''}" onclick="selectCategoryFromBar('${c}')">${c}</button>`).join(''); }
-function selectCategoryFromBar(name) { if (name === 'الكل') goBackToCategories(); else { const cat = categories.find(c => c.name === name); if (cat) selectCategory(cat); } }
-function handleSearch() { /* same */ }
+async function loadPublicData(restId) { const { data: cats } = await db.from('categories').select('*').eq('restaurant_id', restId).order('sort_order'); categories = cats || []; const { data: dd } = await db.from('dishes').select('*').eq('restaurant_id', restId).order('sort_order'); dishes = dd || []; renderCategories(); updateCatsBar(); }
 
-async function loadAllRestaurants() { const { data } = await db.from('restaurants').select('*').order('id'); const list = document.getElementById('restaurantsList'); if (!data?.length) { list.innerHTML = '<p style="text-align:center;color:var(--text2);padding:20px;">لا توجد مطاعم</p>'; return; } list.innerHTML = data.map(r => `<div class="restaurant-item"><div class="restaurant-info"><strong>${r.name}</strong><span>${r.admin_email||''} | ID: ${r.id} | ${r.is_active?'🟢':'🔴'}</span></div><div class="restaurant-actions"><button class="btn-xs toggle" onclick="toggleRestaurant(${r.id},${r.is_active})">${r.is_active?'⏸️':'▶️'}</button><button class="btn-xs qr" onclick="openQrModal(${r.id},'${r.name}')">📱</button><button class="btn-xs edit" onclick="openRestaurantModal(${r.id})">✏️</button><button class="btn-xs delete" onclick="deleteRestaurant(${r.id})">🗑️</button></div></div>`).join(''); }
-async function toggleRestaurant(id, cs) { await db.from('restaurants').update({ is_active: !cs }).eq('id', id); toast(!cs ? '✅ مفعل' : '⏸️ معطل'); await loadAllRestaurants(); }
-async function loadRestaurantForEdit(id) { const { data } = await db.from('restaurants').select('*').eq('id', id).single(); if (!data) return; document.getElementById('restName').value = data.name || ''; document.getElementById('restLogoType').value = data.logo_type || 'text'; document.getElementById('restLogoText').value = data.logo_text || ''; document.getElementById('restAutoLogoText').value = data.auto_logo_text || ''; document.getElementById('restLogoPosition').value = data.logo_position || 'center'; document.getElementById('restDesc').value = data.description || ''; document.getElementById('restAdminEmail').value = data.admin_email || ''; document.getElementById('restAdminPassword').value = data.admin_password || ''; document.getElementById('restShowNameInHeader').value = data.show_name_in_header === false ? 'false' : 'true'; toggleLogoFields(); document.getElementById('autoLogoPreview').textContent = data.auto_logo_text?.slice(0,4) || '?'; }
-async function saveRestaurant() { const id = document.getElementById('restaurantId').value; const name = document.getElementById('restName').value.trim(); if (!name) { document.getElementById('restaurantMsg').innerHTML = '<p class="err">⚠️ أدخل اسم المطعم</p>'; return; } try { let logoImage = ''; const lt = document.getElementById('restLogoType').value; const lf = document.getElementById('restLogoFile').files[0]; if (lt === 'image' && lf) { const fn = `logo_${Date.now()}_${lf.name.replace(/[^a-zA-Z0-9._-]/g,'')}`; const { error: ue } = await db.storage.from('images').upload(fn, lf); if (!ue) { const { data: ud } = db.storage.from('images').getPublicUrl(fn); logoImage = ud.publicUrl; } } const rd = { name, logo_type: lt, logo_text: document.getElementById('restLogoText').value.trim() || name, auto_logo_text: document.getElementById('restAutoLogoText').value.trim().slice(0,4) || name.slice(0,4), logo_position: document.getElementById('restLogoPosition').value, description: document.getElementById('restDesc').value.trim(), admin_email: document.getElementById('restAdminEmail').value.trim(), admin_password: document.getElementById('restAdminPassword').value, show_name_in_header: document.getElementById('restShowNameInHeader').value === 'true' }; if (logoImage) rd.logo_image = logoImage; if (id) { await db.from('restaurants').update(rd).eq('id', id); } else { await db.from('restaurants').insert(rd); } toast('✅ تم الحفظ'); closeRestaurantModal(); await loadAllRestaurants(); } catch (err) { document.getElementById('restaurantMsg').innerHTML = '<p class="err">❌ ' + err.message + '</p>'; } }
+function renderCategories() { const grid = document.getElementById('catsGrid'); document.getElementById('categoriesContainer').style.display = 'block'; document.getElementById('itemsContainer').style.display = 'none'; document.getElementById('backBtn').classList.remove('show'); selectedCategory = null; if (!categories.length) { grid.innerHTML = '<div class="empty"><div class="empty-icon">📋</div>لا توجد تصنيفات</div>'; return; } grid.innerHTML = categories.map((cat, idx) => { const cd = dishes.filter(d => d.category_id == cat.id); let is = ''; for (let d of cd) { if (d.image?.startsWith('http')) { is = d.image; break; } } return `<div class="cat-card" style="animation-delay:${idx*0.04}s" onclick="selectCategory(${cat.id},'${cat.name}')">${is?`<img class="cat-img" src="${is}" loading="lazy">`:'<div class="cat-img-placeholder">📋</div>'}<div class="cat-info"><div class="cat-name">${cat.name}</div><div class="cat-count">${cd.length} صنف</div></div></div>`; }).join(''); document.getElementById('totalCount').textContent = dishes.length + ' صنف'; }
+function selectCategory(cat) { selectedCategory = cat; document.getElementById('categoriesContainer').style.display = 'none'; document.getElementById('itemsContainer').style.display = 'block'; document.getElementById('backBtn').classList.add('show'); document.getElementById('selectedCategoryName').textContent = cat.name; updateCatsBar(); renderDishesForCategory(cat.id); }
+function renderDishesForCategory(catId) { const grid = document.getElementById('menuGrid'); let f = dishes.filter(d => d.category_id == catId); if (!f.length) { grid.innerHTML = '<div class="empty"><div class="empty-icon">🍽️</div>لا توجد أطباق</div>'; return; } grid.innerHTML = f.map((dish, idx) => `<div class="card ${!dish.is_available?'off':''}" style="animation-delay:${idx*0.03}s"><div class="card-img-wrap"><img src="${dish.image||'https://placehold.co/400x250/1a1a35/666'}" loading="lazy"><div class="card-badge ${dish.is_available?'badge-on':'badge-off'}">${dish.is_available?'متوفر':'غير متوفر'}</div></div><div class="card-body"><h3>${dish.name}</h3><p>${dish.description||''}</p><span class="price">${Number(dish.price).toLocaleString('ar-IQ')} د.ع</span></div></div>`).join(''); }
+function goBackToCategories() { document.getElementById('searchInput').value = ''; renderCategories(); updateCatsBar(); }
+function updateCatsBar() { document.getElementById('catsBar').innerHTML = ['الكل', ...categories.map(c => c.name)].map(c => `<button class="cat-bar-btn ${c===(selectedCategory?selectedCategory.name:'الكل')?'active':''}" onclick="selectCategoryFromBar('${c}')">${c}</button>`).join(''); }
+function selectCategoryFromBar(name) { if (name === 'الكل') goBackToCategories(); else { const cat = categories.find(c => c.name === name); if (cat) selectCategory(cat); } }
+
+async function loadAllRestaurants() { const { data } = await db.from('restaurants').select('*').order('id'); const list = document.getElementById('restaurantsList'); if (!data?.length) { list.innerHTML = '<p style="text-align:center;color:var(--text2);padding:20px;">لا توجد مطاعم</p>'; return; } list.innerHTML = data.map(r => `<div class="restaurant-item"><div class="restaurant-info"><strong>${r.name}</strong><span>${r.admin_email||''} | ID: ${r.id} | ${r.is_active?'🟢 مفعل':'🔴 معطل'}</span></div><div class="restaurant-actions"><button class="btn-xs toggle" onclick="toggleRestaurant(${r.id},${r.is_active})">${r.is_active?'⏸️':'▶️'}</button><button class="btn-xs qr" onclick="openQrModal(${r.id},'${r.name.replace(/'/g,"\\'")}')">📱</button><button class="btn-xs edit" onclick="openRestaurantModal(${r.id})">✏️</button><button class="btn-xs delete" onclick="deleteRestaurant(${r.id})">🗑️</button></div></div>`).join(''); }
+async function toggleRestaurant(id, cs) { if (!confirm(`⚠️ ${cs?'تعطيل':'تفعيل'} المطعم؟`)) return; await db.from('restaurants').update({ is_active: !cs }).eq('id', id); toast(!cs ? '✅ مفعل' : '⏸️ معطل'); await loadAllRestaurants(); }
+async function loadRestaurantForEdit(id) { const { data } = await db.from('restaurants').select('*').eq('id', id).single(); if (!data) return; document.getElementById('restName').value = data.name || ''; document.getElementById('restLogoType').value = data.logo_type || 'text'; document.getElementById('restLogoText').value = data.logo_text || ''; document.getElementById('restAutoLogoText').value = data.auto_logo_text || ''; document.getElementById('restLogoPosition').value = data.logo_position || 'center'; document.getElementById('restDesc').value = data.description || ''; document.getElementById('restAdminEmail').value = data.admin_email || ''; document.getElementById('restAdminPassword').value = data.admin_password || ''; document.getElementById('restShowNameInHeader').value = data.show_name_in_header === false ? 'false' : 'true'; toggleLogoFields(); document.getElementById('autoLogoPreview').textContent = (data.auto_logo_text || '?').slice(0,4); }
+
+async function saveRestaurant() {
+    const id = document.getElementById('restaurantId').value, name = document.getElementById('restName').value.trim();
+    if (!name) { document.getElementById('restaurantMsg').innerHTML = '<p class="err">⚠️ أدخل اسم المطعم</p>'; return; }
+    try {
+        let logoImage = ''; const lt = document.getElementById('restLogoType').value, lf = document.getElementById('restLogoFile').files[0];
+        if (lt === 'image' && lf) { const fn = `logo_${Date.now()}_${lf.name.replace(/[^a-zA-Z0-9._-]/g,'')}`; const { error: ue } = await db.storage.from('images').upload(fn, lf); if (!ue) { const { data: ud } = db.storage.from('images').getPublicUrl(fn); logoImage = ud.publicUrl; } }
+        const rd = { name, logo_type: lt, logo_text: document.getElementById('restLogoText').value.trim() || name, auto_logo_text: document.getElementById('restAutoLogoText').value.trim().slice(0,4) || name.slice(0,4), logo_position: document.getElementById('restLogoPosition').value, description: document.getElementById('restDesc').value.trim(), admin_email: document.getElementById('restAdminEmail').value.trim(), admin_password: document.getElementById('restAdminPassword').value, show_name_in_header: document.getElementById('restShowNameInHeader').value === 'true' };
+        if (logoImage) rd.logo_image = logoImage;
+        if (id) { await db.from('restaurants').update(rd).eq('id', id); toast('✅ تم تعديل المطعم'); } else { await db.from('restaurants').insert(rd); toast('✅ تم إضافة المطعم'); }
+        closeRestaurantModal(); await loadAllRestaurants();
+    } catch (err) { document.getElementById('restaurantMsg').innerHTML = '<p class="err">❌ ' + err.message + '</p>'; }
+}
+
 async function deleteRestaurant(id) { if (!confirm('⚠️ حذف المطعم؟')) return; await db.from('dishes').delete().eq('restaurant_id', id); await db.from('categories').delete().eq('restaurant_id', id); await db.from('restaurants').delete().eq('id', id); toast('🗑️ تم الحذف'); await loadAllRestaurants(); }
 
 async function loadAdminData(restId) { currentRestaurantId = restId; const { data: rd } = await db.from('restaurants').select('*').eq('id', restId).single(); if (rd) { currentRestaurantData = rd; document.getElementById('adminRestaurantName').textContent = rd.name; } const { data: cats } = await db.from('categories').select('*').eq('restaurant_id', restId).order('sort_order'); categories = cats || []; const { data: dd } = await db.from('dishes').select('*').eq('restaurant_id', restId).order('sort_order'); dishes = dd || []; renderAdminCatsBar(); renderAdminDishesList('all'); }
 function renderAdminCatsBar() { document.getElementById('adminCatsBar').innerHTML = '<button class="cat-bar-btn active" onclick="filterAdminDishes(\'all\')">الكل</button>' + categories.map(c => `<button class="cat-bar-btn" onclick="filterAdminDishes(${c.id})">${c.name}</button>`).join(''); }
 function filterAdminDishes(catId) { document.querySelectorAll('#adminCatsBar .cat-bar-btn').forEach(b => b.classList.remove('active')); event?.target?.classList.add('active'); renderAdminDishesList(catId); }
-function renderAdminDishesList(catId) { const container = document.getElementById('adminDishesList'); let f = dishes; if (catId !== 'all') f = f.filter(d => d.category_id == catId); if (f.length === 0) { container.innerHTML = '<p style="text-align:center;color:var(--text2);padding:20px;">لا توجد أطباق</p>'; return; } container.innerHTML = f.map(d => `<div class="dish-admin-item"><img src="${d.image||'https://placehold.co/40/333/666'}" loading="lazy"><div class="dish-admin-info"><h4>${d.name}</h4><span>${(categories.find(c=>c.id==d.category_id)||{}).name||''} · ${d.is_available?'✅':'❌'}</span></div><div class="dish-admin-price">${Number(d.price).toLocaleString('ar-IQ')}</div><div class="dish-admin-actions"><button class="btn-xs edit" onclick="openDishModal()">✏️</button><button class="btn-xs delete" onclick="deleteDish(${d.id})">🗑️</button></div></div>`).join(''); }
-async function saveDish() { /* same */ closeDishModal(); await loadAdminData(currentRestaurantId); }
+function renderAdminDishesList(catId) { const container = document.getElementById('adminDishesList'); let f = dishes; if (catId !== 'all') f = f.filter(d => d.category_id == catId); if (!f.length) { container.innerHTML = '<p style="text-align:center;color:var(--text2);padding:20px;">لا توجد أطباق</p>'; return; } container.innerHTML = f.map(d => `<div class="dish-admin-item"><img src="${d.image||'https://placehold.co/40/333/666'}" loading="lazy"><div class="dish-admin-info"><h4>${d.name}</h4><span>${(categories.find(c=>c.id==d.category_id)||{}).name||''} · ${d.is_available?'✅':'❌'}</span></div><div class="dish-admin-price">${Number(d.price).toLocaleString('ar-IQ')}</div><div class="dish-admin-actions"><button class="btn-xs edit" onclick="openDishModal(${d.id})">✏️</button><button class="btn-xs delete" onclick="deleteDish(${d.id})">🗑️</button></div></div>`).join(''); }
+
+async function saveDish() {
+    const id = document.getElementById('dishId').value, name = document.getElementById('dishName').value.trim(), price = document.getElementById('dishPrice').value.trim();
+    if (!name || !price) { document.getElementById('dishMsg').innerHTML = '<p class="err">⚠️ أدخل الاسم والسعر</p>'; return; }
+    try { let imageUrl = ''; const file = document.getElementById('dishImage').files[0]; if (file) { const fn = `dish_${Date.now()}_${file.name.replace(/[^a-zA-Z0-9._-]/g,'')}`; const { error: ue } = await db.storage.from('images').upload(fn, file); if (!ue) { const { data: ud } = db.storage.from('images').getPublicUrl(fn); imageUrl = ud.publicUrl; } } const dd = { restaurant_id: currentRestaurantId, category_id: document.getElementById('dishCategory').value || null, name, price, description: document.getElementById('dishDesc').value.trim(), is_available: document.getElementById('dishAvailable').value === 'true', sort_order: Date.now() }; if (imageUrl) dd.image = imageUrl; if (id) { await db.from('dishes').update(dd).eq('id', id); toast('✅ تم تعديل الطبق'); } else { await db.from('dishes').insert(dd); toast('✅ تم إضافة الطبق'); } closeDishModal(); await loadAdminData(currentRestaurantId); } catch (err) { document.getElementById('dishMsg').innerHTML = '<p class="err">❌ ' + err.message + '</p>'; }
+}
 async function deleteDish(id) { if (!confirm('⚠️ حذف الطبق؟')) return; await db.from('dishes').delete().eq('id', id); toast('🗑️ تم الحذف'); await loadAdminData(currentRestaurantId); }
-async function saveCategory() { const name = document.getElementById('catName').value.trim(); if (!name) return; await db.from('categories').insert({ restaurant_id: currentRestaurantId, name, sort_order: Date.now() }); closeCatModal(); toast('✅ تم إضافة التصنيف'); await loadAdminData(currentRestaurantId); }
+async function saveCategory() { const name = document.getElementById('catName').value.trim(); if (!name) { document.getElementById('catMsg').innerHTML = '<p class="err">⚠️ أدخل اسم التصنيف</p>'; return; } await db.from('categories').insert({ restaurant_id: currentRestaurantId, name, sort_order: Date.now() }); closeCatModal(); toast('✅ تم إضافة التصنيف'); await loadAdminData(currentRestaurantId); }
 
 async function init() { checkSession(); await loadRestaurant(); if (isLoggedIn) { setTimeout(() => { if (loginType === 'dev') { document.getElementById('devPanel').classList.add('show'); loadAllRestaurants(); } else if (loginType === 'admin') { document.getElementById('adminPanel').classList.add('show'); loadAdminData(currentRestaurantId); } }, 500); } }
 document.getElementById('loginPassword').addEventListener('keypress', function(e) { if (e.key === 'Enter') handleLogin(); });
@@ -582,3 +496,4 @@ init();
 </script>
 </body>
 </html>
+```
