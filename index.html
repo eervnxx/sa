@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title id="pageTitle"></title>
     
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -54,6 +52,10 @@
             padding: 12px;
             min-height: 100vh;
             transition: background 0.3s, color 0.3s;
+        }
+
+        button, input, select, textarea, .btn, .btn-full, .btn-xs, .btn-icon, .cat-bar-btn, .form-input {
+            font-family: var(--font-ar) !important;
         }
 
         .container { max-width: 800px; margin: 0 auto; }
@@ -258,14 +260,7 @@ let currentRestaurantId = null, currentRestaurantData = null, categories = [], d
 let isLoggedIn = false, loginType = null, selectedCategory = null, isDarkMode = true;
 const urlRestaurantId = new URLSearchParams(location.search).get("id");
 
-async function uploadImage(file) {
-    const fd = new FormData(); fd.append('image', file);
-    const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: 'POST', body: fd });
-    const data = await res.json();
-    if (data.success) return data.data.url;
-    throw new Error('فشل رفع الصورة');
-}
-
+async function uploadImage(file) { const fd = new FormData(); fd.append('image', file); const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: 'POST', body: fd }); const data = await res.json(); if (data.success) return data.data.url; throw new Error('فشل رفع الصورة'); }
 function toast(msg) { const el = document.getElementById('toast'); el.textContent = msg; el.classList.add('on'); clearTimeout(el._timer); el._timer = setTimeout(() => el.classList.remove('on'), 3000); }
 function toggleDarkMode() { isDarkMode = !isDarkMode; document.body.classList.toggle('light-mode', !isDarkMode); localStorage.setItem('darkMode', isDarkMode ? '1' : '0'); }
 if (localStorage.getItem('darkMode') === '0') { isDarkMode = false; document.body.classList.add('light-mode'); }
