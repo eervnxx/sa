@@ -66,7 +66,29 @@
         .brand-text-en { font-size: 26px; font-weight: 900; font-family: var(--font-en); background: var(--gradient1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; letter-spacing: -0.5px; filter: drop-shadow(0 0 8px rgba(207, 106, 135, 0.15)); }
         .brand-sub { font-size: 10px; color: var(--accent-soft); font-weight: 600; letter-spacing: 2px; text-transform: uppercase; font-family: var(--font-en); }
         .header-actions { display: flex; gap: 8px; }
-        .btn-icon { width: 44px; height: 44px; border-radius: 14px; background: var(--surface); border: 1px solid var(--border); color: var(--text2); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.3s; touch-action: manipulation; font-size: 20px; }
+        
+        .btn-icon {
+            width: 44px; height: 44px;
+            border-radius: 14px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text2);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: 0.3s;
+            touch-action: manipulation;
+            position: relative;
+        }
+        .btn-icon svg {
+            width: 22px; height: 22px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
         .btn-icon:hover { border-color: var(--accent-soft); color: var(--accent); }
         .btn-icon:active { transform: scale(0.92); }
 
@@ -74,7 +96,7 @@
         .hero-logo-center { margin-bottom: 12px; }
         .hero-logo-img { width: 80px; height: 80px; border-radius: 20px; object-fit: cover; display: none; margin: 0 auto; box-shadow: 0 8px 30px rgba(196, 69, 105, 0.2); }
         .hero-badge { display: inline-block; padding: 4px 14px; border-radius: 50px; background: var(--surface); border: 1px solid var(--border); font-size: 10px; font-weight: 600; color: var(--accent-soft); margin-bottom: 8px; letter-spacing: 1px; text-transform: uppercase; backdrop-filter: blur(20px); }
-        .hero h1 { font-size: clamp(48px, 14vw, 80px); font-weight: 900; line-height: 1; font-family: var(--font-ar); letter-spacing: -1px; margin-bottom: 4px; position: relative; }
+        .hero h1 { font-size: clamp(32px, 10vw, 60px); font-weight: 900; line-height: 1.2; font-family: var(--font-ar); letter-spacing: -0.5px; margin-bottom: 4px; position: relative; word-break: break-word; }
         .hero h1 .menu-text { background: var(--gradient-fire); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; display: inline-block; position: relative; filter: drop-shadow(0 0 12px rgba(207, 106, 135, 0.15)); animation: softGlow 3s ease-in-out infinite; }
         
         @keyframes softGlow { 0%, 100% { filter: drop-shadow(0 0 8px rgba(207, 106, 135, 0.1)); } 50% { filter: drop-shadow(0 0 15px rgba(207, 106, 135, 0.2)); } }
@@ -141,6 +163,10 @@
         .form-input:focus { border-color: var(--accent-soft); }
         textarea.form-input { min-height: 60px; resize: vertical; }
         select.form-input { cursor: pointer; }
+        
+        .checkbox-group { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+        .checkbox-group input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--primary); cursor: pointer; }
+        .checkbox-group label { font-size: 13px; color: var(--text); cursor: pointer; margin-bottom: 0; text-transform: none; letter-spacing: 0; font-weight: 400; }
 
         .btn { padding: 10px 20px; border-radius: 10px; border: none; font-weight: 700; font-size: 14px; cursor: pointer; font-family: inherit; transition: 0.2s; min-height: 42px; touch-action: manipulation; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
         .btn:hover { opacity: 0.85; }
@@ -210,7 +236,8 @@
             .price { font-size: 15px; }
             .card-body { padding: 8px; }
             .brand-text-en { font-size: 20px; }
-            .btn-icon { width: 38px; height: 38px; font-size: 18px; }
+            .btn-icon { width: 38px; height: 38px; }
+            .btn-icon svg { width: 18px; height: 18px; }
             .cat-card .cat-img { height: 90px; }
             .cats-grid { gap: 8px; }
             .cat-card .cat-name { font-size: 14px; }
@@ -234,8 +261,12 @@
             </div>
         </div>
         <div class="header-actions">
-            <button class="btn-icon" onclick="toggleDarkMode()" title="الوضع الليلي">🌙</button>
-            <button class="btn-icon" onclick="openLoginModal()" title="لوحة التحكم">⚙️</button>
+            <button class="btn-icon" onclick="toggleDarkMode()" title="تغيير الوضع">
+                <svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+            </button>
+            <button class="btn-icon" onclick="openLoginModal()" title="لوحة التحكم">
+                <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+            </button>
         </div>
     </header>
 
@@ -270,7 +301,6 @@
     <div id="itemsContainer" style="display:none;"><div class="grid" id="menuGrid"></div></div>
 </div>
 
-<!-- LOGIN MODAL -->
 <div class="modal-overlay" id="loginModal">
     <div class="modal-box">
         <h3>🔐 دخول المشرف</h3>
@@ -283,25 +313,13 @@
     </div>
 </div>
 
-<!-- DEVELOPER PANEL -->
 <div class="admin-panel" id="devPanel">
     <div class="admin-wrap">
-        <div class="admin-bar">
-            <h3>👑 لوحة المطور الرئيسي</h3>
-            <div class="admin-actions">
-                <button class="btn btn-primary" onclick="openRestaurantModal()">➕ مطعم جديد</button>
-                <button class="btn btn-danger" onclick="logout()">🚪 خروج</button>
-                <button class="btn btn-outline" onclick="closeAdmin()">✖ إغلاق</button>
-            </div>
-        </div>
-        <div class="admin-card">
-            <h4>🏪 جميع المطاعم</h4>
-            <div id="restaurantsList"></div>
-        </div>
+        <div class="admin-bar"><h3>👑 لوحة المطور الرئيسي</h3><div class="admin-actions"><button class="btn btn-primary" onclick="openRestaurantModal()">➕ مطعم جديد</button><button class="btn btn-danger" onclick="logout()">🚪 خروج</button><button class="btn btn-outline" onclick="closeAdmin()">✖ إغلاق</button></div></div>
+        <div class="admin-card"><h4>🏪 جميع المطاعم</h4><div id="restaurantsList"></div></div>
     </div>
 </div>
 
-<!-- RESTAURANT MODAL -->
 <div class="modal-overlay" id="restaurantModal">
     <div class="modal-box">
         <h3 id="restaurantModalTitle">🏪 إضافة مطعم جديد</h3>
@@ -309,7 +327,13 @@
         <div class="form-group"><label>اسم المطعم *</label><input type="text" class="form-input" id="restName" placeholder="اسم المطعم..."></div>
         <div class="form-group"><label>نوع اللوجو</label><select class="form-input" id="restLogoType" onchange="toggleLogoFields()"><option value="text">نص فقط</option><option value="image">صورة</option></select></div>
         <div id="logoTextField"><div class="form-group"><label>نص اللوجو</label><input type="text" class="form-input" id="restLogoText" placeholder="مثال: MENU"></div></div>
-        <div id="logoImageField" style="display:none;"><div class="form-group"><label>صورة اللوجو</label><input type="file" class="form-input" id="restLogoFile" accept="image/*"></div></div>
+        <div id="logoImageField" style="display:none;">
+            <div class="form-group"><label>صورة اللوجو</label><input type="file" class="form-input" id="restLogoFile" accept="image/*"></div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="restShowHeaderLogo" checked>
+                <label for="restShowHeaderLogo">إظهار الصورة في شريط العنوان العلوي</label>
+            </div>
+        </div>
         <div class="form-group"><label>مكان اللوجو</label><select class="form-input" id="restLogoPosition"><option value="center">في الوسط</option><option value="side">في الجانب (الهيدر)</option></select></div>
         <div class="form-group"><label>الوصف</label><textarea class="form-input" id="restDesc" placeholder="وصف المطعم..."></textarea></div>
         <div class="form-group"><label>إيميل الأدمن</label><input type="text" class="form-input" id="restAdminEmail" placeholder="إيميل الأدمن"></div>
@@ -319,7 +343,6 @@
     </div>
 </div>
 
-<!-- QR MODAL -->
 <div class="modal-overlay" id="qrModal">
     <div class="modal-box" style="text-align:center;">
         <h3 id="qrModalTitle">📱 QR Code</h3>
@@ -330,24 +353,14 @@
     </div>
 </div>
 
-<!-- ADMIN PANEL -->
 <div class="admin-panel" id="adminPanel">
     <div class="admin-wrap">
-        <div class="admin-bar">
-            <h3>⚙️ لوحة تحكم <span id="adminRestaurantName"></span></h3>
-            <div class="admin-actions">
-                <button class="btn btn-primary" onclick="openDishModal()">➕ طبق جديد</button>
-                <button class="btn btn-success" onclick="openCatModal()">📂 تصنيف جديد</button>
-                <button class="btn btn-danger" onclick="logout()">🚪 خروج</button>
-                <button class="btn btn-outline" onclick="closeAdmin()">✖ إغلاق</button>
-            </div>
-        </div>
+        <div class="admin-bar"><h3>⚙️ لوحة تحكم <span id="adminRestaurantName"></span></h3><div class="admin-actions"><button class="btn btn-primary" onclick="openDishModal()">➕ طبق جديد</button><button class="btn btn-success" onclick="openCatModal()">📂 تصنيف جديد</button><button class="btn btn-danger" onclick="logout()">🚪 خروج</button><button class="btn btn-outline" onclick="closeAdmin()">✖ إغلاق</button></div></div>
         <div class="cats-bar-wrapper" id="adminCatsBarWrapper"><div class="cats-bar" id="adminCatsBar"></div></div>
         <div class="admin-card"><h4 id="adminListTitle">🍽️ جميع الأطباق</h4><div id="adminDishesList"></div></div>
     </div>
 </div>
 
-<!-- DISH MODAL -->
 <div class="modal-overlay" id="dishModal">
     <div class="modal-box">
         <h3 id="dishModalTitle">🍽️ إضافة طبق</h3>
@@ -363,7 +376,6 @@
     </div>
 </div>
 
-<!-- CATEGORY MODAL -->
 <div class="modal-overlay" id="catModal">
     <div class="modal-box">
         <h3>📂 إضافة تصنيف</h3>
@@ -377,14 +389,13 @@
 <div class="toast" id="toast"></div>
 
 <script>
-// ==================== CONFIG ====================
 const SUPABASE_URL = "https://ikarqwnsyqzrrspeowrq.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlrYXJxd25zeXF6cnJzcGVvd3JxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MjE0MTcsImV4cCI6MjA5Nzk5NzQxN30.AfyNjjcn8xQvwd24mFRBJ6THWRnEelA6VbP-izQwCgo";
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 const DEV_EMAIL = "55";
 const DEV_PASSWORD = "66";
-const GITHUB_URL = "https://eervnxx.github.io/sa";
+const BASE_URL = "https://menu-jet-nu.vercel.app";
 
 let currentRestaurantId = null;
 let currentRestaurantData = null;
@@ -398,7 +409,6 @@ let currentQrUrl = '';
 
 const urlRestaurantId = new URLSearchParams(location.search).get("id");
 
-// ==================== TOAST ====================
 function toast(msg) {
     const el = document.getElementById('toast');
     el.textContent = msg;
@@ -407,7 +417,6 @@ function toast(msg) {
     el._timer = setTimeout(() => el.classList.remove('on'), 3000);
 }
 
-// ==================== DARK MODE ====================
 function toggleDarkMode() {
     isDarkMode = !isDarkMode;
     document.body.classList.toggle('light-mode', !isDarkMode);
@@ -415,7 +424,6 @@ function toggleDarkMode() {
 }
 if (localStorage.getItem('darkMode') === '0') { isDarkMode = false; document.body.classList.add('light-mode'); }
 
-// ==================== SESSION ====================
 function checkSession() {
     const saved = localStorage.getItem('menuSession');
     if (!saved) return false;
@@ -452,7 +460,6 @@ function closeAdmin() {
     document.getElementById('mainContainer').style.display = 'block';
 }
 
-// ==================== MODALS ====================
 function openLoginModal() {
     if (checkSession()) {
         if (loginType === 'dev') { document.getElementById('devPanel').classList.add('show'); document.body.style.overflow = 'hidden'; loadAllRestaurants(); }
@@ -478,6 +485,7 @@ function openRestaurantModal(restId = null) {
     document.getElementById('restLogoType').value = 'text';
     document.getElementById('logoTextField').style.display = 'block';
     document.getElementById('logoImageField').style.display = 'none';
+    document.getElementById('restShowHeaderLogo').checked = true;
     document.getElementById('restaurantMsg').innerHTML = '';
     document.getElementById('restaurantModalTitle').textContent = restId ? '✏️ تعديل مطعم' : '🏪 إضافة مطعم جديد';
     if (restId) loadRestaurantForEdit(restId);
@@ -486,7 +494,7 @@ function openRestaurantModal(restId = null) {
 function closeRestaurantModal() { document.getElementById('restaurantModal').classList.remove('show'); }
 
 function openQrModal(restId, restName) {
-    const url = `${GITHUB_URL}/?id=${restId}`;
+    const url = `${BASE_URL}/?id=${restId}`;
     currentQrUrl = url;
     document.getElementById('qrModalTitle').textContent = '📱 QR - ' + restName;
     document.getElementById('qrUrlDisplay').textContent = url;
@@ -542,7 +550,6 @@ function toggleLogoFields() {
     document.getElementById(id).addEventListener('click', function(e) { if (e.target === this) { if (id === 'loginModal') closeLoginModal(); else if (id === 'restaurantModal') closeRestaurantModal(); else if (id === 'qrModal') closeQrModal(); else if (id === 'dishModal') closeDishModal(); else if (id === 'catModal') closeCatModal(); }});
 });
 
-// ==================== LOGIN ====================
 async function handleLogin() {
     const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value;
@@ -570,7 +577,6 @@ async function handleLogin() {
     } catch (err) { document.getElementById('loginError').style.display = 'block'; }
 }
 
-// ==================== PUBLIC ====================
 async function loadRestaurant() {
     let restId = urlRestaurantId ? parseInt(urlRestaurantId) : null;
     if (!restId) {
@@ -588,12 +594,22 @@ function updatePublicUI(rest) {
     document.getElementById('brandText').textContent = rest.logo_text || 'MENU';
     document.getElementById('brandSub').textContent = '✦ ' + (rest.name || 'Restaurant');
     const brandLogoImg = document.getElementById('brandLogoImg');
-    if (rest.logo_type === 'image' && rest.logo_image) { brandLogoImg.src = rest.logo_image; brandLogoImg.style.display = 'block'; }
-    else { brandLogoImg.style.display = 'none'; }
+    if (rest.logo_type === 'image' && rest.logo_image && rest.show_header_logo !== false) { 
+        brandLogoImg.src = rest.logo_image; 
+        brandLogoImg.style.display = 'block'; 
+    } else { 
+        brandLogoImg.style.display = 'none'; 
+    }
     const heroLogoImg = document.getElementById('heroLogoImg');
     const heroLogoCenter = document.getElementById('heroLogoCenter');
-    if (rest.logo_position === 'center' && rest.logo_type === 'image' && rest.logo_image) { heroLogoImg.src = rest.logo_image; heroLogoImg.style.display = 'block'; heroLogoCenter.style.display = 'block'; }
-    else { heroLogoImg.style.display = 'none'; heroLogoCenter.style.display = 'none'; }
+    if (rest.logo_position === 'center' && rest.logo_type === 'image' && rest.logo_image) { 
+        heroLogoImg.src = rest.logo_image; 
+        heroLogoImg.style.display = 'block'; 
+        heroLogoCenter.style.display = 'block'; 
+    } else { 
+        heroLogoImg.style.display = 'none'; 
+        heroLogoCenter.style.display = 'none'; 
+    }
     document.getElementById('heroTitle').textContent = rest.name || 'منيو المطعم';
     document.getElementById('heroDesc').textContent = rest.description || '';
 }
@@ -672,21 +688,11 @@ function selectCategoryFromBar(name) { if (name === 'الكل') goBackToCategori
 
 function handleSearch() { if (!selectedCategory) { const searchVal = document.getElementById('searchInput').value.toLowerCase().trim(); if (!searchVal) { renderCategories(); return; } const filteredItems = dishes.filter(d => (d.name||'').toLowerCase().includes(searchVal) || (d.description||'').toLowerCase().includes(searchVal)); const catsMap = {}; filteredItems.forEach(d => { const catName = categories.find(c => c.id == d.category_id)?.name || 'بدون'; if (!catsMap[catName]) catsMap[catName] = []; catsMap[catName].push(d); }); const grid = document.getElementById('catsGrid'); if (Object.keys(catsMap).length === 0) { grid.innerHTML = '<div class="empty"><div class="empty-icon">🔍</div>لا توجد نتائج</div>'; return; } grid.innerHTML = ''; Object.keys(catsMap).forEach((catName, idx) => { const catDishes = catsMap[catName]; let imgSrc = ''; for (let d of catDishes) { if (d.image && d.image.startsWith('http')) { imgSrc = d.image; break; } } const card = document.createElement('div'); card.className = 'cat-card'; card.style.animationDelay = `${Math.min(idx*0.04,0.3)}s`; card.onclick = () => { const cat = categories.find(c => c.name === catName); if (cat) selectCategory(cat); }; card.innerHTML = imgSrc ? `<img class="cat-img" src="${imgSrc}" loading="lazy"><div class="cat-info"><div class="cat-name">${catName}</div><div class="cat-count">${catDishes.length} صنف</div></div>` : `<div class="cat-img-placeholder">📋</div><div class="cat-info"><div class="cat-name">${catName}</div><div class="cat-count">${catDishes.length} صنف</div></div>`; grid.appendChild(card); }); } else { renderDishesForCategory(selectedCategory.id); } }
 
-// ==================== DEV ====================
 async function loadAllRestaurants() {
     const { data } = await db.from('restaurants').select('*').order('id');
     const list = document.getElementById('restaurantsList');
     if (!data || data.length === 0) { list.innerHTML = '<p style="text-align:center;color:var(--text2);padding:20px;">لا توجد مطاعم</p>'; return; }
-    list.innerHTML = data.map(r => `
-        <div class="restaurant-item">
-            <div class="restaurant-info"><strong>${r.name}</strong><span>${r.admin_email||'بدون أدمن'} | ID: ${r.id}</span></div>
-            <div class="restaurant-actions">
-                <button class="btn-xs qr" onclick="openQrModal(${r.id}, '${r.name.replace(/'/g, "\\'")}')" title="QR Code">📱</button>
-                <button class="btn-xs edit" onclick="openRestaurantModal(${r.id})" title="تعديل">✏️</button>
-                <button class="btn-xs delete" onclick="deleteRestaurant(${r.id})" title="حذف">🗑️</button>
-            </div>
-        </div>
-    `).join('');
+    list.innerHTML = data.map(r => `<div class="restaurant-item"><div class="restaurant-info"><strong>${r.name}</strong><span>${r.admin_email||'بدون أدمن'} | ID: ${r.id}</span></div><div class="restaurant-actions"><button class="btn-xs qr" onclick="openQrModal(${r.id}, '${r.name.replace(/'/g, "\\'")}')" title="QR Code">📱</button><button class="btn-xs edit" onclick="openRestaurantModal(${r.id})" title="تعديل">✏️</button><button class="btn-xs delete" onclick="deleteRestaurant(${r.id})" title="حذف">🗑️</button></div></div>`).join('');
 }
 
 async function loadRestaurantForEdit(id) {
@@ -699,6 +705,7 @@ async function loadRestaurantForEdit(id) {
     document.getElementById('restDesc').value = data.description || '';
     document.getElementById('restAdminEmail').value = data.admin_email || '';
     document.getElementById('restAdminPassword').value = data.admin_password || '';
+    document.getElementById('restShowHeaderLogo').checked = data.show_header_logo !== false;
     toggleLogoFields();
 }
 
@@ -715,7 +722,16 @@ async function saveRestaurant() {
             const { error: upErr } = await db.storage.from('images').upload(fileName, logoFile);
             if (!upErr) { const { data: urlData } = db.storage.from('images').getPublicUrl(fileName); logoImage = urlData.publicUrl; }
         }
-        const restData = { name, logo_type: logoType, logo_text: document.getElementById('restLogoText').value.trim() || 'MENU', logo_position: document.getElementById('restLogoPosition').value, description: document.getElementById('restDesc').value.trim(), admin_email: document.getElementById('restAdminEmail').value.trim(), admin_password: document.getElementById('restAdminPassword').value };
+        const restData = { 
+            name, 
+            logo_type: logoType, 
+            logo_text: document.getElementById('restLogoText').value.trim() || 'MENU', 
+            logo_position: document.getElementById('restLogoPosition').value, 
+            description: document.getElementById('restDesc').value.trim(), 
+            admin_email: document.getElementById('restAdminEmail').value.trim(), 
+            admin_password: document.getElementById('restAdminPassword').value,
+            show_header_logo: document.getElementById('restShowHeaderLogo').checked
+        };
         if (logoImage) restData.logo_image = logoImage;
         if (id) { await db.from('restaurants').update(restData).eq('id', id); toast('✅ تم تعديل المطعم'); }
         else { await db.from('restaurants').insert(restData); toast('✅ تم إضافة المطعم'); }
@@ -729,7 +745,6 @@ async function deleteRestaurant(id) {
     catch (err) { toast('❌ ' + err.message); }
 }
 
-// ==================== ADMIN ====================
 async function loadAdminData(restId) {
     currentRestaurantId = restId;
     try {
@@ -795,7 +810,6 @@ async function saveCategory() {
     catch (err) { document.getElementById('catMsg').innerHTML = '<p class="err" style="display:block;">❌ ' + err.message + '</p>'; }
 }
 
-// ==================== INIT ====================
 async function init() { checkSession(); await loadRestaurant(); }
 document.getElementById('loginPassword').addEventListener('keypress', function(e) { if (e.key === 'Enter') handleLogin(); });
 init();
