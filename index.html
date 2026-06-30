@@ -63,8 +63,8 @@
         .header { display: flex; justify-content: space-between; align-items: center; padding: 8px 0 12px; border-bottom: 1px solid var(--border); }
         .brand { display: flex; align-items: center; gap: 8px; text-decoration: none; }
         .brand-logo-img { width: 40px; height: 40px; border-radius: 10px; object-fit: cover; display: none; }
-        .brand-text-en { font-size: 26px; font-weight: 900; font-family: var(--font-en); background: var(--gradient1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; letter-spacing: -0.5px; filter: drop-shadow(0 0 8px rgba(207, 106, 135, 0.15)); min-height: 26px; }
-        .brand-sub { font-size: 10px; color: var(--accent-soft); font-weight: 600; letter-spacing: 2px; text-transform: uppercase; font-family: var(--font-en); min-height: 14px; display: block; }
+        .brand-text-en { font-size: 26px; font-weight: 900; font-family: var(--font-en); background: var(--gradient1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; letter-spacing: -0.5px; filter: drop-shadow(0 0 8px rgba(207, 106, 135, 0.15)); }
+        .brand-sub { font-size: 10px; color: var(--accent-soft); font-weight: 600; letter-spacing: 2px; text-transform: uppercase; font-family: var(--font-en); display: block; }
         .header-actions { display: flex; gap: 8px; }
         
         .btn-icon {
@@ -91,16 +91,16 @@
         .btn-icon:hover { border-color: var(--accent-soft); color: var(--accent); }
         .btn-icon:active { transform: scale(0.92); }
 
-        .hero { text-align: center; padding: 20px 10px 10px; position: relative; }
-        .hero-logo-center { margin-bottom: 12px; }
+        .hero { text-align: center; padding: 16px 10px 6px; position: relative; }
+        .hero-logo-center { margin-bottom: 10px; }
         .hero-logo-img { width: 80px; height: 80px; border-radius: 20px; object-fit: cover; display: none; margin: 0 auto; box-shadow: 0 8px 30px rgba(196, 69, 105, 0.2); }
-        .hero-badge { display: inline-block; padding: 4px 14px; border-radius: 50px; background: var(--surface); border: 1px solid var(--border); font-size: 10px; font-weight: 600; color: var(--accent-soft); margin-bottom: 8px; letter-spacing: 1px; text-transform: uppercase; backdrop-filter: blur(20px); min-height: 18px; }
-        .hero h1 { font-size: clamp(36px, 10vw, 60px); font-weight: 900; line-height: 1.1; font-family: var(--font-ar); letter-spacing: -1px; margin-bottom: 4px; position: relative; word-break: break-word; min-height: 40px; }
+        .hero-badge { display: inline-block; padding: 4px 14px; border-radius: 50px; background: var(--surface); border: 1px solid var(--border); font-size: 10px; font-weight: 600; color: var(--accent-soft); margin-bottom: 8px; letter-spacing: 1px; text-transform: uppercase; backdrop-filter: blur(20px); }
+        .hero h1 { font-size: clamp(32px, 8vw, 52px); font-weight: 900; line-height: 1.05; font-family: var(--font-ar); letter-spacing: -0.5px; margin-bottom: 6px; position: relative; word-break: break-word; padding: 0 4px; }
         .hero h1 .menu-text { background: var(--gradient-fire); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; display: inline-block; position: relative; filter: drop-shadow(0 0 12px rgba(207, 106, 135, 0.15)); animation: softGlow 3s ease-in-out infinite; }
         
         @keyframes softGlow { 0%, 100% { filter: drop-shadow(0 0 8px rgba(207, 106, 135, 0.1)); } 50% { filter: drop-shadow(0 0 15px rgba(207, 106, 135, 0.2)); } }
         
-        .hero p { font-size: clamp(13px, 2.5vw, 16px); color: var(--text2); font-weight: 300; max-width: 400px; margin: 0 auto; min-height: 20px; }
+        .hero p { font-size: clamp(14px, 3vw, 18px); color: var(--primary-soft); font-weight: 500; max-width: 450px; margin: 0 auto; text-shadow: 0 0 8px rgba(196, 69, 105, 0.3); letter-spacing: 0.3px; }
 
         .search-wrapper { margin: 10px 0 8px; position: relative; }
         .search { width: 100%; padding: 12px 16px 12px 44px; border-radius: 50px; background: var(--surface); border: 1px solid var(--border); color: var(--text); font-size: 14px; font-family: inherit; outline: none; transition: 0.2s; }
@@ -243,16 +243,6 @@
             line-height: 1.6;
             margin-bottom: 30px;
         }
-        
-        .dev-access-link {
-            color: var(--text2);
-            font-size: 12px;
-            cursor: pointer;
-            text-decoration: underline;
-            opacity: 0.5;
-            transition: opacity 0.2s;
-        }
-        .dev-access-link:hover { opacity: 1; color: var(--accent-soft); }
 
         .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--surface); border: 1px solid rgba(207, 106, 135, 0.2); backdrop-filter: blur(20px); padding: 10px 20px; border-radius: 50px; z-index: 2000; font-size: 13px; font-weight: 600; color: var(--text); transition: transform 0.4s ease; box-shadow: 0 8px 24px rgba(0,0,0,0.15); pointer-events: none; max-width: 90%; text-align: center; }
         .toast.on { transform: translateX(-50%) translateY(0); }
@@ -347,17 +337,14 @@
 <div class="disabled-page" id="disabledPage">
     <div class="disabled-icon">
         <svg viewBox="0 0 100 100" width="100" height="100">
-            <!-- قفل -->
-            <rect class="lock-body" x="25" y="45" width="50" height="40" rx="6" fill="none" stroke="#e66767" stroke-width="3"/>
-            <path class="lock-shackle" d="M35 45V30a15 15 0 0 1 30 0v15" fill="none" stroke="#e66767" stroke-width="3" stroke-linecap="round"/>
-            <!-- علامة تعجب -->
-            <circle class="exclaim" cx="50" cy="75" r="3.5" fill="#e66767"/>
+            <rect class="lock-body" x="25" y="45" width="50" height="40" rx="6"/>
+            <path class="lock-shackle" d="M35 45V30a15 15 0 0 1 30 0v15"/>
+            <circle class="exclaim" cx="50" cy="75" r="3.5"/>
             <line x1="50" y1="58" x2="50" y2="69" stroke="#e66767" stroke-width="3" stroke-linecap="round"/>
         </svg>
     </div>
     <h2>المطعم غير متاح حالياً</h2>
     <p>عذراً، هذا المطعم موقف مؤقتاً.<br>يرجى التواصل مع الإدارة للحصول على مزيد من المعلومات.</p>
-    <span class="dev-access-link" onclick="openLoginModal()">دخول المطور</span>
 </div>
 
 <!-- LOGIN MODAL -->
@@ -398,7 +385,10 @@
         <input type="hidden" id="restaurantId">
         <div class="form-group"><label>اسم المطعم *</label><input type="text" class="form-input" id="restName" placeholder="اسم المطعم..."></div>
         <div class="form-group"><label>نوع اللوجو</label><select class="form-input" id="restLogoType" onchange="toggleLogoFields()"><option value="text">نص فقط</option><option value="image">صورة</option></select></div>
-        <div id="logoTextField"><div class="form-group"><label>نص اللوجو (يظهر في الهيدر)</label><input type="text" class="form-input" id="restLogoText" placeholder="مثال: MENU"></div></div>
+        <div id="logoTextField">
+            <div class="form-group"><label>نص اللوجو (يظهر في الهيدر)</label><input type="text" class="form-input" id="restLogoText" placeholder="مثال: MENU"></div>
+            <div class="form-group"><label>إظهار اسم المطعم في الهيدر</label><select class="form-input" id="restShowNameInHeader"><option value="true">✅ نعم</option><option value="false">❌ لا</option></select></div>
+        </div>
         <div id="logoImageField" style="display:none;"><div class="form-group"><label>صورة اللوجو</label><input type="file" class="form-input" id="restLogoFile" accept="image/*"></div></div>
         <div class="form-group"><label>مكان اللوجو</label><select class="form-input" id="restLogoPosition"><option value="center">في الوسط</option><option value="side">في الجانب (الهيدر)</option></select></div>
         <div class="form-group"><label>الوصف</label><textarea class="form-input" id="restDesc" placeholder="وصف المطعم..."></textarea></div>
@@ -511,7 +501,6 @@ function logout() {
     localStorage.removeItem('menuSession');
     isLoggedIn = false; loginType = null; currentRestaurantId = null; currentRestaurantData = null;
     closeAdmin(); toast('👋 تم تسجيل الخروج');
-    // إعادة تحميل الصفحة فارغة
     document.getElementById('mainContainer').style.display = 'none';
     document.getElementById('disabledPage').style.display = 'none';
     document.getElementById('heroTitle').textContent = '';
@@ -536,6 +525,7 @@ function openRestaurantModal(restId = null) {
     ['restaurantId','restName','restLogoText','restLogoPosition','restDesc','restAdminEmail','restAdminPassword'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('restLogoFile').value = '';
     document.getElementById('restLogoType').value = 'text';
+    document.getElementById('restShowNameInHeader').value = 'true';
     document.getElementById('logoTextField').style.display = 'block';
     document.getElementById('logoImageField').style.display = 'none';
     document.getElementById('restaurantMsg').innerHTML = '';
@@ -623,7 +613,6 @@ async function handleLogin() {
 async function loadRestaurant() {
     let restId = urlRestaurantId ? parseInt(urlRestaurantId) : null;
     
-    // إذا ماكو ID في الرابط → الصفحة تبقى فارغة
     if (!restId) {
         document.getElementById('mainContainer').style.display = 'block';
         document.getElementById('disabledPage').style.display = 'none';
@@ -635,13 +624,11 @@ async function loadRestaurant() {
     
     if (data) {
         if (data.is_active === false) {
-            // المطعم معطل
             document.getElementById('mainContainer').style.display = 'none';
             document.getElementById('disabledPage').style.display = 'block';
             document.title = 'غير متاح - ' + (data.name || '');
             return;
         }
-        // المطعم مفعل
         document.getElementById('mainContainer').style.display = 'block';
         document.getElementById('disabledPage').style.display = 'none';
         currentRestaurantData = data;
@@ -652,9 +639,12 @@ async function loadRestaurant() {
 
 function updatePublicUI(rest) {
     document.title = rest.name || '';
-    document.getElementById('brandSub').textContent = rest.name ? ('✦ ' + rest.name) : '';
-    const brandLogoImg = document.getElementById('brandLogoImg');
+    
+    // التحكم بإظهار اسم المطعم في الهيدر
     const brandTextWrapper = document.getElementById('brandTextWrapper');
+    const brandSub = document.getElementById('brandSub');
+    const brandLogoImg = document.getElementById('brandLogoImg');
+    
     if (rest.logo_type === 'image' && rest.logo_image) {
         brandLogoImg.src = rest.logo_image;
         brandLogoImg.style.display = 'block';
@@ -662,7 +652,15 @@ function updatePublicUI(rest) {
     } else {
         brandLogoImg.style.display = 'none';
         brandTextWrapper.style.display = 'block';
+        // اذا اختار يظهر الاسم
+        if (rest.show_name_in_header !== false) {
+            brandSub.textContent = rest.name ? ('✦ ' + rest.name) : '';
+            brandSub.style.display = 'block';
+        } else {
+            brandSub.style.display = 'none';
+        }
     }
+    
     const heroLogoImg = document.getElementById('heroLogoImg');
     const heroLogoCenter = document.getElementById('heroLogoCenter');
     if (rest.logo_position === 'center' && rest.logo_type === 'image' && rest.logo_image) {
@@ -670,6 +668,7 @@ function updatePublicUI(rest) {
     } else {
         heroLogoImg.style.display = 'none'; heroLogoCenter.style.display = 'none';
     }
+    
     document.getElementById('heroTitle').textContent = rest.name || '';
     document.getElementById('heroDesc').textContent = rest.description || '';
 }
@@ -782,6 +781,7 @@ async function loadRestaurantForEdit(id) {
     document.getElementById('restDesc').value = data.description || '';
     document.getElementById('restAdminEmail').value = data.admin_email || '';
     document.getElementById('restAdminPassword').value = data.admin_password || '';
+    document.getElementById('restShowNameInHeader').value = data.show_name_in_header !== false ? 'true' : 'false';
     toggleLogoFields();
 }
 
@@ -798,7 +798,16 @@ async function saveRestaurant() {
             const { error: ue } = await db.storage.from('images').upload(fn, logoFile);
             if (!ue) { const { data: ud } = db.storage.from('images').getPublicUrl(fn); logoImage = ud.publicUrl; }
         }
-        const rd = { name, logo_type: logoType, logo_text: document.getElementById('restLogoText').value.trim() || name, logo_position: document.getElementById('restLogoPosition').value, description: document.getElementById('restDesc').value.trim(), admin_email: document.getElementById('restAdminEmail').value.trim(), admin_password: document.getElementById('restAdminPassword').value };
+        const rd = { 
+            name, 
+            logo_type: logoType, 
+            logo_text: document.getElementById('restLogoText').value.trim() || name, 
+            logo_position: document.getElementById('restLogoPosition').value, 
+            description: document.getElementById('restDesc').value.trim(), 
+            admin_email: document.getElementById('restAdminEmail').value.trim(), 
+            admin_password: document.getElementById('restAdminPassword').value,
+            show_name_in_header: document.getElementById('restShowNameInHeader').value === 'true'
+        };
         if (logoImage) rd.logo_image = logoImage;
         if (id) { await db.from('restaurants').update(rd).eq('id', id); toast('✅ تم تعديل المطعم'); }
         else { await db.from('restaurants').insert(rd); toast('✅ تم إضافة المطعم'); }
