@@ -7,7 +7,6 @@
     
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&family=Poppins:wght@400;600;700;800&display=swap" rel="stylesheet">
     
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     
     <style>
@@ -249,28 +248,23 @@
 <div class="toast" id="toast"></div>
 
 <script>
-const SUPABASE_URL = "https://ikarqwnsyqzrrspeowrq.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlrYXJxd25zeXF6cnJzcGVvd3JxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MjE0MTcsImV4cCI6MjA5Nzk5NzQxN30.AfyNjjcn8xQvwd24mFRBJ6THWRnEelA6VbP-izQwCgo";
-let db;
-
-try {
-    db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-} catch(e) {
-    console.error('Supabase init error:', e);
-}
-
+// ==================== CONFIG ====================
+const API_BASE = '/api';
+const BASE_URL = "https://menu-one-steel.vercel.app";
 const DEV_EMAIL = "55", DEV_PASSWORD = "66";
-const BASE_URL = "https://menu-jet-nu.vercel.app";
 
+// ==================== CACHE ====================
 const CACHE_PREFIX = 'v_cache_';
 function getCache(url) { try { const r = sessionStorage.getItem(CACHE_PREFIX + url); return r ? JSON.parse(r) : null; } catch(e) { return null; } }
 function setCache(url, data) { try { sessionStorage.setItem(CACHE_PREFIX + url, JSON.stringify(data)); } catch(e) {} }
-function delCache(restaurantId) { sessionStorage.removeItem(CACHE_PREFIX + 'menu_' + restaurantId); if (currentRestaurantId === restaurantId) { loadRestaurantDataFromJSON(restaurantId); } }
+function delCache(restaurantId) { sessionStorage.removeItem(CACHE_PREFIX + 'menu_' + restaurantId); if (currentRestaurantId === restaurantId) { loadRestaurantData(restaurantId); } }
 
+// ==================== STATE ====================
 let currentRestaurantId = null, currentRestaurantData = null, categories = [], dishes = [];
 let isLoggedIn = false, loginType = null, selectedCategory = null, isDarkMode = true;
 const urlRestaurantId = new URLSearchParams(location.search).get("id");
 
+// ==================== HELPERS ====================
 function toast(msg) { const el = document.getElementById('toast'); el.textContent = msg; el.classList.add('on'); clearTimeout(el._timer); el._timer = setTimeout(() => el.classList.remove('on'), 3000); }
 function toggleDarkMode() { isDarkMode = !isDarkMode; document.body.classList.toggle('light-mode', !isDarkMode); localStorage.setItem('darkMode', isDarkMode ? '1' : '0'); }
 if (localStorage.getItem('darkMode') === '0') { isDarkMode = false; document.body.classList.add('light-mode'); }
@@ -283,6 +277,20 @@ function closeAdmin() { document.getElementById('devPanel').classList.remove('sh
 function openLoginModal() { if (checkSession()) { if (loginType === 'dev') { document.getElementById('devPanel').classList.add('show'); document.body.style.overflow = 'hidden'; loadAllRestaurants(); } else if (loginType === 'admin') { document.getElementById('adminPanel').classList.add('show'); document.body.style.overflow = 'hidden'; loadAdminData(currentRestaurantId); } return; } document.getElementById('loginModal').classList.add('show'); document.getElementById('loginError').style.display = 'none'; }
 function closeLoginModal() { document.getElementById('loginModal').classList.remove('show'); }
 
+// ==================== API CALLS ====================
+async function apiCall(endpoint, data = null) {
+    const options = {
+        headers: { 'Content-Type': 'application/json' }
+    };
+    if (data) {
+        options.method = 'POST';
+        options.body = JSON.stringify(data);
+    }
+    const res = await fetch(`${API_BASE}/${endpoint}`, options);
+    return await res.json();
+}
+
+// ==================== PUBLIC (للزائر - بدون Supabase) ====================
 async function loadRestaurant() {
     let rid = urlRestaurantId ? parseInt(urlRestaurantId) : null;
     if (!rid) { 
@@ -292,18 +300,10 @@ async function loadRestaurant() {
         return; 
     }
     currentRestaurantId = rid;
-    
-    try {
-        await loadRestaurantDataFromJSON(rid);
-    } catch (e) {
-        console.error('خطأ:', e);
-        document.getElementById('mainContainer').style.display = 'block';
-        document.getElementById('heroTitle').textContent = 'خطأ في التحميل';
-        document.getElementById('heroDesc').textContent = 'تأكد من الاتصال بالإنترنت';
-    }
+    try { await loadRestaurantData(rid); } catch (e) { console.error('خطأ:', e); }
 }
 
-async function loadRestaurantDataFromJSON(rid) {
+async function loadRestaurantData(rid) {
     const ck = 'menu_' + rid;
     const cached = getCache(ck);
     if (cached) {
@@ -312,35 +312,20 @@ async function loadRestaurantDataFromJSON(rid) {
         if (cached.restaurant) { currentRestaurantData = cached.restaurant; updatePublicUI(cached.restaurant); }
         renderCategories(); updateCatsBar(); return;
     }
-    console.log('🔄 Loading from Supabase...');
-    
+    console.log('🔄 Loading via API...');
     try {
-        if (!db) throw new Error('Supabase not initialized');
-        const { data: restaurant, error } = await db.from('restaurants').select('*').eq('id', rid).single();
-        if (error) throw error;
-        if (restaurant) {
-            if (!restaurant.is_active) { 
-                document.getElementById('mainContainer').style.display = 'none'; 
-                document.getElementById('disabledPage').style.display = 'block'; 
-                return; 
-            }
-            document.getElementById('mainContainer').style.display = 'block'; 
-            document.getElementById('disabledPage').style.display = 'none';
-            currentRestaurantData = restaurant; 
-            updatePublicUI(restaurant);
-            const { data: cats } = await db.from('categories').select('*').eq('restaurant_id', rid).order('sort_order');
-            categories = cats || [];
-            const { data: dd } = await db.from('dishes').select('*').eq('restaurant_id', rid).order('sort_order');
-            dishes = dd || [];
-            setCache(ck, { restaurant, categories, dishes });
+        const result = await apiCall('get-restaurant', { id: rid });
+        if (result.error) throw new Error(result.error);
+        const data = result.data;
+        if (data.restaurant) {
+            if (!data.restaurant.is_active) { document.getElementById('mainContainer').style.display = 'none'; document.getElementById('disabledPage').style.display = 'block'; return; }
+            document.getElementById('mainContainer').style.display = 'block'; document.getElementById('disabledPage').style.display = 'none';
+            currentRestaurantData = data.restaurant; categories = data.categories || []; dishes = data.dishes || [];
+            updatePublicUI(data.restaurant);
+            setCache(ck, data);
             renderCategories(); updateCatsBar();
         }
-    } catch (err) {
-        console.error('❌ فشل التحميل:', err);
-        document.getElementById('mainContainer').style.display = 'block';
-        document.getElementById('heroTitle').textContent = 'خطأ';
-        document.getElementById('heroDesc').textContent = 'تعذر الاتصال بقاعدة البيانات';
-    }
+    } catch (err) { console.error('❌ فشل التحميل:', err); }
 }
 
 function updatePublicUI(rest) { document.title = rest.name || ''; document.getElementById('brandText').textContent = 'MENU'; document.getElementById('brandAutoLogo').style.display = 'none'; document.getElementById('brandLogoImg').style.display = 'none'; document.getElementById('brandTextWrapper').style.display = 'block'; if (rest.logo_type === 'auto' && rest.auto_logo_text) { document.getElementById('brandAutoLogo').textContent = rest.auto_logo_text.slice(0,4); document.getElementById('brandAutoLogo').style.display = 'flex'; } else if (rest.logo_type === 'image' && rest.logo_image) { const img = document.getElementById('brandLogoImg'); img.src = rest.logo_image; img.style.display = 'block'; img.onerror = function() { this.style.display = 'none'; }; } const brandSub = document.getElementById('brandSub'); brandSub.style.display = rest.show_name_in_header === false ? 'none' : 'block'; if (rest.show_name_in_header !== false) brandSub.textContent = rest.name ? ('✦ ' + rest.name) : ''; document.getElementById('heroTitle').textContent = rest.name || ''; document.getElementById('heroDesc').textContent = rest.description || ''; }
@@ -365,55 +350,69 @@ function handleSearch() {
     grid.innerHTML = results.map((dish, idx) => `<div class="card ${!dish.is_available?'off':''}" style="animation-delay:${idx*0.03}s"><div class="card-img-wrap"><img src="${dish.image||'https://placehold.co/400x250/1a1a35/666'}" loading="lazy" onerror="this.src='https://placehold.co/400x250/1a1a35/666'"><div class="card-badge ${dish.is_available?'badge-on':'badge-off'}">${dish.is_available?'متوفر':'غير متوفر'}</div></div><div class="card-body"><h3>${dish.name}</h3><p>${dish.description||''}</p><span class="price">${Number(dish.price).toLocaleString('ar-IQ')} د.ع</span></div></div>`).join('');
 }
 
-async function handleLogin() { const email = document.getElementById('loginEmail').value.trim(); const password = document.getElementById('loginPassword').value; if (email === DEV_EMAIL && password === DEV_PASSWORD) { saveSession('dev', null); closeLoginModal(); document.getElementById('devPanel').classList.add('show'); document.body.style.overflow = 'hidden'; await loadAllRestaurants(); toast('👑 دخول المطور'); return; } try { if (!db) throw new Error('Supabase not initialized'); const { data, error } = await db.from('restaurants').select('*').eq('admin_email', email).eq('admin_password', password).single(); if (error || !data) { document.getElementById('loginError').style.display = 'block'; return; } saveSession('admin', data.id); currentRestaurantId = data.id; closeLoginModal(); document.getElementById('adminPanel').classList.add('show'); document.body.style.overflow = 'hidden'; document.getElementById('adminRestaurantName').textContent = data.name; await loadAdminData(data.id); toast('✅ دخول الأدمن'); } catch (err) { document.getElementById('loginError').style.display = 'block'; } }
+// ==================== LOGIN ====================
+async function handleLogin() { 
+    const email = document.getElementById('loginEmail').value.trim(); 
+    const password = document.getElementById('loginPassword').value; 
+    if (email === DEV_EMAIL && password === DEV_PASSWORD) { 
+        saveSession('dev', null); closeLoginModal(); 
+        document.getElementById('devPanel').classList.add('show'); document.body.style.overflow = 'hidden'; 
+        await loadAllRestaurants(); toast('👑 دخول المطور'); return; 
+    } 
+    try { 
+        const result = await apiCall('login', { email, password });
+        if (result.error) { document.getElementById('loginError').style.display = 'block'; return; }
+        saveSession('admin', result.data.id); currentRestaurantId = result.data.id; 
+        closeLoginModal(); document.getElementById('adminPanel').classList.add('show'); document.body.style.overflow = 'hidden'; 
+        document.getElementById('adminRestaurantName').textContent = result.data.name; 
+        await loadAdminData(result.data.id); toast('✅ دخول الأدمن'); 
+    } catch (err) { document.getElementById('loginError').style.display = 'block'; } 
+}
 
-async function loadAllRestaurants() { try { if (!db) throw new Error('Supabase not initialized'); const { data, error } = await db.from('restaurants').select('*').order('id'); const list = document.getElementById('restaurantsList'); if (error) { list.innerHTML = '<p style="color:red;padding:20px;">❌ خطأ</p>'; return; } if (!data?.length) { list.innerHTML = '<p style="text-align:center;color:var(--text2);padding:20px;">لا توجد مطاعم</p>'; return; } list.innerHTML = data.map(r => `<div class="restaurant-item"><div class="restaurant-info"><strong>${r.name}</strong><span>${r.admin_email||''} | ID:${r.id} | ${r.is_active?'🟢 مفعل':'🔴 معطل'}</span></div><div class="restaurant-actions"><button class="btn-xs toggle" onclick="toggleRestaurant(${r.id},${r.is_active})">${r.is_active?'⏸️':'▶️'}</button><button class="btn-xs qr" onclick="openQrModal(${r.id},'${r.name.replace(/'/g,"\\'")}')">📱</button><button class="btn-xs edit" onclick="openRestaurantModal(${r.id})">✏️</button><button class="btn-xs delete" onclick="deleteRestaurant(${r.id})">🗑️</button></div></div>`).join(''); } catch (err) { document.getElementById('restaurantsList').innerHTML = '<p style="color:red;padding:20px;">❌ فشل الاتصال</p>'; } }
+// ==================== DEV ====================
+async function loadAllRestaurants() { 
+    const result = await apiCall('get-restaurants');
+    const list = document.getElementById('restaurantsList'); 
+    if (result.error) { list.innerHTML = '<p style="color:red;padding:20px;">❌ خطأ</p>'; return; } 
+    const data = result.data || [];
+    if (!data.length) { list.innerHTML = '<p style="text-align:center;color:var(--text2);padding:20px;">لا توجد مطاعم</p>'; return; } 
+    list.innerHTML = data.map(r => `<div class="restaurant-item"><div class="restaurant-info"><strong>${r.name}</strong><span>${r.admin_email||''} | ID:${r.id} | ${r.is_active?'🟢 مفعل':'🔴 معطل'}</span></div><div class="restaurant-actions"><button class="btn-xs toggle" onclick="toggleRestaurant(${r.id},${r.is_active})">${r.is_active?'⏸️':'▶️'}</button><button class="btn-xs qr" onclick="openQrModal(${r.id},'${r.name.replace(/'/g,"\\'")}')">📱</button><button class="btn-xs edit" onclick="openRestaurantModal(${r.id})">✏️</button><button class="btn-xs delete" onclick="deleteRestaurant(${r.id})">🗑️</button></div></div>`).join(''); 
+}
 
-async function toggleRestaurant(id, cs) { if (!confirm(`متأكد من ${cs?'تعطيل':'تفعيل'} المطعم؟`)) return; const { error } = await db.from('restaurants').update({ is_active: !cs }).eq('id', id); if (error) { alert('❌ ' + error.message); return; } delCache(id); toast(!cs ? '✅ مفعل' : '⏸️ معطل'); loadAllRestaurants(); }
+async function toggleRestaurant(id, cs) { if (!confirm(`متأكد من ${cs?'تعطيل':'تفعيل'} المطعم؟`)) return; await apiCall('toggle-restaurant', { id, is_active: !cs }); delCache(id); toast(!cs ? '✅ مفعل' : '⏸️ معطل'); loadAllRestaurants(); }
 
-async function loadRestaurantForEdit(id) { const { data } = await db.from('restaurants').select('*').eq('id', id).single(); if (!data) return; document.getElementById('restName').value = data.name || ''; document.getElementById('restLogoType').value = data.logo_type || 'text'; document.getElementById('restLogoText').value = data.logo_text || ''; document.getElementById('restAutoLogoText').value = data.auto_logo_text || ''; document.getElementById('restDesc').value = data.description || ''; document.getElementById('restAdminEmail').value = data.admin_email || ''; document.getElementById('restAdminPassword').value = data.admin_password || ''; document.getElementById('restShowNameInHeader').value = data.show_name_in_header === false ? 'false' : 'true'; toggleLogoFields(); document.getElementById('autoLogoPreview').textContent = (data.auto_logo_text || '?').slice(0,4); }
+async function loadRestaurantForEdit(id) { const result = await apiCall('get-restaurant', { id }); const data = result.data?.restaurant; if (!data) return; document.getElementById('restName').value = data.name || ''; document.getElementById('restLogoType').value = data.logo_type || 'text'; document.getElementById('restLogoText').value = data.logo_text || ''; document.getElementById('restAutoLogoText').value = data.auto_logo_text || ''; document.getElementById('restDesc').value = data.description || ''; document.getElementById('restAdminEmail').value = data.admin_email || ''; document.getElementById('restAdminPassword').value = data.admin_password || ''; document.getElementById('restShowNameInHeader').value = data.show_name_in_header === false ? 'false' : 'true'; toggleLogoFields(); document.getElementById('autoLogoPreview').textContent = (data.auto_logo_text || '?').slice(0,4); }
 
 async function saveRestaurant() { 
     const id = document.getElementById('restaurantId').value;
     const name = document.getElementById('restName').value.trim(); 
     if (!name) { document.getElementById('restaurantMsg').innerHTML = '<p class="err">⚠️ أدخل اسم المطعم</p>'; return; } 
-    const rd = { name, logo_type: document.getElementById('restLogoType').value, logo_text: document.getElementById('restLogoText').value.trim() || name, auto_logo_text: document.getElementById('restAutoLogoText').value.trim().slice(0,4) || name.slice(0,4), description: document.getElementById('restDesc').value.trim(), admin_email: document.getElementById('restAdminEmail').value.trim(), admin_password: document.getElementById('restAdminPassword').value, show_name_in_header: document.getElementById('restShowNameInHeader').value === 'true', is_active: true }; 
-    
-    try { 
-        let savedId = id;
-        if (id) {
-            const { error } = await db.from('restaurants').update(rd).eq('id', id);
-            if (error) { document.getElementById('restaurantMsg').innerHTML = '<p class="err">❌ ' + error.message + '</p>'; return; }
-        } else {
-            const { data: newRest, error: insertError } = await db.from('restaurants').insert(rd).select();
-            if (insertError) { document.getElementById('restaurantMsg').innerHTML = '<p class="err">❌ ' + insertError.message + '</p>'; return; }
-            if (newRest && newRest.length > 0) { savedId = newRest[0].id; }
-        }
-        delCache(savedId); 
-        toast(id ? '✅ تم التعديل' : '✅ تم الإضافة'); 
-        closeRestaurantModal(); 
-        loadAllRestaurants(); 
-    } catch (err) { document.getElementById('restaurantMsg').innerHTML = '<p class="err">❌ ' + err.message + '</p>'; } 
+    const rd = { id: id || null, name, logo_type: document.getElementById('restLogoType').value, logo_text: document.getElementById('restLogoText').value.trim() || name, auto_logo_text: document.getElementById('restAutoLogoText').value.trim().slice(0,4) || name.slice(0,4), description: document.getElementById('restDesc').value.trim(), admin_email: document.getElementById('restAdminEmail').value.trim(), admin_password: document.getElementById('restAdminPassword').value, show_name_in_header: document.getElementById('restShowNameInHeader').value === 'true', is_active: true }; 
+    const result = await apiCall('save-restaurant', rd);
+    if (result.error) { document.getElementById('restaurantMsg').innerHTML = '<p class="err">❌ ' + result.error + '</p>'; return; }
+    delCache(result.id || id); toast(id ? '✅ تم التعديل' : '✅ تم الإضافة'); closeRestaurantModal(); loadAllRestaurants(); 
 }
 
-async function deleteRestaurant(id) { if (!confirm('⚠️ حذف المطعم؟')) return; await db.from('dishes').delete().eq('restaurant_id', id); await db.from('categories').delete().eq('restaurant_id', id); await db.from('restaurants').delete().eq('id', id); delCache(id); toast('🗑️ تم الحذف'); loadAllRestaurants(); }
+async function deleteRestaurant(id) { if (!confirm('⚠️ حذف المطعم؟')) return; await apiCall('delete-restaurant', { id }); delCache(id); toast('🗑️ تم الحذف'); loadAllRestaurants(); }
 
-async function loadAdminData(restId) { currentRestaurantId = restId; const { data: rd } = await db.from('restaurants').select('*').eq('id', restId).single(); if (rd) { currentRestaurantData = rd; document.getElementById('adminRestaurantName').textContent = rd.name; } const { data: cats } = await db.from('categories').select('*').eq('restaurant_id', restId).order('sort_order'); categories = cats || []; const { data: dd } = await db.from('dishes').select('*').eq('restaurant_id', restId).order('sort_order'); dishes = dd || []; renderAdminCatsBar(); renderAdminDishesList('all'); }
+// ==================== ADMIN ====================
+async function loadAdminData(restId) { currentRestaurantId = restId; const result = await apiCall('get-restaurant', { id: restId }); const data = result.data; if (data?.restaurant) { currentRestaurantData = data.restaurant; document.getElementById('adminRestaurantName').textContent = data.restaurant.name; categories = data.categories || []; dishes = data.dishes || []; } renderAdminCatsBar(); renderAdminDishesList('all'); }
 
 function renderAdminCatsBar() { document.getElementById('adminCatsBar').innerHTML = '<button class="cat-bar-btn active" onclick="filterAdminDishes(\'all\')">الكل</button>' + categories.map(c => `<button class="cat-bar-btn" onclick="filterAdminDishes(${c.id})">${c.name}</button>`).join(''); }
 function filterAdminDishes(catId) { document.querySelectorAll('#adminCatsBar .cat-bar-btn').forEach(b => b.classList.remove('active')); event?.target?.classList.add('active'); renderAdminDishesList(catId); }
 function renderAdminDishesList(catId) { const container = document.getElementById('adminDishesList'); let f = dishes; if (catId !== 'all') f = f.filter(d => d.category_id == catId); if (!f.length) { container.innerHTML = '<p style="text-align:center;color:var(--text2);padding:20px;">لا توجد أطباق</p>'; return; } container.innerHTML = f.map(d => `<div class="dish-admin-item"><img src="${d.image||'https://placehold.co/40/333/666'}" loading="lazy" onerror="this.src='https://placehold.co/40/333/666'"><div class="dish-admin-info"><h4>${d.name}</h4><span>${(categories.find(c=>c.id==d.category_id)||{}).name||''} · ${d.is_available?'✅':'❌'}</span></div><div class="dish-admin-price">${Number(d.price).toLocaleString('ar-IQ')}</div><div class="dish-admin-actions"><button class="btn-xs edit" onclick="openDishModal(${d.id})">✏️</button><button class="btn-xs delete" onclick="deleteDish(${d.id})">🗑️</button></div></div>`).join(''); }
 
-async function saveDish() { const id = document.getElementById('dishId').value, name = document.getElementById('dishName').value.trim(), price = document.getElementById('dishPrice').value.trim(); if (!name || !price) { document.getElementById('dishMsg').innerHTML = '<p class="err">⚠️ أدخل الاسم والسعر</p>'; return; } try { const dd = { restaurant_id: currentRestaurantId, category_id: document.getElementById('dishCategory').value || null, name, price, description: document.getElementById('dishDesc').value.trim(), is_available: document.getElementById('dishAvailable').value === 'true', sort_order: Date.now() }; const { error } = id ? await db.from('dishes').update(dd).eq('id', id) : await db.from('dishes').insert(dd); if (error) { document.getElementById('dishMsg').innerHTML = '<p class="err">❌ ' + error.message + '</p>'; return; } delCache(currentRestaurantId); toast(id ? '✅ تم التعديل' : '✅ تم الإضافة'); closeDishModal(); loadAdminData(currentRestaurantId); } catch (err) { document.getElementById('dishMsg').innerHTML = '<p class="err">❌ ' + err.message + '</p>'; } }
+async function saveDish() { const id = document.getElementById('dishId').value, name = document.getElementById('dishName').value.trim(), price = document.getElementById('dishPrice').value.trim(); if (!name || !price) { document.getElementById('dishMsg').innerHTML = '<p class="err">⚠️ أدخل الاسم والسعر</p>'; return; } const dd = { id: id || null, restaurant_id: currentRestaurantId, category_id: document.getElementById('dishCategory').value || null, name, price, description: document.getElementById('dishDesc').value.trim(), is_available: document.getElementById('dishAvailable').value === 'true' }; const result = await apiCall('save-dish', dd); if (result.error) { document.getElementById('dishMsg').innerHTML = '<p class="err">❌ ' + result.error + '</p>'; return; } delCache(currentRestaurantId); toast(id ? '✅ تم التعديل' : '✅ تم الإضافة'); closeDishModal(); loadAdminData(currentRestaurantId); }
 
-async function deleteDish(id) { if (!confirm('⚠️ حذف الطبق؟')) return; await db.from('dishes').delete().eq('id', id); delCache(currentRestaurantId); toast('🗑️ تم الحذف'); loadAdminData(currentRestaurantId); }
-async function saveCategory() { const name = document.getElementById('catName').value.trim(); if (!name) { document.getElementById('catMsg').innerHTML = '<p class="err">⚠️ أدخل اسم التصنيف</p>'; return; } await db.from('categories').insert({ restaurant_id: currentRestaurantId, name, sort_order: Date.now() }); delCache(currentRestaurantId); closeCatModal(); toast('✅ تم الإضافة'); loadAdminData(currentRestaurantId); }
+async function deleteDish(id) { if (!confirm('⚠️ حذف الطبق؟')) return; await apiCall('delete-dish', { id }); delCache(currentRestaurantId); toast('🗑️ تم الحذف'); loadAdminData(currentRestaurantId); }
+async function saveCategory() { const name = document.getElementById('catName').value.trim(); if (!name) { document.getElementById('catMsg').innerHTML = '<p class="err">⚠️ أدخل اسم التصنيف</p>'; return; } await apiCall('save-category', { restaurant_id: currentRestaurantId, name }); delCache(currentRestaurantId); closeCatModal(); toast('✅ تم الإضافة'); loadAdminData(currentRestaurantId); }
 
+// ==================== MODALS ====================
 function openRestaurantModal(restId = null) { document.getElementById('restaurantId').value = restId || ''; document.getElementById('restName').value = ''; document.getElementById('restLogoText').value = ''; document.getElementById('restAutoLogoText').value = ''; document.getElementById('restLogoFile').value = ''; document.getElementById('restLogoType').value = 'text'; document.getElementById('restShowNameInHeader').value = 'true'; document.getElementById('restDesc').value = ''; document.getElementById('restAdminEmail').value = ''; document.getElementById('restAdminPassword').value = ''; document.getElementById('logoTextField').style.display = 'block'; document.getElementById('logoAutoField').style.display = 'none'; document.getElementById('logoImageField').style.display = 'none'; document.getElementById('restaurantMsg').innerHTML = ''; document.getElementById('restaurantModalTitle').textContent = restId ? '✏️ تعديل مطعم' : '🏪 إضافة مطعم جديد'; document.getElementById('autoLogoPreview').textContent = '?'; if (restId) loadRestaurantForEdit(restId); document.getElementById('restaurantModal').classList.add('show'); }
 function closeRestaurantModal() { document.getElementById('restaurantModal').classList.remove('show'); }
 function toggleLogoFields() { const t = document.getElementById('restLogoType').value; document.getElementById('logoTextField').style.display = t === 'text' ? 'block' : 'none'; document.getElementById('logoAutoField').style.display = t === 'auto' ? 'block' : 'none'; document.getElementById('logoImageField').style.display = t === 'image' ? 'block' : 'none'; }
 
-function openQrModal(restId, restName) { const url = `https://menu-jet-nu.vercel.app/?id=${restId}`; document.getElementById('qrUrlDisplay').textContent = url; document.getElementById('qrCodeDisplay').innerHTML = ''; new QRCode(document.getElementById('qrCodeDisplay'), { text: url, width: 180, height: 180, colorDark: '#000', colorLight: '#fff' }); document.getElementById('qrModal').classList.add('show'); }
+function openQrModal(restId, restName) { const url = `${BASE_URL}/?id=${restId}`; document.getElementById('qrUrlDisplay').textContent = url; document.getElementById('qrCodeDisplay').innerHTML = ''; new QRCode(document.getElementById('qrCodeDisplay'), { text: url, width: 180, height: 180, colorDark: '#000', colorLight: '#fff' }); document.getElementById('qrModal').classList.add('show'); }
 function closeQrModal() { document.getElementById('qrModal').classList.remove('show'); }
 function downloadQrFromModal() { const canvas = document.querySelector('#qrCodeDisplay canvas'); if (canvas) { const a = document.createElement('a'); a.download = 'qr-restaurant.png'; a.href = canvas.toDataURL(); a.click(); } }
 
@@ -426,25 +425,7 @@ function closeCatModal() { document.getElementById('catModal').classList.remove(
 
 document.getElementById('loginPassword').addEventListener('keypress', function(e) { if (e.key === 'Enter') handleLogin(); });
 
-async function init() { 
-    checkSession(); 
-    await loadRestaurant(); 
-    if (isLoggedIn) { 
-        setTimeout(() => { 
-            try {
-                if (loginType === 'dev') { 
-                    document.getElementById('devPanel').classList.add('show'); 
-                    loadAllRestaurants(); 
-                } else if (loginType === 'admin') { 
-                    document.getElementById('adminPanel').classList.add('show'); 
-                    loadAdminData(currentRestaurantId); 
-                } 
-            } catch(e) {
-                console.error('Init error:', e);
-            }
-        }, 500); 
-    } 
-}
+async function init() { checkSession(); await loadRestaurant(); if (isLoggedIn) { setTimeout(() => { if (loginType === 'dev') { document.getElementById('devPanel').classList.add('show'); loadAllRestaurants(); } else if (loginType === 'admin') { document.getElementById('adminPanel').classList.add('show'); loadAdminData(currentRestaurantId); } }, 500); } }
 init();
 </script>
 </body>
