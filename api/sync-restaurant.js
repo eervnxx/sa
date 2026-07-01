@@ -1,4 +1,6 @@
 const { createClient } = require('@supabase/supabase-js');
+const fs = require('fs');
+const path = require('path');
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_KEY;
@@ -17,7 +19,14 @@ module.exports = async (req, res) => {
         const { data: categories } = await db.from('categories').select('*').eq('restaurant_id', id).order('sort_order');
         const { data: dishes } = await db.from('dishes').select('*').eq('restaurant_id', id).order('sort_order');
 
-        return res.json({ data: { restaurant, categories: categories || [], dishes: dishes || [] } });
+        const result = { restaurant, categories: categories || [], dishes: dishes || [] };
+
+        // حفظ في public/data/
+        const dataDir = path.join(process.cwd(), 'public', 'data');
+        if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
+        fs.writeFileSync(path.join(dataDir, `${id}.json`), JSON.stringify(result));
+
+        return res.json({ data: result, cached: false });
     } catch (error) {
         return res.status(500).json({ error: error.message });
     }
