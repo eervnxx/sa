@@ -250,8 +250,8 @@
 
 <script>
 // ==================== CONFIG ====================
-const SUPABASE_URL = "https://eervnxx.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVlcnZueHh4eHh4eHh4eHh4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIzNDU2NzgsImV4cCI6MjA1NzkyMTY3OH0.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+const SUPABASE_URL = "https://ikarqwnsyqzrrspeowrq.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlrYXJxd25zeXF6cnJzcGVvd3JxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI0MjE0MTcsImV4cCI6MjA5Nzk5NzQxN30.AfyNjjcn8xQvwd24mFRBJ6THWRnEelA6VbP-izQwCgo";
 const db = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 const DEV_EMAIL = "55", DEV_PASSWORD = "66";
 const BASE_URL = "https://menu-jet-nu.vercel.app";
@@ -298,7 +298,8 @@ async function loadRestaurantDataFromJSON(rid) {
         renderCategories(); updateCatsBar(); return;
     }
     console.log('🔄 Loading from Supabase...');
-    const { data: restaurant } = await db.from('restaurants').select('*').eq('id', rid).single();
+    const { data: restaurant, error } = await db.from('restaurants').select('*').eq('id', rid).single();
+    if (error) { console.error('❌ Error:', error); return; }
     if (restaurant) {
         if (!restaurant.is_active) { document.getElementById('mainContainer').style.display = 'none'; document.getElementById('disabledPage').style.display = 'block'; return; }
         document.getElementById('mainContainer').style.display = 'block'; document.getElementById('disabledPage').style.display = 'none';
