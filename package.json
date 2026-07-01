@@ -1,9 +1,6 @@
 {
   "name": "menu-project",
   "version": "1.0.0",
-  "scripts": {
-    "build": ""
-  },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0"
   }
