@@ -1,12 +1,10 @@
 {
   "name": "menu-project",
   "version": "1.0.0",
-  "description": "Restaurant Menu System with Static JSON",
   "scripts": {
-    "build": "node api/generate-all.js"
+    "build": ""
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.39.0",
-    "node-fetch": "^2.7.0"
+    "@supabase/supabase-js": "^2.39.0"
   }
 }
