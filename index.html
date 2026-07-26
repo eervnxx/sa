@@ -698,18 +698,25 @@
 
 <!-- ==================== المكتبات الخارجية ==================== -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.0/dist/umd/supabase.min.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
 <script>
-// ==================== إعدادات Supabase - قم بتعديلها ====================
-const SUPABASE_URL = 'https://your-project-id.supabase.co';
-const SUPABASE_ANON_KEY = 'your-anon-key-here';
+// ==================== إعدادات Firebase - قم بتعديلها بمعلومات مشروعك ====================
+const firebaseConfig = {
+    apiKey: "AIzaSyYourApiKeyHere",
+    authDomain: "your-project.firebaseapp.com",
+    projectId: "your-project-id",
+    storageBucket: "your-project.appspot.com",
+    messagingSenderId: "123456789",
+    appId: "1:123456789:web:abcdef123456"
+};
 
 // ==================== المتغيرات العامة ====================
-let supabase;
+let db;
 let currentUser = null;
 let currentPage = 'dashboard';
 let chartInstance = null;
@@ -842,14 +849,101 @@ function showConfirm(message) {
     });
 }
 
+// ==================== Firebase Helper Functions ====================
+async function addDocument(collection, data) {
+    try {
+        const docRef = await db.collection(collection).add({
+            ...data,
+            created_at: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        return docRef;
+    } catch (e) {
+        console.error(`Error adding to ${collection}:`, e);
+        throw e;
+    }
+}
+
+async function updateDocument(collection, docId, data) {
+    try {
+        await db.collection(collection).doc(docId).update(data);
+        return true;
+    } catch (e) {
+        console.error(`Error updating ${collection}:`, e);
+        throw e;
+    }
+}
+
+async function deleteDocument(collection, docId) {
+    try {
+        await db.collection(collection).doc(docId).delete();
+        return true;
+    } catch (e) {
+        console.error(`Error deleting from ${collection}:`, e);
+        throw e;
+    }
+}
+
+async function getDocuments(collection, conditions = [], orderByField = null, orderDirection = 'desc', limitCount = null) {
+    try {
+        let query = db.collection(collection);
+        
+        conditions.forEach(cond => {
+            query = query.where(cond.field, cond.operator, cond.value);
+        });
+        
+        if (orderByField) {
+            query = query.orderBy(orderByField, orderDirection);
+        }
+        
+        if (limitCount) {
+            query = query.limit(limitCount);
+        }
+        
+        const snapshot = await query.get();
+        const data = [];
+        snapshot.forEach(doc => {
+            data.push({ id: doc.id, ...doc.data() });
+        });
+        return { data, error: null };
+    } catch (e) {
+        console.error(`Error fetching ${collection}:`, e);
+        return { data: [], error: e };
+    }
+}
+
+async function getSingleDocument(collection, docId) {
+    try {
+        const doc = await db.collection(collection).doc(docId).get();
+        if (doc.exists) {
+            return { data: { id: doc.id, ...doc.data() }, error: null };
+        }
+        return { data: null, error: null };
+    } catch (e) {
+        return { data: null, error: e };
+    }
+}
+
+async function getCount(collection, conditions = []) {
+    try {
+        let query = db.collection(collection);
+        conditions.forEach(cond => {
+            query = query.where(cond.field, cond.operator, cond.value);
+        });
+        const snapshot = await query.get();
+        return snapshot.size;
+    } catch (e) {
+        return 0;
+    }
+}
+
 async function logActivity(action, details = '') {
     try {
-        if (!supabase || !currentUser) return;
-        await supabase.from('activity_log').insert([{
+        if (!db || !currentUser) return;
+        await addDocument('activity_log', {
             action: action,
             details: details,
-            created_at: new Date().toISOString()
-        }]);
+            timestamp: new Date().toISOString()
+        });
     } catch (e) { /* silent */ }
 }
 
@@ -866,7 +960,8 @@ function checkAuth() {
 async function login() {
     const password = document.getElementById('passwordInput').value;
     const errorEl = document.getElementById('loginError');
-    if (password === '7788x') {
+    // ✅ تم تغيير كلمة المرور هنا
+    if (password === '7788c') {
         localStorage.setItem('acc_sys_auth', 'true');
         currentUser = { id: 1, role: 'admin' };
         document.getElementById('loginOverlay').classList.add('hidden');
@@ -911,21 +1006,24 @@ function navigateTo(pageName) {
     loadPageData(pageName);
 }
 
-// ==================== تهيئة Supabase ====================
-async function initSupabase() {
+// ==================== تهيئة Firebase ====================
+async function initFirebase() {
     try {
-        supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        console.log('✅ Supabase initialized');
+        firebase.initializeApp(firebaseConfig);
+        db = firebase.firestore();
+        console.log('✅ Firebase initialized successfully');
+        return true;
     } catch (e) {
-        console.error('❌ Supabase error:', e);
+        console.error('❌ Firebase initialization error:', e);
+        return false;
     }
 }
 
 // ==================== تحميل الإعدادات ====================
 async function loadSettingsFromDB() {
-    if (!supabase) return;
+    if (!db) return;
     try {
-        const { data } = await supabase.from('settings').select('*').single();
+        const { data } = await getSingleDocument('settings', 'app_settings');
         if (data && data.settings) {
             companySettings = { ...companySettings, ...data.settings };
         }
@@ -955,7 +1053,11 @@ async function loadPageData(pageName) {
 
 // ==================== تهيئة التطبيق ====================
 async function initApp() {
-    await initSupabase();
+    const initialized = await initFirebase();
+    if (!initialized) {
+        showToast('⚠️ فشل الاتصال بـ Firebase. تحقق من الإعدادات.', 'error');
+        return;
+    }
     await loadSettingsFromDB();
     navigateTo('dashboard');
 }
@@ -987,8 +1089,8 @@ async function loadDashboard() {
         else clearInterval(timeInterval);
     }, 1000);
     
-    if (!supabase) {
-        document.getElementById('dashboardStats').innerHTML = '<p style="color:var(--danger);">⚠️ الرجاء إعداد اتصال Supabase</p>';
+    if (!db) {
+        document.getElementById('dashboardStats').innerHTML = '<p style="color:var(--danger);">⚠️ الرجاء إعداد Firebase</p>';
         return;
     }
     
@@ -996,19 +1098,25 @@ async function loadDashboard() {
         const currentFinancialYear = getFinancialYear(getToday());
         const yearRange = getFinancialYearRange(currentFinancialYear);
         
-        const [expRes, revRes, salRes, empRes, actRes] = await Promise.all([
-            supabase.from('expenses').select('amount,date').gte('date', yearRange.start).lte('date', yearRange.end),
-            supabase.from('revenues').select('amount,date').gte('date', yearRange.start).lte('date', yearRange.end),
-            supabase.from('salaries').select('salary,transport,date').gte('date', yearRange.start).lte('date', yearRange.end),
-            supabase.from('employees').select('id', { count: 'exact' }).eq('status', 'نشط'),
-            supabase.from('activity_log').select('*').order('created_at', { ascending: false }).limit(15)
+        // Firebase doesn't support multiple range queries easily, so we get all data and filter
+        const [expResult, revResult, salResult, empResult, actResult] = await Promise.all([
+            getDocuments('expenses', [], 'date', 'desc'),
+            getDocuments('revenues', [], 'date', 'desc'),
+            getDocuments('salaries', [], 'date', 'desc'),
+            getDocuments('employees'),
+            getDocuments('activity_log', [], 'timestamp', 'desc', 15)
         ]);
         
-        const totalExp = (expRes.data || []).reduce((s, r) => s + Number(r.amount || 0), 0);
-        const totalRev = (revRes.data || []).reduce((s, r) => s + Number(r.amount || 0), 0);
-        const totalSal = (salRes.data || []).reduce((s, r) => s + Number(r.salary || 0), 0);
-        const totalTrans = (salRes.data || []).reduce((s, r) => s + Number(r.transport || 0), 0);
-        const empCount = empRes.count || 0;
+        const expenses = (expResult.data || []).filter(e => e.date >= yearRange.start && e.date <= yearRange.end);
+        const revenues = (revResult.data || []).filter(e => e.date >= yearRange.start && e.date <= yearRange.end);
+        const salaries = (salResult.data || []).filter(e => e.date >= yearRange.start && e.date <= yearRange.end);
+        const allEmployees = empResult.data || [];
+        const activeEmployees = allEmployees.filter(e => e.status === 'نشط');
+        
+        const totalExp = expenses.reduce((s, r) => s + Number(r.amount || 0), 0);
+        const totalRev = revenues.reduce((s, r) => s + Number(r.amount || 0), 0);
+        const totalSal = salaries.reduce((s, r) => s + Number(r.salary || 0), 0);
+        const totalTrans = salaries.reduce((s, r) => s + Number(r.transport || 0), 0);
         const profit = totalRev - totalExp - totalSal - totalTrans;
         
         const cards = [
@@ -1016,10 +1124,10 @@ async function loadDashboard() {
             { icon: '💸', value: formatCurrency(totalExp), label: 'إجمالي المصاريف', color: 'var(--danger-light)', iconColor: 'var(--danger)' },
             { icon: '💳', value: formatCurrency(totalSal + totalTrans), label: 'إجمالي الرواتب والمواصلات', color: 'var(--warning-light)', iconColor: 'var(--warning)' },
             { icon: '📊', value: formatCurrency(profit), label: 'صافي الأرباح', color: 'var(--accent-light)', iconColor: 'var(--accent)' },
-            { icon: '👥', value: empCount, label: 'عدد الموظفين النشطين', color: 'var(--info-light)', iconColor: 'var(--info)' },
-            { icon: '📋', value: (expRes.data||[]).length + (revRes.data||[]).length + (salRes.data||[]).length, label: 'إجمالي العمليات', color: 'var(--accent-light)', iconColor: 'var(--accent)' },
-            { icon: '📅', value: (expRes.data||[]).length, label: 'عدد المصاريف', color: 'var(--danger-light)', iconColor: 'var(--danger)' },
-            { icon: '💵', value: (revRes.data||[]).length, label: 'عدد الإيرادات', color: 'var(--success-light)', iconColor: 'var(--success)' },
+            { icon: '👥', value: activeEmployees.length, label: 'عدد الموظفين النشطين', color: 'var(--info-light)', iconColor: 'var(--info)' },
+            { icon: '📋', value: expenses.length + revenues.length + salaries.length, label: 'إجمالي العمليات', color: 'var(--accent-light)', iconColor: 'var(--accent)' },
+            { icon: '📅', value: expenses.length, label: 'عدد المصاريف', color: 'var(--danger-light)', iconColor: 'var(--danger)' },
+            { icon: '💵', value: revenues.length, label: 'عدد الإيرادات', color: 'var(--success-light)', iconColor: 'var(--success)' },
         ];
         
         document.getElementById('dashboardStats').innerHTML = cards.map(c => `
@@ -1031,12 +1139,12 @@ async function loadDashboard() {
         `).join('');
         
         // آخر الأنشطة
-        const activities = actRes.data || [];
+        const activities = actResult.data || [];
         document.getElementById('lastActivities').innerHTML = activities.length > 0 
             ? activities.map(a => `
                 <div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;display:flex;justify-content:space-between;">
                     <span>📌 ${a.action} - ${a.details || ''}</span>
-                    <span style="color:var(--text-muted);font-size:11px;">${new Date(a.created_at).toLocaleString('ar-IQ')}</span>
+                    <span style="color:var(--text-muted);font-size:11px;">${new Date(a.timestamp).toLocaleString('ar-IQ')}</span>
                 </div>
             `).join('')
             : '<p style="color:var(--text-secondary);text-align:center;">لا توجد عمليات حتى الآن</p>';
@@ -1157,9 +1265,9 @@ async function loadExpenses() {
 }
 
 async function fetchExpenses() {
-    if (!supabase) return;
+    if (!db) return;
     try {
-        const { data, error } = await supabase.from('expenses').select('*').order('date', { ascending: false }).order('created_at', { ascending: false });
+        const { data, error } = await getDocuments('expenses', [], 'date', 'desc');
         if (error) throw error;
         expensesData = data || [];
         applyExpensesFilters();
@@ -1233,8 +1341,8 @@ function renderExpensesTable() {
                 <td>${e.notes || '-'}</td>
                 <td>${getFinancialYear(e.date)}</td>
                 <td>
-                    <button class="btn btn-warning btn-sm" onclick="openExpenseModal(${e.id})" title="تعديل">✏️</button>
-                    <button class="btn btn-danger btn-sm" onclick="deleteExpense(${e.id})" title="حذف">🗑️</button>
+                    <button class="btn btn-warning btn-sm" onclick="openExpenseModal('${e.id}')" title="تعديل">✏️</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteExpense('${e.id}')" title="حذف">🗑️</button>
                 </td>
             </tr>
         `).join('');
@@ -1280,15 +1388,11 @@ async function openExpenseModal(id = null) {
 
         try {
             if (id) {
-                const { error } = await supabase.from('expenses').update({ date, amount, details, notes }).eq('id', id);
-                if (error) throw error;
+                await updateDocument('expenses', id, { date, amount, details, notes });
                 await logActivity('تعديل مصروف', `تم تعديل المصروف رقم ${id} - المبلغ: ${formatCurrency(amount)}`);
                 showToast('تم تعديل المصروف بنجاح', 'success');
             } else {
-                const { error } = await supabase.from('expenses').insert([{ 
-                    date, amount, details, notes, created_at: new Date().toISOString() 
-                }]);
-                if (error) throw error;
+                await addDocument('expenses', { date, amount, details, notes });
                 await logActivity('إضافة مصروف', `تم إضافة مصروف جديد - المبلغ: ${formatCurrency(amount)}`);
                 showToast('تم إضافة المصروف بنجاح', 'success');
             }
@@ -1307,8 +1411,7 @@ async function deleteExpense(id) {
     if (!confirmed) return;
     
     try {
-        const { error } = await supabase.from('expenses').delete().eq('id', id);
-        if (error) throw error;
+        await deleteDocument('expenses', id);
         await logActivity('حذف مصروف', `تم حذف المصروف رقم ${id} - المبلغ: ${formatCurrency(expense?.amount)}`);
         showToast('تم حذف المصروف بنجاح', 'success');
         await fetchExpenses();
@@ -1395,9 +1498,9 @@ async function loadRevenues() {
 }
 
 async function fetchRevenues() {
-    if (!supabase) return;
+    if (!db) return;
     try {
-        const { data, error } = await supabase.from('revenues').select('*').order('date', { ascending: false }).order('created_at', { ascending: false });
+        const { data, error } = await getDocuments('revenues', [], 'date', 'desc');
         if (error) throw error;
         revenuesData = data || [];
         applyRevenuesFilters();
@@ -1471,8 +1574,8 @@ function renderRevenuesTable() {
                 <td>${e.notes || '-'}</td>
                 <td>${getFinancialYear(e.date)}</td>
                 <td>
-                    <button class="btn btn-warning btn-sm" onclick="openRevenueModal(${e.id})" title="تعديل">✏️</button>
-                    <button class="btn btn-danger btn-sm" onclick="deleteRevenue(${e.id})" title="حذف">🗑️</button>
+                    <button class="btn btn-warning btn-sm" onclick="openRevenueModal('${e.id}')" title="تعديل">✏️</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteRevenue('${e.id}')" title="حذف">🗑️</button>
                 </td>
             </tr>
         `).join('');
@@ -1525,15 +1628,11 @@ async function openRevenueModal(id = null) {
 
         try {
             if (id) {
-                const { error } = await supabase.from('revenues').update({ date, amount, type, notes }).eq('id', id);
-                if (error) throw error;
+                await updateDocument('revenues', id, { date, amount, type, notes });
                 await logActivity('تعديل إيراد', `تم تعديل الإيراد رقم ${id} - المبلغ: ${formatCurrency(amount)}`);
                 showToast('تم تعديل الإيراد بنجاح', 'success');
             } else {
-                const { error } = await supabase.from('revenues').insert([{ 
-                    date, amount, type, notes, created_at: new Date().toISOString() 
-                }]);
-                if (error) throw error;
+                await addDocument('revenues', { date, amount, type, notes });
                 await logActivity('إضافة إيراد', `تم إضافة إيراد جديد - المبلغ: ${formatCurrency(amount)}`);
                 showToast('تم إضافة الإيراد بنجاح', 'success');
             }
@@ -1552,8 +1651,7 @@ async function deleteRevenue(id) {
     if (!confirmed) return;
     
     try {
-        const { error } = await supabase.from('revenues').delete().eq('id', id);
-        if (error) throw error;
+        await deleteDocument('revenues', id);
         await logActivity('حذف إيراد', `تم حذف الإيراد رقم ${id} - المبلغ: ${formatCurrency(revenue?.amount)}`);
         showToast('تم حذف الإيراد بنجاح', 'success');
         await fetchRevenues();
@@ -1568,36 +1666,6 @@ async function refreshRevenues() {
     showToast('تم تحديث بيانات الإيرادات', 'success');
 }
 
-// ==================== مستمعي الأحداث العامة ====================
-document.getElementById('loginBtn').addEventListener('click', login);
-document.getElementById('passwordInput').addEventListener('keypress', (e) => {
-    if (e.key === 'Enter') login();
-});
-document.getElementById('logoutBtn').addEventListener('click', logout);
-document.getElementById('modalOverlay').addEventListener('click', (e) => {
-    if (e.target === e.currentTarget) closeModal();
-});
-document.getElementById('hamburgerBtn').addEventListener('click', () => {
-    document.getElementById('sidebar').classList.toggle('open');
-    document.getElementById('sidebarBackdrop').classList.toggle('active');
-});
-document.getElementById('sidebarBackdrop').addEventListener('click', () => {
-    document.getElementById('sidebar').classList.remove('open');
-    document.getElementById('sidebarBackdrop').classList.remove('active');
-});
-
-// التنقل بين الصفحات
-document.querySelectorAll('.sidebar-nav a').forEach(link => {
-    link.addEventListener('click', (e) => {
-        e.preventDefault();
-        navigateTo(link.dataset.page);
-    });
-});
-
-// ==================== بدء التطبيق عند تحميل الصفحة ====================
-document.addEventListener('DOMContentLoaded', () => {
-    checkAuth();
-});
 // ==================== بيانات الرواتب ====================
 let salariesData = [];
 let salariesFiltered = [];
@@ -1677,9 +1745,9 @@ async function loadSalaries() {
 }
 
 async function fetchSalaries() {
-    if (!supabase) return;
+    if (!db) return;
     try {
-        const { data, error } = await supabase.from('salaries').select('*').order('date', { ascending: false }).order('created_at', { ascending: false });
+        const { data, error } = await getDocuments('salaries', [], 'date', 'desc');
         if (error) throw error;
         salariesData = data || [];
         applySalariesFilters();
@@ -1754,8 +1822,8 @@ function renderSalariesTable() {
                 <td>${getFinancialYear(e.date)}</td>
                 <td>${e.notes || '-'}</td>
                 <td>
-                    <button class="btn btn-warning btn-sm" onclick="openSalaryModal(${e.id})" title="تعديل">✏️</button>
-                    <button class="btn btn-danger btn-sm" onclick="deleteSalary(${e.id})" title="حذف">🗑️</button>
+                    <button class="btn btn-warning btn-sm" onclick="openSalaryModal('${e.id}')" title="تعديل">✏️</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteSalary('${e.id}')" title="حذف">🗑️</button>
                 </td>
             </tr>
         `).join('');
@@ -1817,15 +1885,11 @@ async function openSalaryModal(id = null) {
 
         try {
             if (id) {
-                const { error } = await supabase.from('salaries').update({ employee_name, salary: salaryVal, transport, date, month, notes }).eq('id', id);
-                if (error) throw error;
+                await updateDocument('salaries', id, { employee_name, salary: salaryVal, transport, date, month, notes });
                 await logActivity('تعديل راتب', `تم تعديل راتب ${employee_name}`);
                 showToast('تم تعديل سجل الراتب بنجاح', 'success');
             } else {
-                const { error } = await supabase.from('salaries').insert([{ 
-                    employee_name, salary: salaryVal, transport, date, month, notes, created_at: new Date().toISOString() 
-                }]);
-                if (error) throw error;
+                await addDocument('salaries', { employee_name, salary: salaryVal, transport, date, month, notes });
                 await logActivity('إضافة راتب', `تم إضافة راتب ${employee_name} - ${formatCurrency(salaryVal + transport)}`);
                 showToast('تم إضافة سجل الراتب بنجاح', 'success');
             }
@@ -1844,8 +1908,7 @@ async function deleteSalary(id) {
     if (!confirmed) return;
     
     try {
-        const { error } = await supabase.from('salaries').delete().eq('id', id);
-        if (error) throw error;
+        await deleteDocument('salaries', id);
         await logActivity('حذف راتب', `تم حذف راتب ${salary?.employee_name}`);
         showToast('تم حذف سجل الراتب بنجاح', 'success');
         await fetchSalaries();
@@ -1860,11 +1923,10 @@ async function refreshSalaries() {
     showToast('تم تحديث بيانات الرواتب', 'success');
 }
 
-// استيراد جميع الموظفين النشطين إلى كشف الرواتب
 async function importAllEmployees() {
-    if (!supabase) return;
+    if (!db) return;
     try {
-        const { data: employees, error: empError } = await supabase.from('employees').select('*').eq('status', 'نشط');
+        const { data: employees, error: empError } = await getDocuments('employees', [{field: 'status', operator: '==', value: 'نشط'}]);
         if (empError) throw empError;
         
         if (!employees || employees.length === 0) {
@@ -1872,7 +1934,6 @@ async function importAllEmployees() {
             return;
         }
 
-        // التحقق من عدم وجود الموظف مسبقاً في نفس الشهر
         const existingNames = salariesData
             .filter(s => s.month == currentSalaryMonth && s.date && s.date.startsWith(String(currentSalaryYear)))
             .map(s => s.employee_name);
@@ -1886,17 +1947,16 @@ async function importAllEmployees() {
                 continue;
             }
             
-            const { error } = await supabase.from('salaries').insert([{
+            await addDocument('salaries', {
                 employee_name: emp.name,
                 salary: emp.default_salary || 0,
                 transport: emp.default_transport || 0,
                 date: getToday(),
                 month: currentSalaryMonth,
-                notes: '',
-                created_at: new Date().toISOString()
-            }]);
+                notes: ''
+            });
             
-            if (!error) addedCount++;
+            addedCount++;
         }
 
         await logActivity('استيراد الموظفين', `تم استيراد ${addedCount} موظف إلى كشف الرواتب`);
@@ -1911,9 +1971,8 @@ async function importAllEmployees() {
     }
 }
 
-// نسخ من الشهر السابق
 async function copyPreviousMonth() {
-    if (!supabase) return;
+    if (!db) return;
     try {
         let prevMonth = currentSalaryMonth - 1;
         let prevYear = currentSalaryYear;
@@ -1922,8 +1981,7 @@ async function copyPreviousMonth() {
             prevYear--;
         }
 
-        const { data: prevSalaries, error } = await supabase.from('salaries').select('*').eq('month', prevMonth);
-        if (error) throw error;
+        const { data: prevSalaries } = await getDocuments('salaries', [{field: 'month', operator: '==', value: prevMonth}]);
         
         const prevFiltered = (prevSalaries || []).filter(s => {
             const d = new Date(s.date);
@@ -1943,15 +2001,14 @@ async function copyPreviousMonth() {
         for (const sal of prevFiltered) {
             if (existingNames.includes(sal.employee_name)) continue;
             
-            await supabase.from('salaries').insert([{
+            await addDocument('salaries', {
                 employee_name: sal.employee_name,
                 salary: sal.salary,
                 transport: sal.transport,
                 date: getToday(),
                 month: currentSalaryMonth,
-                notes: sal.notes || '',
-                created_at: new Date().toISOString()
-            }]);
+                notes: sal.notes || ''
+            });
             copiedCount++;
         }
 
@@ -1964,7 +2021,6 @@ async function copyPreviousMonth() {
     }
 }
 
-// إنشاء كشف رواتب جديد
 async function createNewPayroll() {
     const months = ['','كانون الثاني','شباط','آذار','نيسان','أيار','حزيران','تموز','آب','أيلول','تشرين الأول','تشرين الثاني','كانون الأول'];
     const monthOptions = months.slice(1).map((m, i) => `<option value="${i+1}" ${currentSalaryMonth == i+1 ? 'selected' : ''}>${m}</option>`).join('');
@@ -2057,9 +2113,9 @@ async function loadEmployees() {
 }
 
 async function fetchEmployees() {
-    if (!supabase) return;
+    if (!db) return;
     try {
-        const { data, error } = await supabase.from('employees').select('*').order('name', { ascending: true });
+        const { data, error } = await getDocuments('employees', [], 'name', 'asc');
         if (error) throw error;
         employeesData = data || [];
         applyEmployeesFilters();
@@ -2108,8 +2164,8 @@ function renderEmployeesTable() {
                 <td><span style="color:${e.status === 'نشط' ? 'var(--success)' : 'var(--danger)'};font-weight:600;">● ${e.status || '-'}</span></td>
                 <td>${e.notes || '-'}</td>
                 <td>
-                    <button class="btn btn-warning btn-sm" onclick="openEmployeeModal(${e.id})" title="تعديل">✏️</button>
-                    <button class="btn btn-danger btn-sm" onclick="deleteEmployee(${e.id})" title="حذف">🗑️</button>
+                    <button class="btn btn-warning btn-sm" onclick="openEmployeeModal('${e.id}')" title="تعديل">✏️</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteEmployee('${e.id}')" title="حذف">🗑️</button>
                 </td>
             </tr>
         `).join('');
@@ -2174,15 +2230,11 @@ async function openEmployeeModal(id = null) {
 
         try {
             if (id) {
-                const { error } = await supabase.from('employees').update({ name, position, default_salary, default_transport, phone, status, notes }).eq('id', id);
-                if (error) throw error;
+                await updateDocument('employees', id, { name, position, default_salary, default_transport, phone, status, notes });
                 await logActivity('تعديل موظف', `تم تعديل بيانات الموظف: ${name}`);
                 showToast('تم تعديل الموظف بنجاح', 'success');
             } else {
-                const { error } = await supabase.from('employees').insert([{ 
-                    name, position, default_salary, default_transport, phone, status, notes, created_at: new Date().toISOString() 
-                }]);
-                if (error) throw error;
+                await addDocument('employees', { name, position, default_salary, default_transport, phone, status, notes });
                 await logActivity('إضافة موظف', `تم إضافة موظف جديد: ${name}`);
                 showToast('تم إضافة الموظف بنجاح', 'success');
             }
@@ -2201,8 +2253,7 @@ async function deleteEmployee(id) {
     if (!confirmed) return;
     
     try {
-        const { error } = await supabase.from('employees').delete().eq('id', id);
-        if (error) throw error;
+        await deleteDocument('employees', id);
         await logActivity('حذف موظف', `تم حذف الموظف: ${emp?.name}`);
         showToast('تم حذف الموظف بنجاح', 'success');
         await fetchEmployees();
@@ -2255,7 +2306,6 @@ function exportToExcel(type) {
     
     try {
         const ws = XLSX.utils.aoa_to_sheet([headers, ...data]);
-        // ضبط عرض الأعمدة
         ws['!cols'] = headers.map(() => ({ wch: 20 }));
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, title);
@@ -2275,7 +2325,6 @@ function exportToPDF(type) {
         const { jsPDF } = window.jspdf;
         const doc = new jsPDF({ orientation: 'landscape' });
         
-        // العنوان
         doc.setFontSize(16);
         doc.text(`${companySettings.name} - ${title}`, 148, 15, { align: 'center' });
         doc.setFontSize(10);
@@ -2375,7 +2424,7 @@ async function importFromExcel(type) {
             if (rows.length < 2) { showToast('الملف فارغ أو لا يحتوي على بيانات', 'warning'); return; }
             
             let count = 0;
-            const tableName = type;
+            const collection = type;
             
             for (let i = 1; i < rows.length; i++) {
                 const row = rows[i];
@@ -2384,25 +2433,25 @@ async function importFromExcel(type) {
                 let record = {};
                 switch(type) {
                     case 'expenses':
-                        record = { date: row[1] || getToday(), amount: parseFloat(row[2]) || 0, details: row[3] || '', notes: row[4] || '', created_at: new Date().toISOString() };
+                        record = { date: row[1] || getToday(), amount: parseFloat(row[2]) || 0, details: row[3] || '', notes: row[4] || '' };
                         break;
                     case 'revenues':
-                        record = { date: row[1] || getToday(), amount: parseFloat(row[2]) || 0, type: row[3] || '', notes: row[4] || '', created_at: new Date().toISOString() };
+                        record = { date: row[1] || getToday(), amount: parseFloat(row[2]) || 0, type: row[3] || '', notes: row[4] || '' };
                         break;
                     case 'salaries':
                         const months = ['','كانون الثاني','شباط','آذار','نيسان','أيار','حزيران','تموز','آب','أيلول','تشرين الأول','تشرين الثاني','كانون الأول'];
                         const monthName = row[5] || '';
                         const monthIdx = months.indexOf(monthName);
-                        record = { employee_name: row[1] || '', salary: parseFloat(row[2]) || 0, transport: parseFloat(row[3]) || 0, date: row[4] || getToday(), month: monthIdx > 0 ? monthIdx : currentSalaryMonth, notes: row[7] || '', created_at: new Date().toISOString() };
+                        record = { employee_name: row[1] || '', salary: parseFloat(row[2]) || 0, transport: parseFloat(row[3]) || 0, date: row[4] || getToday(), month: monthIdx > 0 ? monthIdx : currentSalaryMonth, notes: row[7] || '' };
                         break;
                     case 'employees':
-                        record = { name: row[1] || '', position: row[2] || '', default_salary: parseFloat(row[3]) || 0, default_transport: parseFloat(row[4]) || 0, phone: row[5] || '', status: row[6] || 'نشط', notes: row[7] || '', created_at: new Date().toISOString() };
+                        record = { name: row[1] || '', position: row[2] || '', default_salary: parseFloat(row[3]) || 0, default_transport: parseFloat(row[4]) || 0, phone: row[5] || '', status: row[6] || 'نشط', notes: row[7] || '' };
                         break;
                 }
                 
-                if (supabase) {
-                    const { error } = await supabase.from(tableName).insert([record]);
-                    if (!error) count++;
+                if (db) {
+                    await addDocument(collection, record);
+                    count++;
                 }
             }
             
@@ -2439,7 +2488,7 @@ async function importFromWord(type) {
                 }
                 
                 let count = 0;
-                const tableName = type;
+                const collection = type;
                 
                 for (const row of rows) {
                     const cells = row.querySelectorAll('td');
@@ -2451,28 +2500,28 @@ async function importFromWord(type) {
                     switch(type) {
                         case 'expenses':
                             if (cellData.length < 3) continue;
-                            record = { date: cellData[1] || getToday(), amount: parseFloat(cellData[2].replace(/[^0-9.]/g, '')) || 0, details: cellData[3] || '', notes: cellData[4] || '', created_at: new Date().toISOString() };
+                            record = { date: cellData[1] || getToday(), amount: parseFloat(cellData[2].replace(/[^0-9.]/g, '')) || 0, details: cellData[3] || '', notes: cellData[4] || '' };
                             break;
                         case 'revenues':
                             if (cellData.length < 3) continue;
-                            record = { date: cellData[1] || getToday(), amount: parseFloat(cellData[2].replace(/[^0-9.]/g, '')) || 0, type: cellData[3] || '', notes: cellData[4] || '', created_at: new Date().toISOString() };
+                            record = { date: cellData[1] || getToday(), amount: parseFloat(cellData[2].replace(/[^0-9.]/g, '')) || 0, type: cellData[3] || '', notes: cellData[4] || '' };
                             break;
                         case 'salaries':
                             if (cellData.length < 4) continue;
                             const months = ['','كانون الثاني','شباط','آذار','نيسان','أيار','حزيران','تموز','آب','أيلول','تشرين الأول','تشرين الثاني','كانون الأول'];
                             const monthName = cellData[5] || '';
                             const monthIdx = months.indexOf(monthName);
-                            record = { employee_name: cellData[1] || '', salary: parseFloat(cellData[2].replace(/[^0-9.]/g, '')) || 0, transport: parseFloat(cellData[3].replace(/[^0-9.]/g, '')) || 0, date: cellData[4] || getToday(), month: monthIdx > 0 ? monthIdx : currentSalaryMonth, notes: cellData[7] || '', created_at: new Date().toISOString() };
+                            record = { employee_name: cellData[1] || '', salary: parseFloat(cellData[2].replace(/[^0-9.]/g, '')) || 0, transport: parseFloat(cellData[3].replace(/[^0-9.]/g, '')) || 0, date: cellData[4] || getToday(), month: monthIdx > 0 ? monthIdx : currentSalaryMonth, notes: cellData[7] || '' };
                             break;
                         case 'employees':
                             if (cellData.length < 3) continue;
-                            record = { name: cellData[1] || '', position: cellData[2] || '', default_salary: parseFloat(cellData[3].replace(/[^0-9.]/g, '')) || 0, default_transport: parseFloat(cellData[4].replace(/[^0-9.]/g, '')) || 0, phone: cellData[5] || '', status: cellData[6] || 'نشط', notes: cellData[7] || '', created_at: new Date().toISOString() };
+                            record = { name: cellData[1] || '', position: cellData[2] || '', default_salary: parseFloat(cellData[3].replace(/[^0-9.]/g, '')) || 0, default_transport: parseFloat(cellData[4].replace(/[^0-9.]/g, '')) || 0, phone: cellData[5] || '', status: cellData[6] || 'نشط', notes: cellData[7] || '' };
                             break;
                     }
                     
-                    if (supabase && record.date) {
-                        const { error } = await supabase.from(tableName).insert([record]);
-                        if (!error) count++;
+                    if (db && record.date) {
+                        await addDocument(collection, record);
+                        count++;
                     }
                 }
                 
@@ -2605,7 +2654,41 @@ function printTable(type) {
     `);
     printWindow.document.close();
 }
-// ==================== صفحة الإدارة ====================
+
+// ==================== الصفحات المتبقية (الإدارة، التقارير، الإعدادات، النسخ الاحتياطي، النشاط) ====================
+// سيتم إضافتها في الرد التالي لعدم تجاوز الحد المسموح...
+
+// ==================== مستمعي الأحداث العامة ====================
+document.getElementById('loginBtn').addEventListener('click', login);
+document.getElementById('passwordInput').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') login();
+});
+document.getElementById('logoutBtn').addEventListener('click', logout);
+document.getElementById('modalOverlay').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) closeModal();
+});
+document.getElementById('hamburgerBtn').addEventListener('click', () => {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sidebarBackdrop').classList.toggle('active');
+});
+document.getElementById('sidebarBackdrop').addEventListener('click', () => {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebarBackdrop').classList.remove('active');
+});
+
+document.querySelectorAll('.sidebar-nav a').forEach(link => {
+    link.addEventListener('click', (e) => {
+        e.preventDefault();
+        navigateTo(link.dataset.page);
+    });
+});
+
+// ==================== بدء التطبيق عند تحميل الصفحة ==================== 
+document.addEventListener('DOMContentLoaded', () => {
+    checkAuth();
+});
+<script>
+// ==================== تتمة الكود - صفحة الإدارة ====================
 async function loadManagement() {
     const container = document.getElementById('page-management');
     container.innerHTML = `
@@ -2630,31 +2713,37 @@ async function loadManagement() {
         </div>
     `;
 
-    if (!supabase) return;
+    if (!db) return;
     
     try {
         const currentFY = getFinancialYear(getToday());
         const yearRange = getFinancialYearRange(currentFY);
         
-        const [expRes, revRes, salRes, empRes, actRes] = await Promise.all([
-            supabase.from('expenses').select('amount,date').gte('date', yearRange.start).lte('date', yearRange.end),
-            supabase.from('revenues').select('amount,date').gte('date', yearRange.start).lte('date', yearRange.end),
-            supabase.from('salaries').select('salary,transport,date').gte('date', yearRange.start).lte('date', yearRange.end),
-            supabase.from('employees').select('*'),
-            supabase.from('activity_log').select('*').order('created_at', { ascending: false }).limit(10)
+        const [expResult, revResult, salResult, empResult, actResult] = await Promise.all([
+            getDocuments('expenses'),
+            getDocuments('revenues'),
+            getDocuments('salaries'),
+            getDocuments('employees'),
+            getDocuments('activity_log', [], 'timestamp', 'desc', 10)
         ]);
 
-        const totalExp = (expRes.data || []).reduce((s, r) => s + Number(r.amount || 0), 0);
-        const totalRev = (revRes.data || []).reduce((s, r) => s + Number(r.amount || 0), 0);
-        const totalSal = (salRes.data || []).reduce((s, r) => s + Number(r.salary || 0), 0);
-        const totalTrans = (salRes.data || []).reduce((s, r) => s + Number(r.transport || 0), 0);
-        const empCount = (empRes.data || []).length;
-        const activeEmpCount = (empRes.data || []).filter(e => e.status === 'نشط').length;
+        const expenses = (expResult.data || []).filter(e => e.date >= yearRange.start && e.date <= yearRange.end);
+        const revenues = (revResult.data || []).filter(e => e.date >= yearRange.start && e.date <= yearRange.end);
+        const salaries = (salResult.data || []).filter(e => e.date >= yearRange.start && e.date <= yearRange.end);
+        const allEmployees = empResult.data || [];
+
+        const totalExp = expenses.reduce((s, r) => s + Number(r.amount || 0), 0);
+        const totalRev = revenues.reduce((s, r) => s + Number(r.amount || 0), 0);
+        const totalSal = salaries.reduce((s, r) => s + Number(r.salary || 0), 0);
+        const totalTrans = salaries.reduce((s, r) => s + Number(r.transport || 0), 0);
+        const empCount = allEmployees.length;
+        const activeEmpCount = allEmployees.filter(e => e.status === 'نشط').length;
         const profit = totalRev - totalExp - totalSal - totalTrans;
         
-        const lastActivity = actRes.data && actRes.data.length > 0 ? actRes.data[0] : null;
-        const lastEdit = actRes.data ? actRes.data.find(a => a.action.includes('تعديل')) : null;
-        const lastDelete = actRes.data ? actRes.data.find(a => a.action.includes('حذف')) : null;
+        const activities = actResult.data || [];
+        const lastActivity = activities.length > 0 ? activities[0] : null;
+        const lastEdit = activities.find(a => a.action.includes('تعديل'));
+        const lastDelete = activities.find(a => a.action.includes('حذف'));
 
         const cards = [
             { icon: '💰', value: formatCurrency(totalRev), label: 'إجمالي الإيرادات', color: 'var(--success-light)', iconColor: 'var(--success)' },
@@ -2662,7 +2751,7 @@ async function loadManagement() {
             { icon: '💳', value: formatCurrency(totalSal + totalTrans), label: 'إجمالي الرواتب والمواصلات', color: 'var(--warning-light)', iconColor: 'var(--warning)' },
             { icon: '📊', value: formatCurrency(profit), label: 'صافي الربح', color: profit >= 0 ? 'var(--accent-light)' : 'var(--danger-light)', iconColor: profit >= 0 ? 'var(--accent)' : 'var(--danger)' },
             { icon: '👥', value: activeEmpCount + ' / ' + empCount, label: 'الموظفون (نشط / إجمالي)', color: 'var(--info-light)', iconColor: 'var(--info)' },
-            { icon: '📋', value: (expRes.data||[]).length + (revRes.data||[]).length + (salRes.data||[]).length, label: 'إجمالي العمليات', color: 'var(--accent-light)', iconColor: 'var(--accent)' },
+            { icon: '📋', value: expenses.length + revenues.length + salaries.length, label: 'إجمالي العمليات', color: 'var(--accent-light)', iconColor: 'var(--accent)' },
         ];
 
         document.getElementById('managementStats').innerHTML = cards.map(c => `
@@ -2676,15 +2765,15 @@ async function loadManagement() {
         document.getElementById('managementSummary').innerHTML = `
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
                 <div>
-                    <p>📋 عدد المصاريف: <strong>${(expRes.data||[]).length}</strong></p>
-                    <p>💰 عدد الإيرادات: <strong>${(revRes.data||[]).length}</strong></p>
-                    <p>💳 عدد سجلات الرواتب: <strong>${(salRes.data||[]).length}</strong></p>
+                    <p>📋 عدد المصاريف: <strong>${expenses.length}</strong></p>
+                    <p>💰 عدد الإيرادات: <strong>${revenues.length}</strong></p>
+                    <p>💳 عدد سجلات الرواتب: <strong>${salaries.length}</strong></p>
                     <p>👥 إجمالي الموظفين: <strong>${empCount}</strong> (نشط: ${activeEmpCount})</p>
                 </div>
                 <div>
-                    <p>🕐 آخر عملية: <strong>${lastActivity ? lastActivity.action + ' - ' + new Date(lastActivity.created_at).toLocaleString('ar-IQ') : 'لا يوجد'}</strong></p>
-                    <p>✏️ آخر تعديل: <strong>${lastEdit ? lastEdit.details + ' - ' + new Date(lastEdit.created_at).toLocaleString('ar-IQ') : 'لا يوجد'}</strong></p>
-                    <p>🗑️ آخر حذف: <strong>${lastDelete ? lastDelete.details + ' - ' + new Date(lastDelete.created_at).toLocaleString('ar-IQ') : 'لا يوجد'}</strong></p>
+                    <p>🕐 آخر عملية: <strong>${lastActivity ? lastActivity.action + ' - ' + new Date(lastActivity.timestamp).toLocaleString('ar-IQ') : 'لا يوجد'}</strong></p>
+                    <p>✏️ آخر تعديل: <strong>${lastEdit ? lastEdit.details + ' - ' + new Date(lastEdit.timestamp).toLocaleString('ar-IQ') : 'لا يوجد'}</strong></p>
+                    <p>🗑️ آخر حذف: <strong>${lastDelete ? lastDelete.details + ' - ' + new Date(lastDelete.timestamp).toLocaleString('ar-IQ') : 'لا يوجد'}</strong></p>
                     <p>📅 السنة المالية: <strong>${currentFY}</strong></p>
                 </div>
             </div>
@@ -2692,7 +2781,6 @@ async function loadManagement() {
 
         // الرسوم البيانية
         setTimeout(() => {
-            // الرسم البياني الأول - عمودي
             const canvas1 = document.getElementById('managementChart1');
             if (canvas1) {
                 const ctx1 = canvas1.getContext('2d');
@@ -2721,7 +2809,6 @@ async function loadManagement() {
                 });
             }
 
-            // الرسم البياني الثاني - دائري
             const canvas2 = document.getElementById('managementChart2');
             if (canvas2) {
                 const ctx2 = canvas2.getContext('2d');
@@ -2797,7 +2884,7 @@ async function loadReports() {
 }
 
 async function generateReport() {
-    if (!supabase) { showToast('قاعدة البيانات غير متصلة', 'error'); return; }
+    if (!db) { showToast('قاعدة البيانات غير متصلة', 'error'); return; }
     
     const reportType = document.getElementById('reportType').value;
     let startDate, endDate;
@@ -2840,15 +2927,15 @@ async function generateReport() {
     }
 
     try {
-        const [expRes, revRes, salRes] = await Promise.all([
-            supabase.from('expenses').select('*').gte('date', startDate).lte('date', endDate).order('date', { ascending: false }),
-            supabase.from('revenues').select('*').gte('date', startDate).lte('date', endDate).order('date', { ascending: false }),
-            supabase.from('salaries').select('*').gte('date', startDate).lte('date', endDate).order('date', { ascending: false })
+        const [expResult, revResult, salResult] = await Promise.all([
+            getDocuments('expenses'),
+            getDocuments('revenues'),
+            getDocuments('salaries')
         ]);
 
-        const expenses = expRes.data || [];
-        const revenues = revRes.data || [];
-        const salaries = salRes.data || [];
+        const expenses = (expResult.data || []).filter(e => e.date >= startDate && e.date <= endDate);
+        const revenues = (revResult.data || []).filter(e => e.date >= startDate && e.date <= endDate);
+        const salaries = (salResult.data || []).filter(e => e.date >= startDate && e.date <= endDate);
 
         const totalExp = expenses.reduce((s, r) => s + Number(r.amount || 0), 0);
         const totalRev = revenues.reduce((s, r) => s + Number(r.amount || 0), 0);
@@ -2858,8 +2945,7 @@ async function generateReport() {
 
         lastReportData = { 
             startDate, endDate, totalExp, totalRev, totalSal, totalTrans, profit,
-            expCount: expenses.length, revCount: revenues.length, salCount: salaries.length,
-            expenses, revenues, salaries
+            expCount: expenses.length, revCount: revenues.length, salCount: salaries.length
         };
 
         const profitColor = profit >= 0 ? 'var(--success)' : 'var(--danger)';
@@ -3049,12 +3135,8 @@ async function loadSettings() {
                         </select>
                     </div>
                     <div class="form-group">
-                        <label>🔗 Supabase URL</label>
-                        <input type="text" id="setSupabaseUrl" value="${SUPABASE_URL}" placeholder="https://your-project.supabase.co">
-                    </div>
-                    <div class="form-group">
-                        <label>🔑 Supabase Anon Key</label>
-                        <input type="text" id="setSupabaseKey" value="${SUPABASE_ANON_KEY}" placeholder="anon key">
+                        <label>🔗 Firebase Config (JSON)</label>
+                        <textarea id="setFirebaseConfig" rows="6" placeholder='{"apiKey":"...","authDomain":"...","projectId":"..."}'>${JSON.stringify(firebaseConfig, null, 2)}</textarea>
                     </div>
                     <button class="btn btn-primary" onclick="saveSettings()" style="width:100%;margin-top:12px;padding:12px;">💾 حفظ جميع الإعدادات</button>
                 </div>
@@ -3068,8 +3150,6 @@ async function saveSettings() {
     const currency = document.getElementById('setCurrency').value.trim() || 'د.ع';
     const password = document.getElementById('setPassword').value.trim();
     const theme = document.getElementById('setTheme').value;
-    const supabaseUrl = document.getElementById('setSupabaseUrl').value.trim();
-    const supabaseKey = document.getElementById('setSupabaseKey').value.trim();
 
     companySettings.name = name;
     companySettings.currency = currency;
@@ -3088,18 +3168,25 @@ async function saveSettings() {
     document.getElementById('companyNameDisplay').textContent = name;
     document.getElementById('companyCurrency').textContent = currency;
 
-    if (supabase) {
+    // حفظ في Firebase
+    if (db) {
         try {
-            await supabase.from('settings').upsert({ 
-                id: 1, 
-                settings: companySettings, 
-                updated_at: new Date().toISOString() 
-            });
-        } catch (e) { /* silent */ }
+            const { data: existingSettings } = await getDocuments('settings');
+            if (existingSettings && existingSettings.length > 0) {
+                await updateDocument('settings', existingSettings[0].id, { 
+                    settings: companySettings,
+                    updated_at: new Date().toISOString()
+                });
+            } else {
+                await addDocument('settings', { 
+                    settings: companySettings,
+                    updated_at: new Date().toISOString()
+                });
+            }
+        } catch (e) { 
+            console.error('Settings save error:', e);
+        }
     }
-
-    localStorage.setItem('acc_sys_supabase_url', supabaseUrl);
-    localStorage.setItem('acc_sys_supabase_key', supabaseKey);
 
     await logActivity('تحديث الإعدادات', 'تم تحديث إعدادات النظام');
     showToast('تم حفظ الإعدادات بنجاح ✓', 'success');
@@ -3140,37 +3227,22 @@ async function loadBackup() {
 }
 
 async function createBackup() {
-    if (!supabase) { showToast('قاعدة البيانات غير متصلة', 'error'); return; }
+    if (!db) { showToast('قاعدة البيانات غير متصلة', 'error'); return; }
     try {
-        const [exp, rev, sal, emp, act, set] = await Promise.all([
-            supabase.from('expenses').select('*'),
-            supabase.from('revenues').select('*'),
-            supabase.from('salaries').select('*'),
-            supabase.from('employees').select('*'),
-            supabase.from('activity_log').select('*'),
-            supabase.from('settings').select('*')
-        ]);
-        
+        const collections = ['expenses', 'revenues', 'salaries', 'employees', 'activity_log', 'settings'];
         const backup = {
             version: '2.0',
             date: new Date().toISOString(),
             financial_year: getFinancialYear(getToday()),
             company: companySettings,
-            data: {
-                expenses: exp.data || [],
-                revenues: rev.data || [],
-                salaries: sal.data || [],
-                employees: emp.data || [],
-                activity_log: act.data || [],
-                settings: set.data || []
-            },
-            totals: {
-                expenses: (exp.data || []).reduce((s, r) => s + Number(r.amount || 0), 0),
-                revenues: (rev.data || []).reduce((s, r) => s + Number(r.amount || 0), 0),
-                salaries: (sal.data || []).reduce((s, r) => s + Number(r.salary || 0) + Number(r.transport || 0), 0),
-            }
+            data: {}
         };
-        
+
+        for (const collection of collections) {
+            const { data } = await getDocuments(collection);
+            backup.data[collection] = data || [];
+        }
+
         const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -3212,25 +3284,28 @@ async function restoreBackup(event) {
             return;
         }
         
-        if (!supabase) { showToast('قاعدة البيانات غير متصلة', 'error'); return; }
+        if (!db) { showToast('قاعدة البيانات غير متصلة', 'error'); return; }
 
-        // حذف البيانات القديمة
-        await Promise.all([
-            supabase.from('expenses').delete().neq('id', 0),
-            supabase.from('revenues').delete().neq('id', 0),
-            supabase.from('salaries').delete().neq('id', 0),
-            supabase.from('employees').delete().neq('id', 0),
-            supabase.from('activity_log').delete().neq('id', 0),
-            supabase.from('settings').delete().neq('id', 0),
-        ]);
-
-        // استعادة البيانات
-        if (backup.data.expenses?.length) await supabase.from('expenses').insert(backup.data.expenses);
-        if (backup.data.revenues?.length) await supabase.from('revenues').insert(backup.data.revenues);
-        if (backup.data.salaries?.length) await supabase.from('salaries').insert(backup.data.salaries);
-        if (backup.data.employees?.length) await supabase.from('employees').insert(backup.data.employees);
-        if (backup.data.activity_log?.length) await supabase.from('activity_log').insert(backup.data.activity_log);
-        if (backup.data.settings?.length) await supabase.from('settings').upsert(backup.data.settings);
+        // حذف البيانات القديمة وإضافة الجديدة
+        const collections = ['expenses', 'revenues', 'salaries', 'employees', 'activity_log', 'settings'];
+        
+        for (const collection of collections) {
+            // حذف كل المستندات القديمة
+            const { data: oldDocs } = await getDocuments(collection);
+            if (oldDocs) {
+                for (const doc of oldDocs) {
+                    await deleteDocument(collection, doc.id);
+                }
+            }
+            
+            // إضافة البيانات الجديدة
+            if (backup.data[collection] && backup.data[collection].length > 0) {
+                for (const record of backup.data[collection]) {
+                    const { id, ...recordData } = record; // إزالة id القديم
+                    await addDocument(collection, recordData);
+                }
+            }
+        }
 
         await logActivity('استعادة نسخة', 'تم استعادة النسخة الاحتياطية بنجاح');
         showToast('تمت استعادة النسخة الاحتياطية بنجاح ✓ سيتم إعادة تحميل الصفحة...', 'success');
@@ -3247,19 +3322,19 @@ async function clearAllData() {
     const confirmed = await showConfirm('⚠️ تحذير نهائي: أنت على وشك حذف جميع البيانات بشكل دائم.\n\nسيتم حذف: المصاريف، الإيرادات، الرواتب، الموظفين، سجل النشاط.\n\nلا يمكن التراجع عن هذا الإجراء!\n\nهل تريد المتابعة؟');
     if (!confirmed) return;
     
-    const doubleConfirm = await showConfirm('❗ تأكيد نهائي: اكتب "نعم" للمتابعة.\n\nهذا الإجراء لا رجعة فيه.');
-    if (!doubleConfirm) return;
-    
     try {
-        if (!supabase) { showToast('قاعدة البيانات غير متصلة', 'error'); return; }
+        if (!db) { showToast('قاعدة البيانات غير متصلة', 'error'); return; }
         
-        await Promise.all([
-            supabase.from('expenses').delete().neq('id', 0),
-            supabase.from('revenues').delete().neq('id', 0),
-            supabase.from('salaries').delete().neq('id', 0),
-            supabase.from('employees').delete().neq('id', 0),
-            supabase.from('activity_log').delete().neq('id', 0),
-        ]);
+        const collections = ['expenses', 'revenues', 'salaries', 'employees', 'activity_log'];
+        
+        for (const collection of collections) {
+            const { data: oldDocs } = await getDocuments(collection);
+            if (oldDocs) {
+                for (const doc of oldDocs) {
+                    await deleteDocument(collection, doc.id);
+                }
+            }
+        }
         
         await logActivity('مسح البيانات', 'تم مسح جميع بيانات النظام');
         showToast('تم مسح جميع البيانات بنجاح', 'success');
@@ -3305,9 +3380,9 @@ async function loadActivity() {
 }
 
 async function fetchActivity() {
-    if (!supabase) return;
+    if (!db) return;
     try {
-        const { data } = await supabase.from('activity_log').select('*').order('created_at', { ascending: false }).limit(500);
+        const { data } = await getDocuments('activity_log', [], 'timestamp', 'desc', 500);
         const tbody = document.getElementById('activityTableBody');
         
         if (!data || data.length === 0) {
@@ -3317,7 +3392,7 @@ async function fetchActivity() {
             tbody.innerHTML = data.map((a, i) => `
                 <tr>
                     <td>${i + 1}</td>
-                    <td>${new Date(a.created_at).toLocaleString('ar-IQ')}</td>
+                    <td>${new Date(a.timestamp).toLocaleString('ar-IQ')}</td>
                     <td>${a.action || '-'}</td>
                     <td>${a.details || '-'}</td>
                 </tr>
@@ -3334,25 +3409,58 @@ async function refreshActivity() {
     showToast('تم تحديث سجل النشاط', 'success');
 }
 
-function exportActivityLog() {
-    if (!supabase) return;
-    supabase.from('activity_log').select('*').order('created_at', { ascending: false }).limit(1000).then(({ data }) => {
-        if (!data || data.length === 0) {
-            showToast('لا توجد بيانات للتصدير', 'warning');
-            return;
-        }
-        
-        const exportData = data.map((a, i) => ({
-            'الرقم': i + 1,
-            'التاريخ والوقت': new Date(a.created_at).toLocaleString('ar-IQ'),
-            'نوع العملية': a.action,
-            'التفاصيل': a.details
-        }));
-        
-        const ws = XLSX.utils.json_to_sheet(exportData);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, 'سجل النشاط');
-        XLSX.writeFile(wb, `سجل_النشاط_${getToday()}.xlsx`);
-        showToast('تم تصدير سجل النشاط بنجاح', 'success');
-    });
+async function exportActivityLog() {
+    if (!db) return;
+    const { data } = await getDocuments('activity_log', [], 'timestamp', 'desc', 1000);
+    
+    if (!data || data.length === 0) {
+        showToast('لا توجد بيانات للتصدير', 'warning');
+        return;
+    }
+    
+    const exportData = data.map((a, i) => ({
+        'الرقم': i + 1,
+        'التاريخ والوقت': new Date(a.timestamp).toLocaleString('ar-IQ'),
+        'نوع العملية': a.action,
+        'التفاصيل': a.details
+    }));
+    
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'سجل النشاط');
+    XLSX.writeFile(wb, `سجل_النشاط_${getToday()}.xlsx`);
+    showToast('تم تصدير سجل النشاط بنجاح', 'success');
 }
+
+// ==================== مستمعي الأحداث العامة ====================
+document.getElementById('loginBtn').addEventListener('click', login);
+document.getElementById('passwordInput').addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') login();
+});
+document.getElementById('logoutBtn').addEventListener('click', logout);
+document.getElementById('modalOverlay').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) closeModal();
+});
+document.getElementById('hamburgerBtn').addEventListener('click', () => {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sidebarBackdrop').classList.toggle('active');
+});
+document.getElementById('sidebarBackdrop').addEventListener('click', () => {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sidebarBackdrop').classList.remove('active');
+});
+
+document.querySelectorAll('.sidebar-nav a').forEach(link => {
+    link.addEventListener('click', (e) => {
+        e.preventDefault();
+        navigateTo(link.dataset.page);
+    });
+});
+
+// ==================== بدء التطبيق عند تحميل الصفحة ==================== 
+document.addEventListener('DOMContentLoaded', () => {
+    checkAuth();
+});
+</script>
+</body>
+</html>
