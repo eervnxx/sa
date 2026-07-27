@@ -139,6 +139,11 @@
         .btn-sm { padding: 6px 10px; font-size: 11px; }
         .btn-preview { background: #6366f1; color: #fff; }
         .btn-preview:hover { opacity: 0.85; }
+        .btn-reset { background: #f59e0b; color: #000; }
+        .btn-reset:hover { opacity: 0.85; }
+        .btn-logout-all { background: #ef4444; color: #fff; }
+        .btn-logout-all:hover { opacity: 0.85; }
+        .btn-block { width: 100%; padding: 12px; font-size: 15px; margin-top: 8px; }
 
         table { width: 100%; border-collapse: collapse; }
         table thead th {
@@ -275,6 +280,19 @@
             text-align: center;
         }
 
+        .settings-divider {
+            border-top: 1px solid var(--border);
+            margin: 16px 0;
+            padding-top: 16px;
+        }
+        .settings-label {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text2);
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
         @media (max-width: 900px) {
             .sidebar { transform: translateX(100%); }
             .sidebar.open { transform: translateX(0); }
@@ -361,6 +379,8 @@ const firebaseConfig = {
   measurementId: "G-C86GMBN7RV"
 };
 
+const DEFAULT_PASSWORD = '7788c';
+
 let db, currentUser = null, currentPage = 'salaries';
 let companySettings = { name: 'شركتي', currency: 'د.ع', theme: 'dark' };
 let currentMonth = new Date().getMonth() + 1, currentYear = new Date().getFullYear();
@@ -370,7 +390,7 @@ let expensesData = [], expensesFiltered = [];
 let revenuesData = [], revenuesFiltered = [];
 let managementFY = getFinancialYear(new Date().toISOString().split('T')[0]);
 let analyticsChart = null;
-let savedPassword = '7788c'; // كلمة المرور الافتراضية
+let savedPassword = DEFAULT_PASSWORD;
 
 function fmoney(num) { if (num === null || num === undefined || isNaN(num)) return '0'; return Number(num).toLocaleString('en-US'); }
 function fcurrency(num) { return fmoney(num) + ' ' + companySettings.currency; }
@@ -403,8 +423,10 @@ async function loadPasswordFromDB() {
         if (s.length > 0 && s[0].password) {
             savedPassword = s[0].password;
             console.log('🔐 تم تحميل كلمة المرور من Firebase');
+        } else {
+            savedPassword = DEFAULT_PASSWORD;
         }
-    } catch (e) { /* استخدام الافتراضية */ }
+    } catch (e) { savedPassword = DEFAULT_PASSWORD; }
 }
 
 // ✅ حفظ كلمة المرور في Firebase
@@ -420,6 +442,35 @@ async function savePasswordToDB(newPassword) {
         savedPassword = newPassword;
         console.log('🔐 تم حفظ كلمة المرور في Firebase');
     } catch (e) { toast('خطأ في حفظ كلمة المرور', 'error'); }
+}
+
+// ✅ استعادة كلمة المرور الافتراضية
+async function resetPasswordToDefault() {
+    if (!db) { toast('قاعدة البيانات غير متصلة', 'error'); return; }
+    const confirmed = await confirmDel('هل أنت متأكد من استعادة كلمة المرور الافتراضية؟\n\nسيتم حذف كلمة المرور الحالية والعودة إلى: ' + DEFAULT_PASSWORD);
+    if (!confirmed) return;
+    try {
+        const s = await getDocs('settings');
+        if (s.length > 0) {
+            await updDoc('settings', s[0].id, { password: DEFAULT_PASSWORD });
+        } else {
+            await addDoc('settings', { password: DEFAULT_PASSWORD, settings: companySettings });
+        }
+        savedPassword = DEFAULT_PASSWORD;
+        toast('✅ تم استعادة كلمة المرور الافتراضية: ' + DEFAULT_PASSWORD);
+    } catch (e) { toast('خطأ', 'error'); }
+}
+
+// ✅ إلغاء جميع تسجيلات الدخول
+async function logoutAllUsers() {
+    const confirmed = await confirmDel('⚠️ تحذير: سيتم إلغاء جميع تسجيلات الدخول النشطة!\n\nسيضطر جميع المستخدمين إلى إعادة تسجيل الدخول.\n\nهل تريد المتابعة؟');
+    if (!confirmed) return;
+    localStorage.removeItem('acc_auth');
+    currentUser = null;
+    document.getElementById('loginOverlay').classList.remove('hidden');
+    document.getElementById('appLayout').classList.add('hidden');
+    document.getElementById('passwordInput').value = '';
+    toast('✅ تم إلغاء جميع تسجيلات الدخول بنجاح');
 }
 
 function checkAuth(){ if(localStorage.getItem('acc_auth')==='true'){ document.getElementById('loginOverlay').classList.add('hidden'); document.getElementById('appLayout').classList.remove('hidden'); initApp(); } }
@@ -447,7 +498,6 @@ function loadPage(p){ switch(p){ case 'salaries':loadSalaries();break; case 'emp
 function initFirebase(){ try{ if(!firebase.apps.length) firebase.initializeApp(firebaseConfig); db=firebase.firestore(); return true; }catch(e){return false;} }
 async function initApp(){
     if(!initFirebase()){ toast('⚠️ فشل اتصال Firebase','error'); return; }
-    // ✅ تحميل كلمة المرور من Firebase أولاً
     await loadPasswordFromDB();
     try{ const d=await getDocs('settings'); if(d.length>0&&d[0].settings) companySettings={...companySettings,...d[0].settings}; document.getElementById('companyNameDisplay').textContent=companySettings.name; document.getElementById('companyCurrency').textContent=companySettings.currency; if(companySettings.theme==='light') document.body.classList.add('light'); else document.body.classList.remove('light'); }catch(e){}
     managementFY = getFinancialYear(today());
@@ -466,20 +516,11 @@ function makeEditable(cell, type, id, field, currentValue) {
         cell.innerHTML = `<input type="${type==='salary'||type==='transport'?'number':'text'}" value="${rawValue.replace(/,/g,'')}" step="0.001" style="width:100%">`;
         const inp = cell.querySelector('input');
         inp.focus(); inp.select();
-        
         const save = async () => {
             let newVal = inp.value.trim();
-            if (type==='salary'||type==='transport') {
-                newVal = parseFloat(newVal) || 0;
-                if (newVal === 0 && currentValue !== 0) { cell.textContent = fmoney(currentValue); return; }
-            }
-            try {
-                await updDoc('salaries', id, { [field]: newVal });
-                toast('✅ تم التحديث');
-                await fetchSalaries();
-            } catch(e) { cell.textContent = fmoney(currentValue); toast('خطأ', 'error'); }
+            if (type==='salary'||type==='transport') { newVal = parseFloat(newVal) || 0; if (newVal === 0 && currentValue !== 0) { cell.textContent = fmoney(currentValue); return; } }
+            try { await updDoc('salaries', id, { [field]: newVal }); toast('✅ تم التحديث'); await fetchSalaries(); } catch(e) { cell.textContent = fmoney(currentValue); toast('خطأ', 'error'); }
         };
-        
         inp.addEventListener('blur', save);
         inp.addEventListener('keypress', e => { if (e.key === 'Enter') { inp.blur(); } });
     });
@@ -721,7 +762,14 @@ async function loadSettings(){
             <div class="password-warning">⚠️ سيتم حفظ كلمة المرور في قاعدة البيانات والاعتماد عليها بدلاً من الافتراضية</div>
         </div>
         <div class="form-group"><label>🎨 المظهر</label><div class="theme-toggle" id="themeToggle" onclick="toggleTheme()"><span class="icon" id="themeIcon">${isLight?'☀️':'🌙'}</span><span id="themeText">${isLight?'الوضع النهاري':'الوضع الليلي'}</span></div></div>
-        <button class="btn btn-blue" onclick="saveSettings()" style="width:100%;padding:12px;font-size:16px;margin-top:8px">💾 حفظ</button>
+        
+        <div class="settings-divider">
+            <div class="settings-label">🔐 خيارات متقدمة</div>
+            <button class="btn btn-reset btn-block" onclick="resetPasswordToDefault()">🔑 استعادة كلمة المرور الافتراضية</button>
+            <button class="btn btn-logout-all btn-block" onclick="logoutAllUsers()">🚪 إلغاء جميع تسجيلات الدخول</button>
+        </div>
+        
+        <button class="btn btn-blue btn-block" onclick="saveSettings()">💾 حفظ الإعدادات</button>
     </div></div>`;
     document.getElementById('scn').addEventListener('input',()=>{companySettings.name=document.getElementById('scn').value.trim()||'شركتي';document.getElementById('companyNameDisplay').textContent=companySettings.name;autoSaveSettings();});
     document.getElementById('scur').addEventListener('input',()=>{companySettings.currency=document.getElementById('scur').value.trim()||'د.ع';document.getElementById('companyCurrency').textContent=companySettings.currency;autoSaveSettings();});
@@ -735,7 +783,6 @@ async function saveSettings(){
     companySettings.name=document.getElementById('scn').value.trim()||'شركتي'; companySettings.currency=document.getElementById('scur').value.trim()||'د.ع';
     const pw=document.getElementById('spw').value.trim();
     
-    // ✅ حفظ كلمة المرور في Firebase إذا تم إدخال كلمة جديدة
     if(pw) {
         await savePasswordToDB(pw);
         toast('✅ تم حفظ كلمة المرور الجديدة في قاعدة البيانات');
