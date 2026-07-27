@@ -77,7 +77,6 @@
         .app { display: flex; min-height: 100vh; }
         .app.hidden { display: none; }
 
-        /* ========== سايدبار مصغر ========== */
         .sidebar {
             width: 220px; background: var(--bg-card); border-left: 1px solid var(--border);
             position: fixed; top: 0; right: 0; bottom: 0; z-index: 100;
@@ -154,7 +153,6 @@
         table tbody tr:hover { background: rgba(79,140,255,0.05); }
         table tbody td:first-child { color: var(--text2); font-size: 12px; }
 
-        /* خلايا قابلة للتعديل */
         td.editable { cursor: pointer; transition: background 0.2s; border-radius: 4px; }
         td.editable:hover { background: rgba(79,140,255,0.1); }
         td.editable input {
@@ -266,6 +264,17 @@
         .preview-page .p-total { font-size: 12px; font-weight: bold; text-align: left; border-top: 2px solid #333; padding-top: 8px; margin-top: 6px; }
         .preview-page .p-footer { text-align: center; margin-top: 15px; font-size: 9px; color: #999; border-top: 1px solid #ddd; padding-top: 6px; }
 
+        .password-warning {
+            background: var(--warning-light);
+            border: 1px solid var(--orange);
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 12px;
+            color: var(--orange);
+            margin-top: 6px;
+            text-align: center;
+        }
+
         @media (max-width: 900px) {
             .sidebar { transform: translateX(100%); }
             .sidebar.open { transform: translateX(0); }
@@ -361,6 +370,7 @@ let expensesData = [], expensesFiltered = [];
 let revenuesData = [], revenuesFiltered = [];
 let managementFY = getFinancialYear(new Date().toISOString().split('T')[0]);
 let analyticsChart = null;
+let savedPassword = '7788c'; // كلمة المرور الافتراضية
 
 function fmoney(num) { if (num === null || num === undefined || isNaN(num)) return '0'; return Number(num).toLocaleString('en-US'); }
 function fcurrency(num) { return fmoney(num) + ' ' + companySettings.currency; }
@@ -385,11 +395,44 @@ async function getDocs(c,ob=null,dir='asc'){ let q=db.collection(c); if(ob) q=q.
 let autoSaveTimeout;
 function autoSaveSettings(){ clearTimeout(autoSaveTimeout); autoSaveTimeout=setTimeout(async()=>{if(!db)return;try{const s=await getDocs('settings');if(s.length>0)await updDoc('settings',s[0].id,{settings:companySettings});else await addDoc('settings',{settings:companySettings});}catch(e){}},500); }
 
+// ✅ جلب كلمة المرور من Firebase
+async function loadPasswordFromDB() {
+    if (!db) return;
+    try {
+        const s = await getDocs('settings');
+        if (s.length > 0 && s[0].password) {
+            savedPassword = s[0].password;
+            console.log('🔐 تم تحميل كلمة المرور من Firebase');
+        }
+    } catch (e) { /* استخدام الافتراضية */ }
+}
+
+// ✅ حفظ كلمة المرور في Firebase
+async function savePasswordToDB(newPassword) {
+    if (!db) return;
+    try {
+        const s = await getDocs('settings');
+        if (s.length > 0) {
+            await updDoc('settings', s[0].id, { password: newPassword });
+        } else {
+            await addDoc('settings', { password: newPassword, settings: companySettings });
+        }
+        savedPassword = newPassword;
+        console.log('🔐 تم حفظ كلمة المرور في Firebase');
+    } catch (e) { toast('خطأ في حفظ كلمة المرور', 'error'); }
+}
+
 function checkAuth(){ if(localStorage.getItem('acc_auth')==='true'){ document.getElementById('loginOverlay').classList.add('hidden'); document.getElementById('appLayout').classList.remove('hidden'); initApp(); } }
 async function login(){
     const pw=document.getElementById('passwordInput').value;
-    if(pw==='7788c'){ localStorage.setItem('acc_auth','true'); currentUser={id:1}; document.getElementById('loginOverlay').classList.add('hidden'); document.getElementById('appLayout').classList.remove('hidden'); document.getElementById('loginError').textContent=''; await initApp(); toast('✅ تم تسجيل الدخول بنجاح'); }
-    else { document.getElementById('loginError').textContent='❌ كلمة المرور غير صحيحة'; document.getElementById('passwordInput').value=''; document.getElementById('passwordInput').focus(); }
+    if(pw===savedPassword){
+        localStorage.setItem('acc_auth','true'); currentUser={id:1};
+        document.getElementById('loginOverlay').classList.add('hidden'); document.getElementById('appLayout').classList.remove('hidden');
+        document.getElementById('loginError').textContent=''; await initApp(); toast('✅ تم تسجيل الدخول بنجاح');
+    } else {
+        document.getElementById('loginError').textContent='❌ كلمة المرور غير صحيحة';
+        document.getElementById('passwordInput').value=''; document.getElementById('passwordInput').focus();
+    }
 }
 function logout(){ localStorage.removeItem('acc_auth'); currentUser=null; document.getElementById('loginOverlay').classList.remove('hidden'); document.getElementById('appLayout').classList.add('hidden'); document.getElementById('passwordInput').value=''; }
 
@@ -404,6 +447,8 @@ function loadPage(p){ switch(p){ case 'salaries':loadSalaries();break; case 'emp
 function initFirebase(){ try{ if(!firebase.apps.length) firebase.initializeApp(firebaseConfig); db=firebase.firestore(); return true; }catch(e){return false;} }
 async function initApp(){
     if(!initFirebase()){ toast('⚠️ فشل اتصال Firebase','error'); return; }
+    // ✅ تحميل كلمة المرور من Firebase أولاً
+    await loadPasswordFromDB();
     try{ const d=await getDocs('settings'); if(d.length>0&&d[0].settings) companySettings={...companySettings,...d[0].settings}; document.getElementById('companyNameDisplay').textContent=companySettings.name; document.getElementById('companyCurrency').textContent=companySettings.currency; if(companySettings.theme==='light') document.body.classList.add('light'); else document.body.classList.remove('light'); }catch(e){}
     managementFY = getFinancialYear(today());
     goTo('salaries');
@@ -417,24 +462,22 @@ function makeEditable(cell, type, id, field, currentValue) {
     cell.classList.add('editable');
     cell.addEventListener('dblclick', function() {
         if (cell.querySelector('input')) return;
-        const originalText = cell.textContent;
         const rawValue = type==='salary'||type==='transport' ? fmoney(currentValue) : currentValue;
         cell.innerHTML = `<input type="${type==='salary'||type==='transport'?'number':'text'}" value="${rawValue.replace(/,/g,'')}" step="0.001" style="width:100%">`;
         const inp = cell.querySelector('input');
-        inp.focus();
-        inp.select();
+        inp.focus(); inp.select();
         
         const save = async () => {
             let newVal = inp.value.trim();
             if (type==='salary'||type==='transport') {
                 newVal = parseFloat(newVal) || 0;
-                if (newVal === 0 && currentValue !== 0) { cell.textContent = originalText; return; }
+                if (newVal === 0 && currentValue !== 0) { cell.textContent = fmoney(currentValue); return; }
             }
             try {
                 await updDoc('salaries', id, { [field]: newVal });
                 toast('✅ تم التحديث');
                 await fetchSalaries();
-            } catch(e) { cell.textContent = originalText; toast('خطأ', 'error'); }
+            } catch(e) { cell.textContent = fmoney(currentValue); toast('خطأ', 'error'); }
         };
         
         inp.addEventListener('blur', save);
@@ -470,14 +513,12 @@ function renderSalaries(){
     if(salariesFiltered.length===0){ tb.innerHTML='<tr><td colspan="7" style="padding:30px;">لا توجد سجلات</td></tr>'; }
     else { 
         tb.innerHTML=salariesFiltered.map((e,i)=>`<tr>
-            <td>${i+1}</td>
-            <td><strong>${e.employee_name||'-'}</strong></td>
+            <td>${i+1}</td><td><strong>${e.employee_name||'-'}</strong></td>
             <td class="editable" data-id="${e.id}" data-field="salary" data-val="${e.salary||0}">${fcurrency(e.salary)}</td>
             <td class="editable" data-id="${e.id}" data-field="transport" data-val="${e.transport||0}">${fcurrency(e.transport)}</td>
             <td>${e.date||'-'}</td><td>${e.notes||'-'}</td>
             <td><button class="btn btn-orange btn-sm" onclick="openSalaryModal('${e.id}')">✏️</button><button class="btn btn-red btn-sm" onclick="deleteSalary('${e.id}')">🗑️</button></td>
         </tr>`).join(''); 
-        // ربط التعديل المباشر
         document.querySelectorAll('#salBody td.editable').forEach(td => {
             const id = td.dataset.id, field = td.dataset.field, val = parseFloat(td.dataset.val)||0;
             makeEditable(td, field==='salary'?'salary':'transport', id, field, val);
@@ -497,12 +538,10 @@ async function openSalaryModal(id=null){
 async function deleteSalary(id){ const r=salariesData.find(e=>e.id===id); if(!await confirmDel(`حذف راتب ${r?.employee_name}؟`))return; try{await delDoc('salaries',id);await fetchSalaries();toast('تم الحذف ✓');}catch(e){toast('خطأ','error');} }
 
 async function importAllEmp(){
-    if(!db)return;
-    const selMonth = getCurrentSalMonth();
+    if(!db)return; const selMonth = getCurrentSalMonth();
     const emps=await getDocs('employees'),active=emps.filter(e=>e.status==='نشط');
     if(active.length===0){toast('لا يوجد موظفون نشطون','error');return;}
-    const exist=salariesData.filter(s=>s.month==selMonth).map(s=>s.employee_name);
-    let cnt=0;
+    const exist=salariesData.filter(s=>s.month==selMonth).map(s=>s.employee_name); let cnt=0;
     for(const e of active){ if(exist.includes(e.name))continue; await addDoc('salaries',{employee_name:e.name,salary:e.default_salary||0,transport:e.default_transport||0,date:today(),month:selMonth,notes:''}); cnt++; }
     if(cnt===0){toast('جميع الموظفين النشطين مضافين مسبقاً','error');return;}
     toast(`✅ تم استيراد ${cnt} موظف`); await fetchSalaries();
@@ -514,8 +553,7 @@ async function copyPrevMonth(){
     const allSalaries=await getDocs('salaries');
     const prev=allSalaries.filter(s=>s.month==pm && s.date && s.date.startsWith(String(py)));
     if(prev.length===0){toast(`لا توجد بيانات للشهر ${pm}`,'error');return;}
-    const exist=salariesData.filter(s=>s.month==selMonth).map(s=>s.employee_name);
-    let cnt=0;
+    const exist=salariesData.filter(s=>s.month==selMonth).map(s=>s.employee_name); let cnt=0;
     for(const s of prev){ if(exist.includes(s.employee_name))continue; await addDoc('salaries',{employee_name:s.employee_name,salary:s.salary,transport:s.transport,date:today(),month:selMonth,notes:s.notes||''}); cnt++; }
     if(cnt===0){toast('جميع موظفي الشهر السابق مضافين مسبقاً','error');return;}
     toast(`✅ تم نسخ ${cnt} سجل`); await fetchSalaries();
@@ -676,7 +714,15 @@ async function refreshAnalytics(){
 // ==================== ⚙️ الإعدادات ====================
 async function loadSettings(){
     const c=document.getElementById('page-settings'),isLight=companySettings.theme==='light';
-    c.innerHTML=`<div class="page-header"><h2>⚙️ الإعدادات</h2></div><div style="max-width:460px;margin:0 auto"><div class="table-card" style="padding:20px"><div class="form-group"><label>🏢 اسم الشركة</label><input type="text" id="scn" value="${companySettings.name}"></div><div class="form-group"><label>💵 العملة</label><input type="text" id="scur" value="${companySettings.currency}"></div><div class="form-group"><label>🔐 تغيير كلمة المرور</label><input type="password" id="spw" placeholder="اتركه فارغاً لعدم التغيير"></div><div class="form-group"><label>🎨 المظهر</label><div class="theme-toggle" id="themeToggle" onclick="toggleTheme()"><span class="icon" id="themeIcon">${isLight?'☀️':'🌙'}</span><span id="themeText">${isLight?'الوضع النهاري':'الوضع الليلي'}</span></div></div><button class="btn btn-blue" onclick="saveSettings()" style="width:100%;padding:12px;font-size:16px;margin-top:8px">💾 حفظ</button></div></div>`;
+    c.innerHTML=`<div class="page-header"><h2>⚙️ الإعدادات</h2></div><div style="max-width:460px;margin:0 auto"><div class="table-card" style="padding:20px">
+        <div class="form-group"><label>🏢 اسم الشركة</label><input type="text" id="scn" value="${companySettings.name}"></div>
+        <div class="form-group"><label>💵 العملة</label><input type="text" id="scur" value="${companySettings.currency}"></div>
+        <div class="form-group"><label>🔐 تغيير كلمة المرور</label><input type="password" id="spw" placeholder="أدخل كلمة المرور الجديدة">
+            <div class="password-warning">⚠️ سيتم حفظ كلمة المرور في قاعدة البيانات والاعتماد عليها بدلاً من الافتراضية</div>
+        </div>
+        <div class="form-group"><label>🎨 المظهر</label><div class="theme-toggle" id="themeToggle" onclick="toggleTheme()"><span class="icon" id="themeIcon">${isLight?'☀️':'🌙'}</span><span id="themeText">${isLight?'الوضع النهاري':'الوضع الليلي'}</span></div></div>
+        <button class="btn btn-blue" onclick="saveSettings()" style="width:100%;padding:12px;font-size:16px;margin-top:8px">💾 حفظ</button>
+    </div></div>`;
     document.getElementById('scn').addEventListener('input',()=>{companySettings.name=document.getElementById('scn').value.trim()||'شركتي';document.getElementById('companyNameDisplay').textContent=companySettings.name;autoSaveSettings();});
     document.getElementById('scur').addEventListener('input',()=>{companySettings.currency=document.getElementById('scur').value.trim()||'د.ع';document.getElementById('companyCurrency').textContent=companySettings.currency;autoSaveSettings();});
 }
@@ -687,9 +733,17 @@ function toggleTheme(){
 }
 async function saveSettings(){
     companySettings.name=document.getElementById('scn').value.trim()||'شركتي'; companySettings.currency=document.getElementById('scur').value.trim()||'د.ع';
-    const pw=document.getElementById('spw').value.trim(); if(pw) localStorage.setItem('acc_pw',pw);
+    const pw=document.getElementById('spw').value.trim();
+    
+    // ✅ حفظ كلمة المرور في Firebase إذا تم إدخال كلمة جديدة
+    if(pw) {
+        await savePasswordToDB(pw);
+        toast('✅ تم حفظ كلمة المرور الجديدة في قاعدة البيانات');
+    }
+    
     document.getElementById('companyNameDisplay').textContent=companySettings.name; document.getElementById('companyCurrency').textContent=companySettings.currency;
-    if(db){ try{ const s=await getDocs('settings'); if(s.length>0) await updDoc('settings',s[0].id,{settings:companySettings}); else await addDoc('settings',{settings:companySettings}); toast('✅ تم حفظ جميع الإعدادات'); } catch(e){ toast('خطأ في الحفظ','error'); } }
+    if(db){ try{ const s=await getDocs('settings'); if(s.length>0) await updDoc('settings',s[0].id,{settings:companySettings}); else await addDoc('settings',{settings:companySettings}); } catch(e){ toast('خطأ في حفظ الإعدادات','error'); } }
+    document.getElementById('spw').value = '';
 }
 
 // ==================== تصدير Excel ====================
@@ -745,7 +799,7 @@ document.getElementById('modalOverlay').addEventListener('click', e => { if (e.t
 document.getElementById('previewOverlay').addEventListener('click', e => { if (e.target === e.currentTarget) closePreview(); });
 document.querySelectorAll('.sidebar-nav a').forEach(a => { a.addEventListener('click', e => { e.preventDefault(); goTo(a.dataset.page); }); });
 document.addEventListener('DOMContentLoaded', checkAuth);
-console.log('✅ النظام جاهز | كلمة المرور: 7788c | Firebase: system-bng');
+console.log('✅ النظام جاهز | Firebase: system-bng');
 </script>
 </body>
 </html>
