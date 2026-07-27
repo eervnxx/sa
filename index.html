@@ -266,7 +266,15 @@
         .preview-page th { background: #e0e0e0; border: 1px solid #bbb; padding: 6px 4px; text-align: center; font-weight: bold; font-size: 9px; }
         .preview-page td { border: 1px solid #ccc; padding: 5px 4px; text-align: center; font-size: 10px; }
         .preview-page tr:nth-child(even) td { background: #f5f5f5; }
-        .preview-page .p-total { font-size: 12px; font-weight: bold; text-align: left; border-top: 2px solid #333; padding-top: 8px; margin-top: 6px; }
+        /* ✅ صف المجموع داخل الجدول */
+        .preview-page tr.total-row td {
+            background: #d0d0d0 !important;
+            font-weight: bold;
+            font-size: 11px;
+            border-top: 2px solid #333;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
         .preview-page .p-footer { text-align: center; margin-top: 15px; font-size: 9px; color: #999; border-top: 1px solid #ddd; padding-top: 6px; }
 
         .password-warning {
@@ -415,75 +423,36 @@ async function getDocs(c,ob=null,dir='asc'){ let q=db.collection(c); if(ob) q=q.
 let autoSaveTimeout;
 function autoSaveSettings(){ clearTimeout(autoSaveTimeout); autoSaveTimeout=setTimeout(async()=>{if(!db)return;try{const s=await getDocs('settings');if(s.length>0)await updDoc('settings',s[0].id,{settings:companySettings});else await addDoc('settings',{settings:companySettings});}catch(e){}},500); }
 
-// ✅ جلب كلمة المرور من Firebase
 async function loadPasswordFromDB() {
     if (!db) return;
-    try {
-        const s = await getDocs('settings');
-        if (s.length > 0 && s[0].password) {
-            savedPassword = s[0].password;
-            console.log('🔐 تم تحميل كلمة المرور من Firebase');
-        } else {
-            savedPassword = DEFAULT_PASSWORD;
-        }
-    } catch (e) { savedPassword = DEFAULT_PASSWORD; }
+    try { const s = await getDocs('settings'); if (s.length > 0 && s[0].password) { savedPassword = s[0].password; } else { savedPassword = DEFAULT_PASSWORD; } } catch (e) { savedPassword = DEFAULT_PASSWORD; }
 }
 
-// ✅ حفظ كلمة المرور في Firebase
 async function savePasswordToDB(newPassword) {
     if (!db) return;
-    try {
-        const s = await getDocs('settings');
-        if (s.length > 0) {
-            await updDoc('settings', s[0].id, { password: newPassword });
-        } else {
-            await addDoc('settings', { password: newPassword, settings: companySettings });
-        }
-        savedPassword = newPassword;
-        console.log('🔐 تم حفظ كلمة المرور في Firebase');
-    } catch (e) { toast('خطأ في حفظ كلمة المرور', 'error'); }
+    try { const s = await getDocs('settings'); if (s.length > 0) { await updDoc('settings', s[0].id, { password: newPassword }); } else { await addDoc('settings', { password: newPassword, settings: companySettings }); } savedPassword = newPassword; } catch (e) { toast('خطأ في حفظ كلمة المرور', 'error'); }
 }
 
-// ✅ استعادة كلمة المرور الافتراضية
 async function resetPasswordToDefault() {
     if (!db) { toast('قاعدة البيانات غير متصلة', 'error'); return; }
     const confirmed = await confirmDel('هل أنت متأكد من استعادة كلمة المرور الافتراضية؟\n\nسيتم حذف كلمة المرور الحالية والعودة إلى: ' + DEFAULT_PASSWORD);
     if (!confirmed) return;
-    try {
-        const s = await getDocs('settings');
-        if (s.length > 0) {
-            await updDoc('settings', s[0].id, { password: DEFAULT_PASSWORD });
-        } else {
-            await addDoc('settings', { password: DEFAULT_PASSWORD, settings: companySettings });
-        }
-        savedPassword = DEFAULT_PASSWORD;
-        toast('✅ تم استعادة كلمة المرور الافتراضية: ' + DEFAULT_PASSWORD);
-    } catch (e) { toast('خطأ', 'error'); }
+    try { const s = await getDocs('settings'); if (s.length > 0) { await updDoc('settings', s[0].id, { password: DEFAULT_PASSWORD }); } else { await addDoc('settings', { password: DEFAULT_PASSWORD, settings: companySettings }); } savedPassword = DEFAULT_PASSWORD; toast('✅ تم استعادة كلمة المرور الافتراضية: ' + DEFAULT_PASSWORD); } catch (e) { toast('خطأ', 'error'); }
 }
 
-// ✅ إلغاء جميع تسجيلات الدخول
 async function logoutAllUsers() {
     const confirmed = await confirmDel('⚠️ تحذير: سيتم إلغاء جميع تسجيلات الدخول النشطة!\n\nسيضطر جميع المستخدمين إلى إعادة تسجيل الدخول.\n\nهل تريد المتابعة؟');
     if (!confirmed) return;
-    localStorage.removeItem('acc_auth');
-    currentUser = null;
-    document.getElementById('loginOverlay').classList.remove('hidden');
-    document.getElementById('appLayout').classList.add('hidden');
-    document.getElementById('passwordInput').value = '';
-    toast('✅ تم إلغاء جميع تسجيلات الدخول بنجاح');
+    localStorage.removeItem('acc_auth'); currentUser = null;
+    document.getElementById('loginOverlay').classList.remove('hidden'); document.getElementById('appLayout').classList.add('hidden');
+    document.getElementById('passwordInput').value = ''; toast('✅ تم إلغاء جميع تسجيلات الدخول بنجاح');
 }
 
 function checkAuth(){ if(localStorage.getItem('acc_auth')==='true'){ document.getElementById('loginOverlay').classList.add('hidden'); document.getElementById('appLayout').classList.remove('hidden'); initApp(); } }
 async function login(){
     const pw=document.getElementById('passwordInput').value;
-    if(pw===savedPassword){
-        localStorage.setItem('acc_auth','true'); currentUser={id:1};
-        document.getElementById('loginOverlay').classList.add('hidden'); document.getElementById('appLayout').classList.remove('hidden');
-        document.getElementById('loginError').textContent=''; await initApp(); toast('✅ تم تسجيل الدخول بنجاح');
-    } else {
-        document.getElementById('loginError').textContent='❌ كلمة المرور غير صحيحة';
-        document.getElementById('passwordInput').value=''; document.getElementById('passwordInput').focus();
-    }
+    if(pw===savedPassword){ localStorage.setItem('acc_auth','true'); currentUser={id:1}; document.getElementById('loginOverlay').classList.add('hidden'); document.getElementById('appLayout').classList.remove('hidden'); document.getElementById('loginError').textContent=''; await initApp(); toast('✅ تم تسجيل الدخول بنجاح'); }
+    else { document.getElementById('loginError').textContent='❌ كلمة المرور غير صحيحة'; document.getElementById('passwordInput').value=''; document.getElementById('passwordInput').focus(); }
 }
 function logout(){ localStorage.removeItem('acc_auth'); currentUser=null; document.getElementById('loginOverlay').classList.remove('hidden'); document.getElementById('appLayout').classList.add('hidden'); document.getElementById('passwordInput').value=''; }
 
@@ -500,8 +469,7 @@ async function initApp(){
     if(!initFirebase()){ toast('⚠️ فشل اتصال Firebase','error'); return; }
     await loadPasswordFromDB();
     try{ const d=await getDocs('settings'); if(d.length>0&&d[0].settings) companySettings={...companySettings,...d[0].settings}; document.getElementById('companyNameDisplay').textContent=companySettings.name; document.getElementById('companyCurrency').textContent=companySettings.currency; if(companySettings.theme==='light') document.body.classList.add('light'); else document.body.classList.remove('light'); }catch(e){}
-    managementFY = getFinancialYear(today());
-    goTo('salaries');
+    managementFY = getFinancialYear(today()); goTo('salaries');
 }
 
 function getCurrentSalMonth() { return parseInt(document.getElementById('salMonth')?.value) || currentMonth; }
@@ -514,15 +482,13 @@ function makeEditable(cell, type, id, field, currentValue) {
         if (cell.querySelector('input')) return;
         const rawValue = type==='salary'||type==='transport' ? fmoney(currentValue) : currentValue;
         cell.innerHTML = `<input type="${type==='salary'||type==='transport'?'number':'text'}" value="${rawValue.replace(/,/g,'')}" step="0.001" style="width:100%">`;
-        const inp = cell.querySelector('input');
-        inp.focus(); inp.select();
+        const inp = cell.querySelector('input'); inp.focus(); inp.select();
         const save = async () => {
             let newVal = inp.value.trim();
             if (type==='salary'||type==='transport') { newVal = parseFloat(newVal) || 0; if (newVal === 0 && currentValue !== 0) { cell.textContent = fmoney(currentValue); return; } }
             try { await updDoc('salaries', id, { [field]: newVal }); toast('✅ تم التحديث'); await fetchSalaries(); } catch(e) { cell.textContent = fmoney(currentValue); toast('خطأ', 'error'); }
         };
-        inp.addEventListener('blur', save);
-        inp.addEventListener('keypress', e => { if (e.key === 'Enter') { inp.blur(); } });
+        inp.addEventListener('blur', save); inp.addEventListener('keypress', e => { if (e.key === 'Enter') { inp.blur(); } });
     });
 }
 
@@ -571,33 +537,27 @@ async function openSalaryModal(id=null){
     let rec={employee_name:'',salary:'',transport:'',date:today(),month:getCurrentSalMonth(),notes:''}; if(id) rec=salariesData.find(e=>e.id===id)||rec;
     modal(id?'✏️ تعديل راتب':'➕ إضافة راتب',`<div class="form-group"><label>الموظف *</label><input type="text" id="snm" value="${rec.employee_name}"></div><div class="form-group"><label>الراتب *</label><input type="number" id="ssal" value="${rec.salary}" step="0.001"></div><div class="form-group"><label>المواصلات</label><input type="number" id="str" value="${rec.transport}" step="0.001"></div><div class="form-group"><label>التاريخ</label><input type="date" id="sdt" value="${rec.date}"></div><div class="form-group"><label>ملاحظات</label><textarea id="snt" rows="2">${rec.notes||''}</textarea></div>`,async()=>{
         const nm=document.getElementById('snm').value.trim(),sal=parseFloat(document.getElementById('ssal').value)||0,tr=parseFloat(document.getElementById('str').value)||0,dt=document.getElementById('sdt').value,nt=document.getElementById('snt').value.trim();
-        const mn=getCurrentSalMonth();
-        if(!nm||sal<=0){ toast('يرجى تعبئة الحقول المطلوبة','error'); return; }
+        const mn=getCurrentSalMonth(); if(!nm||sal<=0){ toast('يرجى تعبئة الحقول المطلوبة','error'); return; }
         try{ if(id){ await updDoc('salaries',id,{employee_name:nm,salary:sal,transport:tr,date:dt,month:mn,notes:nt}); } else { await addDoc('salaries',{employee_name:nm,salary:sal,transport:tr,date:dt,month:mn,notes:nt}); } closeModal(); await fetchSalaries(); toast(id?'تم التعديل ✓':'تمت الإضافة ✓'); } catch(e){ toast('خطأ في الحفظ','error'); }
     });
 }
 async function deleteSalary(id){ const r=salariesData.find(e=>e.id===id); if(!await confirmDel(`حذف راتب ${r?.employee_name}؟`))return; try{await delDoc('salaries',id);await fetchSalaries();toast('تم الحذف ✓');}catch(e){toast('خطأ','error');} }
 
 async function importAllEmp(){
-    if(!db)return; const selMonth = getCurrentSalMonth();
-    const emps=await getDocs('employees'),active=emps.filter(e=>e.status==='نشط');
+    if(!db)return; const selMonth = getCurrentSalMonth(); const emps=await getDocs('employees'),active=emps.filter(e=>e.status==='نشط');
     if(active.length===0){toast('لا يوجد موظفون نشطون','error');return;}
     const exist=salariesData.filter(s=>s.month==selMonth).map(s=>s.employee_name); let cnt=0;
     for(const e of active){ if(exist.includes(e.name))continue; await addDoc('salaries',{employee_name:e.name,salary:e.default_salary||0,transport:e.default_transport||0,date:today(),month:selMonth,notes:''}); cnt++; }
-    if(cnt===0){toast('جميع الموظفين النشطين مضافين مسبقاً','error');return;}
-    toast(`✅ تم استيراد ${cnt} موظف`); await fetchSalaries();
+    if(cnt===0){toast('جميع الموظفين النشطين مضافين مسبقاً','error');return;} toast(`✅ تم استيراد ${cnt} موظف`); await fetchSalaries();
 }
 
 async function copyPrevMonth(){
-    const selMonth = getCurrentSalMonth(), selYear = getCurrentSalYear();
-    let pm=selMonth-1, py=selYear; if(pm<1){pm=12;py--;}
-    const allSalaries=await getDocs('salaries');
-    const prev=allSalaries.filter(s=>s.month==pm && s.date && s.date.startsWith(String(py)));
+    const selMonth = getCurrentSalMonth(), selYear = getCurrentSalYear(); let pm=selMonth-1, py=selYear; if(pm<1){pm=12;py--;}
+    const allSalaries=await getDocs('salaries'); const prev=allSalaries.filter(s=>s.month==pm && s.date && s.date.startsWith(String(py)));
     if(prev.length===0){toast(`لا توجد بيانات للشهر ${pm}`,'error');return;}
     const exist=salariesData.filter(s=>s.month==selMonth).map(s=>s.employee_name); let cnt=0;
     for(const s of prev){ if(exist.includes(s.employee_name))continue; await addDoc('salaries',{employee_name:s.employee_name,salary:s.salary,transport:s.transport,date:today(),month:selMonth,notes:s.notes||''}); cnt++; }
-    if(cnt===0){toast('جميع موظفي الشهر السابق مضافين مسبقاً','error');return;}
-    toast(`✅ تم نسخ ${cnt} سجل`); await fetchSalaries();
+    if(cnt===0){toast('جميع موظفي الشهر السابق مضافين مسبقاً','error');return;} toast(`✅ تم نسخ ${cnt} سجل`); await fetchSalaries();
 }
 
 // ==================== 👥 الموظفون ====================
@@ -610,15 +570,12 @@ async function loadEmployees(){
         <table><thead><tr><th>#</th><th>الاسم</th><th>المنصب</th><th>الراتب</th><th>المواصلات</th><th>الهاتف</th><th>الحالة</th><th>إجراءات</th></tr></thead>
         <tbody id="empBody"><tr><td colspan="8">جاري التحميل...</td></tr></tbody></table>
         <div class="table-footer"><span>عدد: <strong id="empCount">0</strong></span><span style="color:var(--green)">نشط: <strong id="empActive">0</strong></span><span style="color:var(--red)">موقوف: <strong id="empInactive">0</strong></span></div></div>`;
-    document.getElementById('empSearch').addEventListener('input',filterEmployees);
-    document.getElementById('empStatus').addEventListener('change',filterEmployees);
-    await fetchEmployees();
+    document.getElementById('empSearch').addEventListener('input',filterEmployees); document.getElementById('empStatus').addEventListener('change',filterEmployees); await fetchEmployees();
 }
 async function fetchEmployees(){ if(!db)return; employeesData=await getDocs('employees','name'); filterEmployees(); }
 function filterEmployees(){ let f=[...employeesData]; const s=document.getElementById('empSearch')?.value?.toLowerCase()||'',st=document.getElementById('empStatus')?.value||''; if(s) f=f.filter(e=>(e.name||'').toLowerCase().includes(s)||(e.phone||'').includes(s)); if(st) f=f.filter(e=>e.status===st); employeesFiltered=f; renderEmployees(); }
 function renderEmployees(){
-    const tb=document.getElementById('empBody');
-    if(employeesFiltered.length===0){ tb.innerHTML='<tr><td colspan="8">لا يوجد موظفون</td></tr>'; }
+    const tb=document.getElementById('empBody'); if(employeesFiltered.length===0){ tb.innerHTML='<tr><td colspan="8">لا يوجد موظفون</td></tr>'; }
     else { tb.innerHTML=employeesFiltered.map((e,i)=>`<tr><td>${i+1}</td><td><strong>${e.name||'-'}</strong></td><td>${e.position||'-'}</td><td>${fcurrency(e.default_salary)}</td><td>${fcurrency(e.default_transport)}</td><td>${e.phone||'-'}</td><td style="color:${e.status==='نشط'?'var(--green)':'var(--red)'}">● ${e.status||'-'}</td><td><button class="btn btn-orange btn-sm" onclick="openEmployeeModal('${e.id}')">✏️</button><button class="btn btn-red btn-sm" onclick="deleteEmployee('${e.id}')">🗑️</button></td></tr>`).join(''); }
     document.getElementById('empCount').textContent=employeesFiltered.length; document.getElementById('empActive').textContent=employeesFiltered.filter(e=>e.status==='نشط').length; document.getElementById('empInactive').textContent=employeesFiltered.filter(e=>e.status==='موقوف').length;
 }
@@ -642,10 +599,7 @@ async function loadExpenses(){
         <table><thead><tr><th>#</th><th>التاريخ</th><th>المبلغ</th><th>التفاصيل</th><th>ملاحظات</th><th>إجراءات</th></tr></thead>
         <tbody id="expBody"><tr><td colspan="6">جاري التحميل...</td></tr></tbody></table>
         <div class="table-footer"><span>عدد: <strong id="expCount">0</strong></span><span class="total">الإجمالي: <strong id="expTotal">0</strong></span></div></div>`;
-    document.getElementById('expSearch').addEventListener('input',filterExpenses);
-    document.getElementById('expMonth').addEventListener('change',filterExpenses);
-    document.getElementById('expYear').addEventListener('change',filterExpenses);
-    await fetchExpenses();
+    document.getElementById('expSearch').addEventListener('input',filterExpenses); document.getElementById('expMonth').addEventListener('change',filterExpenses); document.getElementById('expYear').addEventListener('change',filterExpenses); await fetchExpenses();
 }
 async function fetchExpenses(){ if(!db)return; expensesData=await getDocs('expenses','date'); filterExpenses(); }
 function filterExpenses(){ let f=[...expensesData]; const s=document.getElementById('expSearch')?.value?.toLowerCase()||'',m=parseInt(document.getElementById('expMonth')?.value)||0,y=document.getElementById('expYear')?.value||''; if(s) f=f.filter(e=>(e.details||'').toLowerCase().includes(s)||String(e.amount||'').includes(s)); if(m) f=f.filter(e=>new Date(e.date).getMonth()+1===m); if(y){const r=getFYRange(y); f=f.filter(e=>e.date>=r.start&&e.date<=r.end);} expensesFiltered=f; renderExpenses(); }
@@ -675,10 +629,7 @@ async function loadRevenues(){
         <table><thead><tr><th>#</th><th>التاريخ</th><th>رقم الإيصال</th><th>المبلغ</th><th>النوع</th><th>ملاحظات</th><th>إجراءات</th></tr></thead>
         <tbody id="revBody"><tr><td colspan="7">جاري التحميل...</td></tr></tbody></table>
         <div class="table-footer"><span>عدد: <strong id="revCount">0</strong></span><span class="total">الإجمالي: <strong id="revTotal">0</strong></span></div></div>`;
-    document.getElementById('revSearch').addEventListener('input',filterRevenues);
-    document.getElementById('revMonth').addEventListener('change',filterRevenues);
-    document.getElementById('revYear').addEventListener('change',filterRevenues);
-    await fetchRevenues();
+    document.getElementById('revSearch').addEventListener('input',filterRevenues); document.getElementById('revMonth').addEventListener('change',filterRevenues); document.getElementById('revYear').addEventListener('change',filterRevenues); await fetchRevenues();
 }
 async function fetchRevenues(){ if(!db)return; revenuesData=await getDocs('revenues','date'); filterRevenues(); }
 function filterRevenues(){ let f=[...revenuesData]; const s=document.getElementById('revSearch')?.value?.toLowerCase()||'',m=parseInt(document.getElementById('revMonth')?.value)||0,y=document.getElementById('revYear')?.value||''; if(s) f=f.filter(e=>(e.type||'').toLowerCase().includes(s)||String(e.amount||'').includes(s)||(e.receipt||'').toLowerCase().includes(s)); if(m) f=f.filter(e=>new Date(e.date).getMonth()+1===m); if(y){const r=getFYRange(y); f=f.filter(e=>e.date>=r.start&&e.date<=r.end);} revenuesFiltered=f; renderRevenues(); }
@@ -692,8 +643,7 @@ async function openRevenueModal(id=null){
     let rec={date:today(),receipt:'',amount:'',type:'',notes:''}; if(id) rec=revenuesData.find(e=>e.id===id)||rec;
     modal(id?'✏️ تعديل إيراد':'➕ إضافة إيراد',`<div class="form-group"><label>التاريخ</label><input type="date" id="rdt" value="${rec.date}"></div><div class="form-group"><label>رقم الإيصال <span style="color:var(--red)">*</span></label><input type="text" id="rrc" value="${rec.receipt||''}" placeholder="أدخل رقم الإيصال (إجباري)"></div><div class="form-group"><label>المبلغ <span style="color:var(--red)">*</span></label><input type="number" id="ram" value="${rec.amount}" step="0.001"></div><div class="form-group"><label>النوع (اختياري)</label><input type="text" id="rtp" value="${rec.type||''}" placeholder="مبيعات، خدمات، إيجار..."></div><div class="form-group"><label>ملاحظات</label><textarea id="rnt" rows="2">${rec.notes||''}</textarea></div>`,async()=>{
         const dt=document.getElementById('rdt').value,rc=document.getElementById('rrc').value.trim(),am=parseFloat(document.getElementById('ram').value)||0,tp=document.getElementById('rtp').value.trim(),nt=document.getElementById('rnt').value.trim();
-        if(!rc){ shakeField('rrc'); toast('❌ رقم الإيصال مطلوب','error'); return; }
-        if(!dt||am<=0){ toast('يرجى تعبئة الحقول المطلوبة','error'); return; }
+        if(!rc){ shakeField('rrc'); toast('❌ رقم الإيصال مطلوب','error'); return; } if(!dt||am<=0){ toast('يرجى تعبئة الحقول المطلوبة','error'); return; }
         try{ if(id){ await updDoc('revenues',id,{date:dt,receipt:rc,amount:am,type:tp,notes:nt}); } else { await addDoc('revenues',{date:dt,receipt:rc,amount:am,type:tp,notes:nt}); } closeModal(); await fetchRevenues(); toast(id?'تم التعديل ✓':'تمت الإضافة ✓'); } catch(e){ toast('خطأ','error'); }
     });
 }
@@ -706,10 +656,8 @@ async function loadManagement(){
         <div class="table-toolbar" style="margin-bottom:16px;border:1px solid var(--border);border-radius:14px;padding:12px 16px;background:var(--bg-card);">
             <label style="font-size:15px;font-weight:700;">📅 السنة المالية:</label>
             <select id="mgmtFYSelect" onchange="changeManagementFY()">${yearOpts(managementFY)}</select>
-            <button class="btn btn-preview" onclick="openPreview('management')">📄 معاينة</button>
-        </div>
-        <div class="stats-grid" id="mgmtStats">جاري التحميل...</div>`;
-    await refreshManagement();
+            <button class="btn btn-preview" onclick="openPreview('management')">📄 معاينة</button></div>
+        <div class="stats-grid" id="mgmtStats">جاري التحميل...</div>`; await refreshManagement();
 }
 async function changeManagementFY(){ managementFY = document.getElementById('mgmtFYSelect').value; await refreshManagement(); }
 async function refreshManagement(){
@@ -727,28 +675,18 @@ async function loadAnalytics(){
         <div class="table-toolbar" style="margin-bottom:16px;border:1px solid var(--border);border-radius:14px;padding:12px 16px;background:var(--bg-card);">
             <label style="font-size:15px;font-weight:700;">📅 السنة المالية:</label>
             <select id="analyticsFYSelect" onchange="refreshAnalytics()">${yearOpts(managementFY)}</select>
-            <button class="btn btn-preview" onclick="openPreview('analytics')">📄 معاينة</button>
-        </div>
+            <button class="btn btn-preview" onclick="openPreview('analytics')">📄 معاينة</button></div>
         <div class="table-card"><table><thead><tr><th>الشهر</th><th>عدد الرواتب</th><th>عدد المصاريف</th><th>عدد الإيرادات</th></tr></thead>
         <tbody id="analyticsBody"><tr><td colspan="4">جاري التحميل...</td></tr></tbody></table></div>
-        <div class="chart-container"><canvas id="analyticsChart"></canvas></div>`;
-    await refreshAnalytics();
+        <div class="chart-container"><canvas id="analyticsChart"></canvas></div>`; await refreshAnalytics();
 }
 async function refreshAnalytics(){
-    if(!db)return; const fy = document.getElementById('analyticsFYSelect')?.value || managementFY; managementFY = fy;
-    const rng = getFYRange(fy);
+    if(!db)return; const fy = document.getElementById('analyticsFYSelect')?.value || managementFY; managementFY = fy; const rng = getFYRange(fy);
     const [sl, ex, rv] = await Promise.all([getDocs('salaries'), getDocs('expenses'), getDocs('revenues')]);
     const months=[],salCounts=[],expCounts=[],revCounts=[]; let totalSal=0,totalExp=0,totalRev=0;
-    for(let m=1;m<=12;m++){
-        const sc=sl.filter(e=>e.date>=rng.start&&e.date<=rng.end&&e.month==m).length,ec=ex.filter(e=>e.date>=rng.start&&e.date<=rng.end&&new Date(e.date).getMonth()+1===m).length,rc=rv.filter(e=>e.date>=rng.start&&e.date<=rng.end&&new Date(e.date).getMonth()+1===m).length;
-        months.push(m);salCounts.push(sc);expCounts.push(ec);revCounts.push(rc);totalSal+=sc;totalExp+=ec;totalRev+=rc;
-    }
+    for(let m=1;m<=12;m++){ const sc=sl.filter(e=>e.date>=rng.start&&e.date<=rng.end&&e.month==m).length,ec=ex.filter(e=>e.date>=rng.start&&e.date<=rng.end&&new Date(e.date).getMonth()+1===m).length,rc=rv.filter(e=>e.date>=rng.start&&e.date<=rng.end&&new Date(e.date).getMonth()+1===m).length; months.push(m);salCounts.push(sc);expCounts.push(ec);revCounts.push(rc);totalSal+=sc;totalExp+=ec;totalRev+=rc; }
     document.getElementById('analyticsBody').innerHTML=months.map((m,i)=>`<tr><td>${m}</td><td>${salCounts[i]}</td><td>${expCounts[i]}</td><td>${revCounts[i]}</td></tr>`).join('');
-    setTimeout(()=>{
-        if(analyticsChart)analyticsChart.destroy();
-        const ctx=document.getElementById('analyticsChart')?.getContext('2d'); if(!ctx)return;
-        analyticsChart=new Chart(ctx,{type:'bar',data:{labels:months,datasets:[{label:'عدد الرواتب',data:salCounts,backgroundColor:'rgba(79,140,255,0.7)',borderColor:'#4f8cff',borderWidth:1,borderRadius:4},{label:'عدد المصاريف',data:expCounts,backgroundColor:'rgba(255,69,58,0.7)',borderColor:'#ff453a',borderWidth:1,borderRadius:4},{label:'عدد الإيرادات',data:revCounts,backgroundColor:'rgba(52,199,89,0.7)',borderColor:'#34c759',borderWidth:1,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#a0a3b1',font:{family:'Cairo',size:12},padding:16}}},scales:{y:{beginAtZero:true,ticks:{stepSize:1,color:'#a0a3b1'},grid:{color:'rgba(160,163,177,0.1)'}},x:{ticks:{color:'#a0a3b1',font:{family:'Cairo'}}}}}});
-    },300);
+    setTimeout(()=>{ if(analyticsChart)analyticsChart.destroy(); const ctx=document.getElementById('analyticsChart')?.getContext('2d'); if(!ctx)return; analyticsChart=new Chart(ctx,{type:'bar',data:{labels:months,datasets:[{label:'عدد الرواتب',data:salCounts,backgroundColor:'rgba(79,140,255,0.7)',borderColor:'#4f8cff',borderWidth:1,borderRadius:4},{label:'عدد المصاريف',data:expCounts,backgroundColor:'rgba(255,69,58,0.7)',borderColor:'#ff453a',borderWidth:1,borderRadius:4},{label:'عدد الإيرادات',data:revCounts,backgroundColor:'rgba(52,199,89,0.7)',borderColor:'#34c759',borderWidth:1,borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:'#a0a3b1',font:{family:'Cairo',size:12},padding:16}}},scales:{y:{beginAtZero:true,ticks:{stepSize:1,color:'#a0a3b1'},grid:{color:'rgba(160,163,177,0.1)'}},x:{ticks:{color:'#a0a3b1',font:{family:'Cairo'}}}}}}); },300);
     window._analyticsData={fy,months,salCounts,expCounts,revCounts,totalSal,totalExp,totalRev};
 }
 
@@ -758,36 +696,20 @@ async function loadSettings(){
     c.innerHTML=`<div class="page-header"><h2>⚙️ الإعدادات</h2></div><div style="max-width:460px;margin:0 auto"><div class="table-card" style="padding:20px">
         <div class="form-group"><label>🏢 اسم الشركة</label><input type="text" id="scn" value="${companySettings.name}"></div>
         <div class="form-group"><label>💵 العملة</label><input type="text" id="scur" value="${companySettings.currency}"></div>
-        <div class="form-group"><label>🔐 تغيير كلمة المرور</label><input type="password" id="spw" placeholder="أدخل كلمة المرور الجديدة">
-            <div class="password-warning">⚠️ سيتم حفظ كلمة المرور في قاعدة البيانات والاعتماد عليها بدلاً من الافتراضية</div>
-        </div>
+        <div class="form-group"><label>🔐 تغيير كلمة المرور</label><input type="password" id="spw" placeholder="أدخل كلمة المرور الجديدة"><div class="password-warning">⚠️ سيتم حفظ كلمة المرور في قاعدة البيانات والاعتماد عليها بدلاً من الافتراضية</div></div>
         <div class="form-group"><label>🎨 المظهر</label><div class="theme-toggle" id="themeToggle" onclick="toggleTheme()"><span class="icon" id="themeIcon">${isLight?'☀️':'🌙'}</span><span id="themeText">${isLight?'الوضع النهاري':'الوضع الليلي'}</span></div></div>
-        
-        <div class="settings-divider">
-            <div class="settings-label">🔐 خيارات متقدمة</div>
+        <div class="settings-divider"><div class="settings-label">🔐 خيارات متقدمة</div>
             <button class="btn btn-reset btn-block" onclick="resetPasswordToDefault()">🔑 استعادة كلمة المرور الافتراضية</button>
             <button class="btn btn-logout-all btn-block" onclick="logoutAllUsers()">🚪 إلغاء جميع تسجيلات الدخول</button>
         </div>
-        
-        <button class="btn btn-blue btn-block" onclick="saveSettings()">💾 حفظ الإعدادات</button>
-    </div></div>`;
+        <button class="btn btn-blue btn-block" onclick="saveSettings()">💾 حفظ الإعدادات</button></div></div>`;
     document.getElementById('scn').addEventListener('input',()=>{companySettings.name=document.getElementById('scn').value.trim()||'شركتي';document.getElementById('companyNameDisplay').textContent=companySettings.name;autoSaveSettings();});
     document.getElementById('scur').addEventListener('input',()=>{companySettings.currency=document.getElementById('scur').value.trim()||'د.ع';document.getElementById('companyCurrency').textContent=companySettings.currency;autoSaveSettings();});
 }
-function toggleTheme(){
-    if(companySettings.theme==='dark'){companySettings.theme='light';document.body.classList.add('light');document.getElementById('themeIcon').textContent='☀️';document.getElementById('themeText').textContent='الوضع النهاري';}
-    else {companySettings.theme='dark';document.body.classList.remove('light');document.getElementById('themeIcon').textContent='🌙';document.getElementById('themeText').textContent='الوضع الليلي';}
-    toast(`✅ تم التبديل`); autoSaveSettings();
-}
+function toggleTheme(){ if(companySettings.theme==='dark'){companySettings.theme='light';document.body.classList.add('light');document.getElementById('themeIcon').textContent='☀️';document.getElementById('themeText').textContent='الوضع النهاري';} else {companySettings.theme='dark';document.body.classList.remove('light');document.getElementById('themeIcon').textContent='🌙';document.getElementById('themeText').textContent='الوضع الليلي';} toast(`✅ تم التبديل`); autoSaveSettings(); }
 async function saveSettings(){
-    companySettings.name=document.getElementById('scn').value.trim()||'شركتي'; companySettings.currency=document.getElementById('scur').value.trim()||'د.ع';
-    const pw=document.getElementById('spw').value.trim();
-    
-    if(pw) {
-        await savePasswordToDB(pw);
-        toast('✅ تم حفظ كلمة المرور الجديدة في قاعدة البيانات');
-    }
-    
+    companySettings.name=document.getElementById('scn').value.trim()||'شركتي'; companySettings.currency=document.getElementById('scur').value.trim()||'د.ع'; const pw=document.getElementById('spw').value.trim();
+    if(pw) { await savePasswordToDB(pw); toast('✅ تم حفظ كلمة المرور الجديدة في قاعدة البيانات'); }
     document.getElementById('companyNameDisplay').textContent=companySettings.name; document.getElementById('companyCurrency').textContent=companySettings.currency;
     if(db){ try{ const s=await getDocs('settings'); if(s.length>0) await updDoc('settings',s[0].id,{settings:companySettings}); else await addDoc('settings',{settings:companySettings}); } catch(e){ toast('خطأ في حفظ الإعدادات','error'); } }
     document.getElementById('spw').value = '';
@@ -802,8 +724,7 @@ function exportExcel(type){
         case 'expenses': headers=['#','التاريخ','المبلغ','التفاصيل','ملاحظات']; data=expensesFiltered.map((e,i)=>[i+1,e.date,e.amount,e.details,e.notes]); title='المصاريف'; break;
         case 'revenues': headers=['#','التاريخ','رقم الإيصال','المبلغ','النوع','ملاحظات']; data=revenuesFiltered.map((e,i)=>[i+1,e.date,e.receipt||'-',e.amount,e.type,e.notes]); title='الإيرادات'; break;
     }
-    if(data.length===0){toast('لا توجد بيانات','error');return;}
-    const ws=XLSX.utils.aoa_to_sheet([headers,...data]),wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,title); XLSX.writeFile(wb,`${title}_${today()}.xlsx`); toast('✅ تم التصدير');
+    if(data.length===0){toast('لا توجد بيانات','error');return;} const ws=XLSX.utils.aoa_to_sheet([headers,...data]),wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,title); XLSX.writeFile(wb,`${title}_${today()}.xlsx`); toast('✅ تم التصدير');
 }
 
 // ==================== نافذة المعاينة والطباعة ====================
@@ -814,21 +735,36 @@ function openPreview(type) {
     const fy=type==='management'||type==='analytics'?managementFY:y;
 
     switch(type) {
-        case 'salaries': if(salariesFiltered.length===0){toast('لا توجد بيانات','error');return;} headers=['#','الموظف','الراتب','المواصلات','المجموع','التاريخ']; data=salariesFiltered.map((e,i)=>[i+1,e.employee_name,fmoney(e.salary),fmoney(e.transport),fmoney(Number(e.salary)+Number(e.transport)),e.date]); const ts=salariesFiltered.reduce((a,e)=>a+Number(e.salary||0),0),tt=salariesFiltered.reduce((a,e)=>a+Number(e.transport||0),0); totals=`عدد الموظفين: ${salariesFiltered.length} | الرواتب: ${fmoney(ts)} | المواصلات: ${fmoney(tt)} | الإجمالي: ${fmoney(ts+tt)} ${companySettings.currency}`; title=`كشف الرواتب${m?' - شهر '+m:''}`; break;
+        case 'salaries': if(salariesFiltered.length===0){toast('لا توجد بيانات','error');return;} headers=['#','الموظف','الراتب','المواصلات','المجموع','التاريخ']; data=salariesFiltered.map((e,i)=>[i+1,e.employee_name,fmoney(e.salary),fmoney(e.transport),fmoney(Number(e.salary)+Number(e.transport)),e.date]); const ts=salariesFiltered.reduce((a,e)=>a+Number(e.salary||0),0),tt=salariesFiltered.reduce((a,e)=>a+Number(e.transport||0),0); title=`كشف الرواتب${m?' - شهر '+m:''}`; break;
         case 'employees': if(employeesFiltered.length===0){toast('لا توجد بيانات','error');return;} headers=['#','الاسم','المنصب','الراتب','المواصلات','الهاتف','الحالة']; data=employeesFiltered.map((e,i)=>[i+1,e.name,e.position||'-',fmoney(e.default_salary),fmoney(e.default_transport),e.phone||'-',e.status||'-']); title='قائمة الموظفين'; break;
-        case 'expenses': if(expensesFiltered.length===0){toast('لا توجد بيانات','error');return;} headers=['#','التاريخ','المبلغ','التفاصيل','ملاحظات']; data=expensesFiltered.map((e,i)=>[i+1,e.date,fmoney(e.amount),e.details||'-',e.notes||'-']); const te=expensesFiltered.reduce((a,e)=>a+Number(e.amount||0),0); totals=`الإجمالي: ${fmoney(te)} ${companySettings.currency}`; title=`تقرير المصاريف${m?' - شهر '+m:''}`; break;
-        case 'revenues': if(revenuesFiltered.length===0){toast('لا توجد بيانات','error');return;} headers=['#','التاريخ','رقم الإيصال','المبلغ','النوع','ملاحظات']; data=revenuesFiltered.map((e,i)=>[i+1,e.date,e.receipt||'-',fmoney(e.amount),e.type||'-',e.notes||'-']); const trr=revenuesFiltered.reduce((a,e)=>a+Number(e.amount||0),0); totals=`الإجمالي: ${fmoney(trr)} ${companySettings.currency}`; title=`تقرير الإيرادات${m?' - شهر '+m:''}`; break;
+        case 'expenses': if(expensesFiltered.length===0){toast('لا توجد بيانات','error');return;} headers=['#','التاريخ','المبلغ','التفاصيل','ملاحظات']; data=expensesFiltered.map((e,i)=>[i+1,e.date,fmoney(e.amount),e.details||'-',e.notes||'-']); const te=expensesFiltered.reduce((a,e)=>a+Number(e.amount||0),0); title=`تقرير المصاريف${m?' - شهر '+m:''}`; break;
+        case 'revenues': if(revenuesFiltered.length===0){toast('لا توجد بيانات','error');return;} headers=['#','التاريخ','رقم الإيصال','المبلغ','النوع','ملاحظات']; data=revenuesFiltered.map((e,i)=>[i+1,e.date,e.receipt||'-',fmoney(e.amount),e.type||'-',e.notes||'-']); const trr=revenuesFiltered.reduce((a,e)=>a+Number(e.amount||0),0); title=`تقرير الإيرادات${m?' - شهر '+m:''}`; break;
         case 'management': if(!window._mgmtData){toast('لا توجد بيانات','error');return;} headers=[];data=[];title='التقرير الإداري'; break;
-        case 'analytics': if(!window._analyticsData){toast('لا توجد بيانات','error');return;} const ad=window._analyticsData; headers=['الشهر','عدد الرواتب','عدد المصاريف','عدد الإيرادات']; data=ad.months.map((m,i)=>[m,ad.salCounts[i],ad.expCounts[i],ad.revCounts[i]]); totals=`المجموع: الرواتب ${ad.totalSal} | المصاريف ${ad.totalExp} | الإيرادات ${ad.totalRev}`; title=`التحليل البياني - ${ad.fy}`; break;
+        case 'analytics': if(!window._analyticsData){toast('لا توجد بيانات','error');return;} const ad=window._analyticsData; headers=['الشهر','عدد الرواتب','عدد المصاريف','عدد الإيرادات']; data=ad.months.map((m,i)=>[m,ad.salCounts[i],ad.expCounts[i],ad.revCounts[i]]); title=`التحليل البياني - ${ad.fy}`; break;
     }
 
     let html = `<div class="p-header"><h2>${companySettings.name}</h2><h3>${title}</h3><p>${dateF()}${fy?' | السنة المالية: '+fy:''}</p></div>`;
+
     if (type==='management' && window._mgmtData) {
         const d=window._mgmtData;
         html += `<table style="margin-bottom:12px;"><tr><th style="width:40%;">البيان</th><th>القيمة</th></tr><tr><td>💰 الإيرادات</td><td>${fmoney(d.tr)} ${companySettings.currency}</td></tr><tr><td>💸 المصاريف</td><td>${fmoney(d.te)} ${companySettings.currency}</td></tr><tr><td>💳 الرواتب</td><td>${fmoney(d.ts)} ${companySettings.currency}</td></tr><tr><td>📊 صافي الربح</td><td style="font-weight:bold;color:${d.pf>=0?'#22c55e':'#ef4444'}">${fmoney(d.pf)} ${companySettings.currency}</td></tr></table><table style="margin-bottom:12px;"><tr><th style="width:40%;">البيان</th><th>القيمة</th></tr><tr><td>👥 الموظفون النشطون</td><td>${d.ac}</td></tr><tr><td>👥 إجمالي الموظفين</td><td>${d.empCount}</td></tr><tr><td>📅 المصاريف</td><td>${d.exCount}</td></tr><tr><td>💰 الإيرادات</td><td>${d.rvCount}</td></tr><tr><td>💳 الرواتب</td><td>${d.slCount}</td></tr></table>`;
+    } else if (type==='analytics' && window._analyticsData) {
+        const ad=window._analyticsData;
+        html += `<table><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${data.map(row=>`<tr>${row.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody><tr class="total-row"><td colspan="1"><strong>الإجمالي</strong></td><td>${ad.totalSal}</td><td>${ad.totalExp}</td><td>${ad.totalRev}</td></tr></table>`;
     } else {
-        html += `<table><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${data.map(row=>`<tr>${row.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
-        if(totals) html += `<div class="p-total">${totals}</div>`;
+        html += `<table><thead><tr>${headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${data.map(row=>`<tr>${row.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}`;
+        // ✅ إضافة صف المجموع داخل الجدول
+        if (type==='salaries') {
+            const ts=salariesFiltered.reduce((a,e)=>a+Number(e.salary||0),0),tt=salariesFiltered.reduce((a,e)=>a+Number(e.transport||0),0),gt=ts+tt;
+            html += `<tr class="total-row"><td colspan="2"><strong>الإجمالي</strong></td><td>${fmoney(ts)} ${companySettings.currency}</td><td>${fmoney(tt)} ${companySettings.currency}</td><td>${fmoney(gt)} ${companySettings.currency}</td><td></td></tr>`;
+        } else if (type==='expenses') {
+            const te=expensesFiltered.reduce((a,e)=>a+Number(e.amount||0),0);
+            html += `<tr class="total-row"><td colspan="2"><strong>الإجمالي</strong></td><td>${fmoney(te)} ${companySettings.currency}</td><td></td><td></td></tr>`;
+        } else if (type==='revenues') {
+            const trr=revenuesFiltered.reduce((a,e)=>a+Number(e.amount||0),0);
+            html += `<tr class="total-row"><td colspan="3"><strong>الإجمالي</strong></td><td>${fmoney(trr)} ${companySettings.currency}</td><td></td><td></td></tr>`;
+        }
+        html += `</tbody></table>`;
     }
     html += `<div class="p-footer">نظام إدارة الحسابات | ${dateF()}</div>`;
     document.getElementById('previewContent').innerHTML = html;
